@@ -1,0 +1,21 @@
+namespace: microsoft
+name: iis
+version: 1.0.0
+readme: README.md
+authors:
+  - Jordan Borean @jborean93
+description: |
+  Ansible collection for Microsoft Internet Information Services (IIS)
+license_file: COPYING
+tags:
+  - iis
+  - windows
+dependencies: {}
+repository: https://github.com/ansible-collections/microsoft.iis
+documentation: https://docs.ansible.com/ansible/devel/collections/microsoft/iis
+homepage: https://github.com/ansible-collections/microsoft.iis
+issues: https://github.com/ansible-collections/microsoft.iis/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc
+build_ignore:
+  - .vscode
+  - tests/integration/inventory*
+  - changelogs/.plugin-cache.yaml
