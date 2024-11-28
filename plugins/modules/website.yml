@@ -1,0 +1,45 @@
+---
+# Copyright: (c) 2024, Ansible Project
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION:
+  module: website
+  short_description: Configures an IIS website
+  description:
+    - Creates, removes, and configures an IIS Website.
+  options:
+    name:
+      description:
+        - The name of the website to manage.
+      required: true
+      type: str
+  notes:
+    - See
+      R(win_iis_website migration,ansible_collections.microsoft.iis.docsite.guide_migration.migrated_modules.win_iis_website)
+      for help on migrating from M(community.windows.win_iis_website) to
+      this module.
+    - This module must be run on a Windows target host with the
+      C(IISAdministration) module installed.
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: full
+    platform:
+      platforms:
+        - windows
+  seealso:
+    - ref: Migration guide <ansible_collections.microsoft.iis.docsite.guide_migration.migrated_modules.win_iis_website>
+      description: This module replaces C(community.windows.win_iis_website). See the migration guide for details.
+    - module: community.windows.win_iis_website
+  author:
+    - Insert Author (@author)
+
+EXAMPLES: |
+  - name: Example 1
+    microsoft.iis.website:
+      name: foo
+
+RETURN: {}
