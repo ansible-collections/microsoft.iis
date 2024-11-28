@@ -31,7 +31,7 @@ Browsing the [**latest** collection documentation](https://docs.ansible.com/ansi
 
 Browsing the [**devel** collection documentation](https://docs.ansible.com/ansible/devel/collections/ansible/microsoft.iis) shows docs for the _latest version released on Galaxy_.
 
-We also separately publish [**latest commit** collection documentation](https://ansible-collections.github.io/ansible.microsoft.iis/branch/main/) which shows docs for the _latest commit in the `main` branch_.
+We also separately publish [**latest commit** collection documentation](https://ansible-collections.github.io/microsoft.iis/branch/main/) which shows docs for the _latest commit in the `main` branch_.
 
 If you use the Ansible package and don't update collections independently, use **latest**, if you install or update this collection directly from Galaxy, use **devel**. If you are looking to contribute, use **latest commit**.
 
