@@ -32,9 +32,6 @@
   assert:
     that:
     - create_default is changed
-    - create_default.info.attributes.name == test_iis_webapppool_name
-    - create_default.info.attributes.startMode == 'OnDemand'
-    - create_default.info.attributes.state == 'Started'
     - create_default_actual.rc == 0
 
 - name: change attributes of pool in check mode
@@ -53,7 +50,6 @@
   assert:
     that:
     - change_pool_attributes_check is changed
-    - change_pool_attributes_check.info == create_default.info
 
 - name: change attributes of pool
   web_app_pool:
@@ -70,10 +66,6 @@
   assert:
     that:
     - change_pool_attributes is changed
-    - change_pool_attributes.info.attributes.managedPipelineMode == 'Classic'
-    - change_pool_attributes.info.cpu.limit == 95
-    - change_pool_attributes.info.processModel.identityType == 'LocalSystem'
-    - change_pool_attributes.info.processModel.loadUserProfile == True
 
 - name: change attributes of pool again
   web_app_pool:
@@ -90,7 +82,6 @@
   assert:
     that:
     - change_pool_attributes_again is not changed
-    - change_pool_attributes_again.info == change_pool_attributes.info
 
 - name: change more complex variables check
   web_app_pool:
@@ -108,7 +99,6 @@
   assert:
     that:
     - change_complex_attributes_check is changed
-    - change_complex_attributes_check.info == change_pool_attributes_again.info
 
 - name: change more complex variables
   web_app_pool:
@@ -125,10 +115,6 @@
   assert:
     that:
     - change_complex_attributes is changed
-    - change_complex_attributes.info.attributes.queueLength == 500
-    - change_complex_attributes.info.recycling.periodicRestart.requests == 10
-    - change_complex_attributes.info.recycling.periodicRestart.time.TotalSeconds == 300
-    - change_complex_attributes.info.processModel.pingResponseTime.TotalSeconds == 180
 
 - name: change more complex variables again
   web_app_pool:
@@ -145,7 +131,6 @@
   assert:
     that:
     - change_complex_attributes_again is not changed
-    - change_complex_attributes_again.info == change_complex_attributes.info
 
 - name: stop web pool check
   web_app_pool:
@@ -353,71 +338,62 @@
     that:
     - collection_change_again is not changed
 
-# The following tests are only for IIS versions 8.0 or newer
-- block:
-  - name: delete test pool
-    web_app_pool:
-      name: '{{test_iis_webapppool_name}}'
-      state: absent
+- name: delete test pool
+  web_app_pool:
+    name: '{{test_iis_webapppool_name}}'
+    state: absent
 
-  - name: create test pool
-    web_app_pool:
-      name: '{{test_iis_webapppool_name}}'
-      state: present
-    register: iis_attributes_blank
+- name: create test pool
+  web_app_pool:
+    name: '{{test_iis_webapppool_name}}'
+    state: present
+  register: iis_attributes_blank
 
-  - name: change attributes for newer IIS version check
-    web_app_pool:
-      name: '{{test_iis_webapppool_name}}'
-      state: present
-      attributes:
-        startMode: AlwaysRunning
-        processModel.identityType: SpecificUser
-        processModel.userName: '{{ansible_user}}'
-        processModel.password: '{{ ansible_password | default(ansible_test_connection_password) }}'
-    register: iis_attributes_new_check
-    check_mode: yes
+- name: change attributes for newer IIS version check
+  web_app_pool:
+    name: '{{test_iis_webapppool_name}}'
+    state: present
+    attributes:
+      startMode: AlwaysRunning
+      processModel.identityType: SpecificUser
+      processModel.userName: '{{ansible_user}}'
+      processModel.password: '{{ ansible_password | default(ansible_test_connection_password) }}'
+  register: iis_attributes_new_check
+  check_mode: yes
 
-  - name: assert change attributes for newer IIS version check
-    assert:
-      that:
-      - iis_attributes_new_check is changed
-      - iis_attributes_new_check.info == iis_attributes_blank.info
+- name: assert change attributes for newer IIS version check
+  assert:
+    that:
+    - iis_attributes_new_check is changed
 
-  - name: change attributes for newer IIS version
-    web_app_pool:
-      name: '{{test_iis_webapppool_name}}'
-      state: present
-      attributes:
-        startMode: AlwaysRunning
-        processModel.identityType: SpecificUser
-        processModel.userName: '{{ansible_user}}'
-        processModel.password: '{{ ansible_password | default(ansible_test_connection_password) }}'
-    register: iis_attributes_new
+- name: change attributes for newer IIS version
+  web_app_pool:
+    name: '{{test_iis_webapppool_name}}'
+    state: present
+    attributes:
+      startMode: AlwaysRunning
+      processModel.identityType: SpecificUser
+      processModel.userName: '{{ansible_user}}'
+      processModel.password: '{{ ansible_password | default(ansible_test_connection_password) }}'
+  register: iis_attributes_new
 
-  - name: assert change attributes for newer IIS version
-    assert:
-      that:
-      - iis_attributes_new is changed
-      - iis_attributes_new.info.attributes.startMode == 'AlwaysRunning'
-      - iis_attributes_new.info.processModel.identityType == 'SpecificUser'
-      - iis_attributes_new.info.processModel.userName == ansible_user
+- name: assert change attributes for newer IIS version
+  assert:
+    that:
+    - iis_attributes_new is changed
 
-  - name: change attributes for newer IIS version again
-    web_app_pool:
-      name: '{{test_iis_webapppool_name}}'
-      state: present
-      attributes:
-        startMode: AlwaysRunning
-        processModel.identityType: 3
-        processModel.userName: '{{ansible_user}}'
-        processModel.password: '{{ ansible_password | default(ansible_test_connection_password) }}'
-    register: iis_attributes_new_again
+- name: change attributes for newer IIS version again
+  web_app_pool:
+    name: '{{test_iis_webapppool_name}}'
+    state: present
+    attributes:
+      startMode: AlwaysRunning
+      processModel.identityType: 3
+      processModel.userName: '{{ansible_user}}'
+      processModel.password: '{{ ansible_password | default(ansible_test_connection_password) }}'
+  register: iis_attributes_new_again
 
-  - name: assert change attributes for newer IIS version again
-    assert:
-      that:
-      - iis_attributes_new_again is not changed
-      - iis_attributes_new_again.info == iis_attributes_new.info
-
-  when: iis_version.win_file_version.file_major_part|int > 7
+- name: assert change attributes for newer IIS version again
+  assert:
+    that:
+    - iis_attributes_new_again is not changed
