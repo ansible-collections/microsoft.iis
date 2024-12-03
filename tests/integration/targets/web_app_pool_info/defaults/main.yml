@@ -1,0 +1,2 @@
+test_app_pool_name: PoolInfoTester
+default_test_app_pool_name: DefaultPoolInfoTester

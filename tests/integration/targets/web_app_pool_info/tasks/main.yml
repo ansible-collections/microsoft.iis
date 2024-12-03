@@ -1,0 +1,42 @@
+---
+# Run actual tests
+- block:
+  - name: ensure IIS features are installed
+    ansible.windows.win_feature:
+      name: Web-Server
+      state: present
+      include_management_tools: True
+    register: feature_install
+
+  - name: reboot after feature install
+    ansible.windows.win_reboot:
+    when: feature_install.reboot_required
+
+  - name: Create a pool for testing
+    web_app_pool:
+      name: '{{ test_app_pool_name }}'
+      state: present
+      attributes:
+        managedPipelineMode: 1 # Using an enum value
+        cpu.limit: 95 # Nested values
+        processModel.identityType: LocalSystem # Using an enum name
+        processModel.loadUserProfile: True
+
+  - name: Create a default pool for testing
+    web_app_pool:
+      name: '{{ default_test_app_pool_name }}'
+      state: present
+
+  # Tests
+  - name: run tests on hosts that support it
+    include_tasks: tests.yml
+
+  always:
+  # Cleanup
+  - name: ensure test pools are deleted
+    web_app_pool:
+      name: '{{ item }}'
+      state: absent
+    with_items:
+      - test_app_pool_name
+      - default_test_app_pool_name

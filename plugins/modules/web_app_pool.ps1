@@ -6,8 +6,6 @@
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
 
-$ErrorActionPreference = 'Stop'
-
 $spec = @{
     options = @{
         name = @{
@@ -32,22 +30,10 @@ $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 $name = $module.Params.name
 $state = $module.Params.state
 $check_mode = $module.CheckMode
-$module.Result.info = @{
-    name = $name
-    state = $state
-    attributes = @{}
-    cpu = @{}
-    failure = @{}
-    processModel = @{}
-    recycling = @{
-        periodicRestart = @{}
-    }
-}
 $module.Result.changed = $false
 
 # Stores the free form attributes for the module
 $attributes = $module.Params.attributes
-$module.Result.attributes = $attributes
 
 Function Get-DotNetClassForAttribute($attribute_parent) {
     switch ($attribute_parent) {
@@ -196,7 +182,7 @@ if ($state -eq "absent") {
             Remove-WebAppPool -Name $name -WhatIf:$check_mode
         }
         catch {
-            $module.FailJson("Failed to remove Web App pool $($name): $($_.Exception.Message)")
+            $module.FailJson("Failed to remove Web App pool $($name): $($_.Exception.Message)", $_)
         }
         $module.Result.changed = $true
     }
@@ -209,7 +195,7 @@ else {
                 New-WebAppPool -Name $name > $null
             }
             catch {
-                $module.FailJson("Failed to create new Web App Pool $($name): $($_.Exception.Message)")
+                $module.FailJson("Failed to create new Web App Pool $($name): $($_.Exception.Message)", $_)
             }
         }
         $module.Result.changed = $true
@@ -241,7 +227,7 @@ else {
                             "Failed to clear attribute to Web App Pool $name. Attribute: $attribute_key, "
                             "Exception: $($_.Exception.Message)"
                         )
-                        $module.FailJson($msg)
+                        $module.FailJson($msg, $_)
                     }
                     foreach ($value in $new_value) {
                         try {
@@ -252,7 +238,7 @@ else {
                                 "Failed to add new attribute to Web App Pool $name. Attribute: $attribute_key, "
                                 "Value: $value, Exception: $($_.Exception.Message)"
                             )
-                            $module.FailJson($msg)
+                            $module.FailJson($msg, $_)
                         }
                     }
                 }
@@ -265,7 +251,7 @@ else {
                             "Failed to set attribute to Web App Pool $name. Attribute: $attribute_key, "
                             "Value: $new_value, Exception: $($_.Exception.Message)"
                         )
-                        $module.FailJson($msg)
+                        $module.FailJson($msg, $_)
                     }
                 }
                 $module.Result.changed = $true
@@ -280,7 +266,7 @@ else {
                         Start-WebAppPool -Name $name > $null
                     }
                     catch {
-                        $module.FailJson("Failed to start Web App Pool $($name): $($_.Exception.Message)")
+                        $module.FailJson("Failed to start Web App Pool $($name): $($_.Exception.Message)", $_)
                     }
                 }
                 $module.Result.changed = $true
@@ -293,7 +279,7 @@ else {
                         Stop-WebAppPool -Name $name > $null
                     }
                     catch {
-                        $module.FailJson("Failed to stop Web App Pool $($name): $($_.Exception.Message)")
+                        $module.FailJson("Failed to stop Web App Pool $($name): $($_.Exception.Message)", $_)
                     }
                 }
                 $module.Result.changed = $true
@@ -304,44 +290,13 @@ else {
                         Restart-WebAppPool -Name $name > $null
                     }
                     catch {
-                        $module.FailJson("Failed to restart Web App Pool $($name): $($_.Exception.Message)")
+                        $module.FailJson("Failed to restart Web App Pool $($name): $($_.Exception.Message)", $_)
                     }
                 }
                 $module.Result.changed = $true
             }
         }
     }
-}
-
-# Get all the current attributes for the pool
-$pool = Get-Item -LiteralPath IIS:\AppPools\$name -ErrorAction SilentlyContinue
-$elements = @("attributes", "cpu", "failure", "processModel", "recycling")
-
-foreach ($element in $elements) {
-    if ($element -eq "attributes") {
-        $attribute_collection = $pool.Attributes
-        $attribute_parent = $pool
-    }
-    else {
-        $attribute_collection = $pool.$element.Attributes
-        $attribute_parent = $pool.$element
-    }
-
-    foreach ($attribute in $attribute_collection) {
-        $attribute_name = $attribute.Name
-        if ($attribute_name -notlike "*password*") {
-            $attribute_value = $attribute_parent.$attribute_name
-
-            $module.Result.info.$element.Add($attribute_name, $attribute_value)
-        }
-    }
-}
-
-# Manually get the periodicRestart attributes in recycling
-foreach ($attribute in $pool.recycling.periodicRestart.Attributes) {
-    $attribute_name = $attribute.Name
-    $attribute_value = $pool.recycling.periodicRestart.$attribute_name
-    $module.Result.info.recycling.periodicRestart.Add($attribute_name, $attribute_value)
 }
 
 $module.ExitJson()
