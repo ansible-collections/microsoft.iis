@@ -32,6 +32,8 @@ options:
         keystore. Please follow
         U(http://structuredsight.com/2014/10/26/im-out-of-range-youre-out-of-range/)
         to help fix your host.
+    type: dict
+    default: {}
   name:
     description:
       - Name of the application pool.

@@ -21,7 +21,7 @@
     when: feature_install.reboot_required
 
   - name: set version of IIS for tests
-    win_file_version:
+    community.windows.win_file_version:
       path: C:\Windows\System32\inetsrv\w3wp.exe
     register: iis_version
 
