@@ -45,6 +45,7 @@ RETURN:
     description:
       - Contains list of dictionaries.
       - Every dictionary in the list contains name and information of an application pool.
+    returned: ''
     type: list
     sample: '[
       {

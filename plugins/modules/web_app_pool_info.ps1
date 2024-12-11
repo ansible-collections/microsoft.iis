@@ -30,7 +30,7 @@ if ($null -eq (Get-Module -Name "WebAdministration" -ErrorAction SilentlyContinu
 function Get-AppPoolInfo ($name) {
 
     # Get all the current attributes for the pool
-    $pool = Get-Item -LiteralPath IIS:\AppPools\$name #-ErrorAction SilentlyContinue
+    $pool = Get-Item -LiteralPath IIS:\AppPools\$name
     if ($null -ne $pool) {
         $module.Result.exists = $true
     }
@@ -64,7 +64,7 @@ function Get-AppPoolInfo ($name) {
     }
     # Ensure periodicRestart is initialized
     if (-not $appPoolInfoDict.info.recycling.ContainsKey("periodicRestart")) {
-    $appPoolInfoDict.info.recycling["periodicRestart"] = @{}
+        $appPoolInfoDict.info.recycling["periodicRestart"] = @{}
     }
     # Manually get the periodicRestart attributes in recycling
     foreach ($attribute in $pool.recycling.periodicRestart.Attributes) {
@@ -81,7 +81,7 @@ try {
     }
     # Return information of all the app pools available on the system
     else {
-        $appPoolList = (Get-ChildItem IIS:\AppPools).Name
+        $appPoolList = (Get-ChildItem -LiteralPath IIS:\AppPools).Name
         [array]$module.Result.appPools = $appPoolList | ForEach-Object { Get-AppPoolInfo -name $_ }
     }
 }
