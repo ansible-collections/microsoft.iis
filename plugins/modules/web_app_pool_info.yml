@@ -31,7 +31,6 @@ EXAMPLES: |
   
   - name: Returns information about all application pools that exist on the system
     microsoft.iis.web_app_pool_info:
-      name: 
     register: stored_info_all
 
 RETURN:
@@ -41,29 +40,28 @@ RETURN:
     returned: success
     type: bool
     sample: true
-  appPools:
+  app_pools:
     description:
       - Contains list of dictionaries.
       - Every dictionary in the list contains name and information of an application pool.
+    returned: ''
     type: list
     sample: '[
       {
-        "Info": {
-          "attributes": {
-            "CLRConfigFile": "",
-            "applicationPoolSid": "S-1-5-82-3006700770-424185619-1745488364-794895919-4004696415",
-            "autoStart": true,
-            "enable32BitAppOnWin64": false,
-            "enableConfigurationOverride": true,
-            "managedPipelineMode": "Integrated",
-            "managedRuntimeLoader": "webengine4.dll",
-            "managedRuntimeVersion": "v4.0",
-            "name": "DefaultAppPool",
-            "passAnonymousToken": true,
-            "queueLength": 1000,
-            "startMode": "OnDemand",
-            "state": "Started"
-          },
+        "attributes": {
+          "CLRConfigFile": "",
+          "applicationPoolSid": "S-1-5-82-3006700770-424185619-1745488364-794895919-4004696415",
+          "autoStart": true,
+          "enable32BitAppOnWin64": false,
+          "enableConfigurationOverride": true,
+          "managedPipelineMode": "Integrated",
+          "managedRuntimeLoader": "webengine4.dll",
+          "managedRuntimeVersion": "v4.0",
+          "name": "DefaultAppPool",
+          "passAnonymousToken": true,
+          "queueLength": 1000,
+          "startMode": "OnDemand",
+          "state": "Started"
           "cpu": {
             "action": "NoAction",
             "limit": 0,
@@ -221,30 +219,12 @@ RETURN:
           - Name of the application pool.
         type: str
         sample: DefaultAppPool
-      info:
+      attributes:
         description:
           - Dictionary that hold the information of a specific application pool.
-          - See https://www.iis.net/configreference/system.applicationhost/applicationpools/add#005
+          - For full list see https://learn.microsoft.com/en-us/iis/configuration/system.applicationhost/applicationpools/add/#attributes
         type: dict
         contains:
-          attributes:
-            description: Key value pairs showing the current Application Pool attributes.
-            returned: success
-            type: dict
-            sample:
-              autoStart: true
-              managedRuntimeLoader: "webengine4.dll"
-              managedPipelineMode: "Classic"
-              name: "DefaultAppPool"
-              CLRConfigFile: ""
-              passAnonymousToken: true
-              applicationPoolSid: "S-1-5-82-1352790163-598702362-1775843902-1923651883-1762956711"
-              queueLength: 1000
-              managedRuntimeVersion: "v4.0"
-              state: "Started"
-              enableConfigurationOverride: true
-              startMode: "OnDemand"
-              enable32BitAppOnWin64: true
           cpu:
             description: Key value pairs showing the current Application Pool cpu attributes.
             returned: success

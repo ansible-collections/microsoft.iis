@@ -17,7 +17,7 @@ $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 $name = $module.Params.name
 
 $module.Result.exists = $false
-$module.Result.appPools = @()
+$module.Result.app_pools = @()
 
 
 # Ensure WebAdministration module is loaded
@@ -30,13 +30,13 @@ if ($null -eq (Get-Module -Name "WebAdministration" -ErrorAction SilentlyContinu
 function Get-AppPoolInfo ($name) {
 
     # Get all the current attributes for the pool
-    $pool = Get-Item -LiteralPath IIS:\AppPools\$name #-ErrorAction SilentlyContinue
+    $pool = Get-Item -LiteralPath IIS:\AppPools\$name
     if ($null -ne $pool) {
         $module.Result.exists = $true
     }
     $appPoolInfoDict = @{
         name = $name
-        info = @{}
+        attributes = @{}
     }
 
     $elements = @("attributes", "cpu", "failure", "processModel", "recycling")
@@ -50,39 +50,44 @@ function Get-AppPoolInfo ($name) {
             $attribute_parent = $pool.$element
         }
 
-
         foreach ($attribute in $attribute_collection) {
             $attribute_name = $attribute.Name
             if ($attribute_name -notlike "*password*") {
                 $attribute_value = $attribute_parent.$attribute_name
-                if (-not $appPoolInfoDict.info[$element]) {
-                    $appPoolInfoDict.info[$element] = @{}
+
+                if ($element -eq "attributes") {
+                    $appPoolInfoDict.attributes.Add($attribute_name, $attribute_value)
                 }
-                $appPoolInfoDict.info[$element].Add($attribute_name, $attribute_value)
+                else {
+                    if (-not $appPoolInfoDict.attributes[$element]) {
+                        $appPoolInfoDict.attributes[$element] = @{}
+                    }
+                    $appPoolInfoDict.attributes[$element].Add($attribute_name, $attribute_value)
+                }
             }
         }
     }
     # Ensure periodicRestart is initialized
-    if (-not $appPoolInfoDict.info.recycling.ContainsKey("periodicRestart")) {
-    $appPoolInfoDict.info.recycling["periodicRestart"] = @{}
+    if (-not $appPoolInfoDict.attributes.recycling.ContainsKey("periodicRestart")) {
+        $appPoolInfoDict.attributes.recycling["periodicRestart"] = @{}
     }
     # Manually get the periodicRestart attributes in recycling
     foreach ($attribute in $pool.recycling.periodicRestart.Attributes) {
         $attribute_name = $attribute.Name
         $attribute_value = $pool.recycling.periodicRestart.$attribute_name
-        $appPoolInfoDict.info.recycling.periodicRestart.Add($attribute_name, $attribute_value)
+        $appPoolInfoDict.attributes.recycling.periodicRestart.Add($attribute_name, $attribute_value)
     }
     return $appPoolInfoDict
 }
 try {
     # In case a user specified app pool name return information only for this app pool
     if ($null -ne $name) {
-        [array]$module.Result.appPools = Get-AppPoolInfo -name $name
+        [array]$module.Result.app_pools = Get-AppPoolInfo -name $name
     }
     # Return information of all the app pools available on the system
     else {
-        $appPoolList = (Get-ChildItem IIS:\AppPools).Name
-        [array]$module.Result.appPools = $appPoolList | ForEach-Object { Get-AppPoolInfo -name $_ }
+        $appPoolList = (Get-ChildItem -LiteralPath IIS:\AppPools).Name
+        [array]$module.Result.app_pools = $appPoolList | ForEach-Object { Get-AppPoolInfo -name $_ }
     }
 }
 catch {

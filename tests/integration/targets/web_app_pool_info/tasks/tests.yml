@@ -7,13 +7,13 @@
   assert:
     that:
       - app_pool_info.exists
-      - app_pool_info.appPools[0].name == test_app_pool_name
-      - app_pool_info.appPools[0].info.cpu.limit == 95
-      - app_pool_info.appPools[0].info.attributes.managedPipelineMode == "Classic"
-      - app_pool_info.appPools[0].info.processModel.identityType == "LocalSystem"
-      - app_pool_info.appPools[0].info.processModel.loadUserProfile == true
-      - app_pool_info.appPools[0].info.recycling.periodicRestart.time.Days == 1
-      - app_pool_info.appPools[0].info.recycling.periodicRestart.time.Hours == 5
+      - app_pool_info.app_pools[0].name == test_app_pool_name
+      - app_pool_info.app_pools[0].attributes.cpu.limit == 95
+      - app_pool_info.app_pools[0].attributes.managedPipelineMode == "Classic"
+      - app_pool_info.app_pools[0].attributes.processModel.identityType == "LocalSystem"
+      - app_pool_info.app_pools[0].attributes.processModel.loadUserProfile == true
+      - app_pool_info.app_pools[0].attributes.recycling.periodicRestart.time.Days == 1
+      - app_pool_info.app_pools[0].attributes.recycling.periodicRestart.time.Hours == 5
 
 - name: Get info of a none existent app pool
   web_app_pool_info:
@@ -29,4 +29,4 @@
   assert:
     that:
       - all_app_pools_info.exists
-      - all_app_pools_info.appPools | length > 2
+      - all_app_pools_info.app_pools | length > 2

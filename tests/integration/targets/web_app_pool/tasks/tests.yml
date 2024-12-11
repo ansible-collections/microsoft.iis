@@ -38,9 +38,9 @@
     that:
     - create_default is changed
     - create_default_actual.rc == 0
-    - web_app_pool_info.appPools[0].info.attributes.name == test_iis_webapppool_name
-    - web_app_pool_info.appPools[0].info.attributes.startMode == 'OnDemand'
-    - web_app_pool_info.appPools[0].info.attributes.state == 'Started'
+    - web_app_pool_info.app_pools[0].attributes.name == test_iis_webapppool_name
+    - web_app_pool_info.app_pools[0].attributes.startMode == 'OnDemand'
+    - web_app_pool_info.app_pools[0].attributes.state == 'Started'
 
 - name: change attributes of pool in check mode
   web_app_pool:
@@ -64,7 +64,7 @@
   assert:
     that:
     - change_pool_attributes_check is changed
-    - web_app_pool_info.appPools[0].info == web_app_pool_changed_info.appPools[0].info
+    - web_app_pool_info.app_pools[0].attributes == web_app_pool_changed_info.app_pools[0].attributes
 
 - name: change attributes of pool
   web_app_pool:
@@ -86,10 +86,10 @@
   assert:
     that:
     - change_pool_attributes is changed
-    - web_app_pool_changed_info.appPools[0].info.attributes.managedPipelineMode == 'Classic'
-    - web_app_pool_changed_info.appPools[0].info.cpu.limit == 95
-    - web_app_pool_changed_info.appPools[0].info.processModel.identityType == 'LocalSystem'
-    - web_app_pool_changed_info.appPools[0].info.processModel.loadUserProfile == True
+    - web_app_pool_changed_info.app_pools[0].attributes.managedPipelineMode == 'Classic'
+    - web_app_pool_changed_info.app_pools[0].attributes.cpu.limit == 95
+    - web_app_pool_changed_info.app_pools[0].attributes.processModel.identityType == 'LocalSystem'
+    - web_app_pool_changed_info.app_pools[0].attributes.processModel.loadUserProfile == True
 
 - name: change attributes of pool again
   web_app_pool:
@@ -111,7 +111,7 @@
   assert:
     that:
     - change_pool_attributes_again is not changed
-    - web_app_pool_changed_info_again.appPools[0].info == web_app_pool_changed_info.appPools[0].info
+    - web_app_pool_changed_info_again.app_pools[0].attributes == web_app_pool_changed_info.app_pools[0].attributes
 
 - name: change more complex variables check
   web_app_pool:
@@ -134,7 +134,7 @@
   assert:
     that:
     - change_complex_attributes_check is changed
-    - web_app_pool_changed_info_complex.appPools[0].info == web_app_pool_changed_info_again.appPools[0].info
+    - web_app_pool_changed_info_complex.app_pools[0].attributes == web_app_pool_changed_info_again.app_pools[0].attributes
 
 - name: change more complex variables
   web_app_pool:
@@ -156,10 +156,10 @@
   assert:
     that:
     - change_complex_attributes is changed
-    - web_app_pool_changed_info_complex_again.appPools[0].info.attributes.queueLength == 500
-    - web_app_pool_changed_info_complex_again.appPools[0].info.recycling.periodicRestart.requests == 10
-    - web_app_pool_changed_info_complex_again.appPools[0].info.recycling.periodicRestart.time.TotalSeconds == 300
-    - web_app_pool_changed_info_complex_again.appPools[0].info.processModel.pingResponseTime.TotalSeconds == 180
+    - web_app_pool_changed_info_complex_again.app_pools[0].attributes.queueLength == 500
+    - web_app_pool_changed_info_complex_again.app_pools[0].attributes.recycling.periodicRestart.requests == 10
+    - web_app_pool_changed_info_complex_again.app_pools[0].attributes.recycling.periodicRestart.time.TotalSeconds == 300
+    - web_app_pool_changed_info_complex_again.app_pools[0].attributes.processModel.pingResponseTime.TotalSeconds == 180
 
 - name: change more complex variables again
   web_app_pool:
@@ -181,7 +181,7 @@
   assert:
     that:
     - change_complex_attributes_again is not changed
-    - change_complex_attributes_again_info.appPools[0].info == web_app_pool_changed_info_complex_again.appPools[0].info
+    - change_complex_attributes_again_info.app_pools[0].attributes == web_app_pool_changed_info_complex_again.app_pools[0].attributes
 
 - name: stop web pool check
   web_app_pool:
