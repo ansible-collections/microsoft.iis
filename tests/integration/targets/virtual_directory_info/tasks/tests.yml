@@ -1,0 +1,84 @@
+---
+- name: Test site exists, but stopped in case of duplicate web binding
+  website:
+    name: "{{ test_site_name }}"
+    state: stopped
+    physical_path: 'C:\inetpub\wwwroot'
+
+- name: Test virtual directory is absent (baseline)
+  virtual_directory:
+    state: absent
+    site: "{{ test_site_name }}"
+    name: "{{ test_vdir_name }}"
+
+- name: Retrive all virtual directories
+  virtual_directory_info:
+  register: vdir_info_all
+
+- name: Create test virtual directory
+  virtual_directory:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_vdir_name }}"
+    physical_path: "{{ test_physical_path }}"
+  register: result
+
+- assert:
+    that:
+    - 'result.changed == true'
+
+- name: Verify test virtual directory
+  virtual_directory_info:
+    site: "{{ test_site_name }}"
+    name: "{{ test_vdir_name }}"
+  register: vdir_info
+
+- assert:
+    that:
+    - vdir_info.directories | length == 1
+    - 'vdir_info.directories[0].physical_path == test_physical_path'
+    - 'vdir_info.directories[0].name == test_vdir_name'
+    - 'vdir_info.directories[0].site == test_site_name'
+    - vdir_info.directories[0].connect_as == 'pass_through'
+
+- name: Create test application temporary directory
+  ansible.windows.win_file:
+    path: "{{ remote_tmp_dir }}\\{{ test_app_name }}"
+    state: directory
+  register: test_app_tmp_dir
+
+- assert:
+    that:
+    - 'test_app_tmp_dir.changed == true'
+
+- name: Create new test application
+  web_application:
+    name: "{{ test_app_name }}"
+    site: "{{ test_site_name }}"
+    physical_path: "{{ remote_tmp_dir }}\\{{ test_app_name }}"
+    state: present
+
+- name: Create application virtual directory and use pass through authentication
+  virtual_directory:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_vdir_name }}"
+    physical_path: "{{ test_physical_path }}"
+    connect_as: pass_through
+    application: "{{ test_app_name }}"
+  register: result
+
+- assert:
+    that:
+    - 'result.changed == true'
+
+- name: Verify application virtual directory with pass through authentication
+  virtual_directory_info:
+    site: "{{ test_site_name }}"
+    name: "{{ test_vdir_name }}"
+    application: "{{ test_app_name }}"
+  register: vdir_info
+
+- assert:
+    that:
+    - 'vdir_info.directories[0].physical_path == test_physical_path'
