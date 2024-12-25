@@ -1,0 +1,101 @@
+---
+- name: test site exists, but stopped in case of duplicate web binding
+  community.windows.win_iis_website:
+    name: "{{ test_site_name }}"
+    state: stopped
+    physical_path: 'C:\inetpub\wwwroot'
+
+- name: test app is absent (baseline)
+  web_application:
+    state: absent
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+
+- name: create test app
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    physical_path: "{{ test_physical_path }}"
+  register: result
+
+- assert:
+    that:
+    - 'result.changed == true'
+#    - 'result.physical_path == test_physical_path'
+
+- name: create test app (idempotent)
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    physical_path: "{{ test_physical_path }}"
+  register: result
+
+- assert:
+    that:
+    - 'result.changed == false'
+#    - 'result.physical_path == test_physical_path'
+
+- name: set test app credentials
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    connect_as: specific_user
+    username: "{{ test_user }}"
+    password: "{{ test_password }}"
+  register: result
+
+- assert:
+    that:
+    - 'result.changed == true'
+#    - 'result.physical_path == test_physical_path'
+#    - "result.connect_as == 'specific_user'"
+
+- name: set test app credentials (idempotent)
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    connect_as: specific_user
+    username: "{{ test_user }}"
+    password: "{{ test_password }}"
+  register: result
+
+- assert:
+    that:
+    - 'result.changed == false'
+#    - 'result.physical_path == test_physical_path'
+#    - "result.connect_as == 'specific_user'"
+
+- name: create new test application pool
+  community.windows.win_iis_webapppool:
+    name: "{{ test_apppool }}"
+    state: present
+
+- name: change app pool and use pass through authentication
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    connect_as: pass_through
+    application_pool: "{{ test_apppool }}"
+  register: result
+
+- assert:
+    that:
+    - 'result.changed == true'
+#    - 'result.physical_path == test_physical_path'
+#    - "result.connect_as == 'pass_through'"
+#    - "result.application_pool == test_apppool"
+
+- name: Verify input failure due to missing username and password when connecting as specific user
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    connect_as: specific_user
+    application_pool: "{{ test_apppool }}"
+  register: failure
+  failed_when: "'connect_as is specific_user but all of the following are missing: username, password' not in failure.msg"
