@@ -1,5 +1,5 @@
 ---
-- name: run website integration tests 
+- name: run website_info integration tests 
   block:
   - name: ensure IIS features are installed
     ansible.windows.win_feature:
@@ -36,11 +36,14 @@
     loop:
       - "{{ test_phisical_path }}"
       - "{{ test_alt_phisical_path }}"
-
+  
   - name: create test application pool
     microsoft.iis.web_app_pool:
-      name: "{{ test_apppool }}"
+      name: "{{ item }}"
       state: present
+    loop: 
+      - "{{ test_apppool }}"
+      - "{{ test_alt_apppool }}"
 
   # Tests
   - include_tasks: tests.yml
@@ -57,13 +60,19 @@
 
   - name: remove test website
     microsoft.iis.website:
-      name: "{{ test_website_name }}"
+      name: "{{ item }}"
       state: absent
+    loop:
+      - "{{ test_website_name }}"
+      - "{{ test_alt_website_name }}"
 
   - name: remove test application pool
     microsoft.iis.web_app_pool:
-      name: "{{ test_apppool }}"
+      name: "{{ item }}"
       state: absent
+    loop:
+      - "{{ test_phisical_path }}"
+      - "{{ test_alt_phisical_path }}"
 
   - name: restore iis configuration
     ansible.windows.win_copy:
