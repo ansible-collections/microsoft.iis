@@ -1,5 +1,5 @@
 ---
-- name: run website integration tests 
+- name: run website_info integration tests 
   block:
   - name: ensure IIS features are installed
     ansible.windows.win_feature:
@@ -39,12 +39,14 @@
   
   - name: create test application pool
     microsoft.iis.web_app_pool:
-      name: "{{ test_apppool }}"
+      name: "{{ item }}"
       state: present
+    loop: 
+      - "{{ test_apppool }}"
+      - "{{ test_alt_apppool }}"
 
   # Tests
   - include_tasks: tests.yml
-  - include_tasks: bindings.yml
 
   always:
   # Cleanup
@@ -55,29 +57,22 @@
     loop:
       - "{{ test_phisical_path }}"
       - "{{ test_alt_phisical_path }}"
-  
+
   - name: remove test website
     microsoft.iis.website:
-      name: "{{ test_website_name }}"
+      name: "{{ item }}"
       state: absent
-  
+    loop:
+      - "{{ test_website_name }}"
+      - "{{ test_alt_website_name }}"
+
   - name: remove test application pool
     microsoft.iis.web_app_pool:
-      name: "{{ test_apppool }}"
+      name: "{{ item }}"
       state: absent
-
-  - name: cleanup certreq files
-    ansible.windows.win_file:
-      path: "{{ item }}"
-      state: absent
-    with_items:
-      - c:\windows\temp\certreq1.txt
-      - c:\windows\temp\certreqresp1.txt
-      
-  - name: remove certs
-    raw: 'remove-item cert:\localmachine\my\{{ item }} -force -ea silentlycontinue'
-    with_items:
-      - "{{ thumbprint1.stdout_lines[0] }}"
+    loop:
+      - "{{ test_phisical_path }}"
+      - "{{ test_alt_phisical_path }}"
 
   - name: restore iis configuration
     ansible.windows.win_copy:

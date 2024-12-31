@@ -1,0 +1,17 @@
+---
+
+test_website_name: InfoWebSite1
+test_apppool: InfoWebSitePool1
+test_site_id: 91
+test_phisical_path: C:\wwwroot\websites\my-test-website
+test_website_port: 8021
+test_website_ip: 127.0.0.1
+test_website_hostname: 'acme1.com'
+
+test_alt_website_name: InfoWebSite2
+test_alt_apppool: InfoWebSitePool2
+test_alt_site_id: 92
+test_alt_phisical_path: C:\wwwroot\websites\my-test-website-alt
+test_alt_website_port: 8022
+test_alt_website_ip: 127.0.0.2
+test_alt_website_hostname: 'acme2.com'
