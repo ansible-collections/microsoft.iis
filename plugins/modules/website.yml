@@ -1,46 +1,98 @@
 ---
-# Copyright: (c) 2024, Ansible Project
+# Copyright: (c) 2025, Ansible Project
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 DOCUMENTATION:
   module: website
   short_description: Configures an IIS website
   description:
-    - Creates, removes, and configures an IIS Website.
+    - Creates, removes, and configures an IIS website.
+  requirements:
+    - C(IISAdministration) PowerShell module
   options:
     name:
       description:
         - The name of the website to manage.
-        - Other change for testing.
       required: true
       type: str
+    site_id:
+      description:
+        - Explicitly set the IIS website numeric ID.
+        - Note that this value cannot be changed after the website has been created.
+        - The site ID must be available and not used by any other website on the server.
+      required: false
+      type: str
+    state:
+      description:
+        - State of the website
+        - In order to start the website at least one binding should be configured
+      type: str
+      default: started
+      choices: [absent, started, stopped, restarted]
+    physical_path:
+      description:
+        - Specifies the physical folder path on the remote host to use for the website.
+        - When create a new website physical_path is required.
+        - The specified folder must already exist.
+      type: str
+    application_pool:
+      description:
+        - Specifies the application pool in which the website runs.
+        - The application pool must already exist - otherwise the website will not start.
+      type: str
+    ip:
+      description: The website binding listen IP
+      type: str
+    port:
+      description: The website binding listen port
+      type: int
+    hostname:
+      description: The website binding hostname (DNS)
+      type: str
   notes:
-    - See
-      R(win_iis_website migration,ansible_collections.microsoft.iis.docsite.guide_migration.migrated_modules.win_iis_website)
-      for help on migrating from M(community.windows.win_iis_website) to
-      this module.
-    - This module must be run on a Windows target host with the
-      C(IISAdministration) module installed.
-  extends_documentation_fragment:
-    - ansible.builtin.action_common_attributes
-  attributes:
-    check_mode:
-      support: full
-    diff_mode:
-      support: full
-    platform:
-      platforms:
-        - windows
+    - This module must be run on a Windows target host with the C(IISAdministration) module installed.
   seealso:
-    - ref: Migration guide <ansible_collections.microsoft.iis.docsite.guide_migration.migrated_modules.win_iis_website>
-      description: This module replaces C(community.windows.win_iis_website). See the migration guide for details.
-    - module: community.windows.win_iis_website
+    - module: microsoft.iis.website_info
+    - module: microsoft.iis.web_app_pool
   author:
-    - Insert Author (@author)
+    - Shahar Golshani (@sgolshan)
 
 EXAMPLES: |
-  - name: Example 1
+  - name: Create a default website in 'Started' state
     microsoft.iis.website:
-      name: foo
+      name: WebSite
+      physical_path: C:\inetpub\wwwroot
+      state: started
+
+  - name: Create a website, set all values and start it
+    microsoft.iis.website:
+      name: WebSite
+      state: started
+      site_id: 2
+      physical_path: C:\wwwroot\websites\my-website
+      application_pool: DefaultAppPool
+      ip: 127.0.0.1
+      port: 8080
+      hostname: website.com
+
+  - name: Stop a website
+    microsoft.iis.website:
+      name: WebSite
+      state: stopped
+
+  - name: Restart a website (non-idempotent)
+    microsoft.iis.website:
+      name: WebSite
+      state: restarted
+
+  - name: Change a website application pool
+    microsoft.iis.website:
+      name: WebSite
+      application_pool: NewAppPool
+
+  - name: Change a website physical path
+    microsoft.iis.website:
+      name: WebSite
+      physical_path: C:\wwwroot\websites\my-website
 
 RETURN: {}

@@ -1,0 +1,71 @@
+---
+- name: get all websites from server
+  raw: powershell.exe "(get-website).name"
+  register: existing_sites
+
+- name: ensure all sites are removed for clean testing
+  microsoft.iis.website:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ existing_sites.stdout_lines }}"
+
+- name: create first website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    site_id: "{{ test_site_id }}"
+    state: started
+    physical_path: "{{ test_phisical_path }}"
+    application_pool: "{{ test_apppool }}"
+    ip: "{{ test_website_ip }}"
+    port: "{{ test_website_port }}"
+    hostname: "{{ test_website_hostname }}"
+  register: website1
+
+- name: create second website
+  microsoft.iis.website:
+    name: "{{ test_alt_website_name }}"
+    site_id: "{{ test_alt_site_id }}"
+    state: started
+    physical_path: "{{ test_alt_phisical_path }}"
+    application_pool: "{{ test_alt_apppool }}"
+    ip: "{{ test_alt_website_ip }}"
+    port: "{{ test_alt_website_port }}"
+    hostname: "{{ test_alt_website_hostname }}"
+  register: website2
+
+- name: Fetch test website info
+  microsoft.iis.website_info:
+    name: '{{ test_website_name }}'
+  register: website_info
+
+- name: Check that the fetched info is correct
+  assert:
+    that:
+      - website_info.exists
+      - website_info.site[0].name == test_website_name
+      - website_info.site[0].id == test_site_id
+      - website_info.site[0].state == "Started"
+      - website_info.site[0].application_pool == test_apppool
+      - website_info.site[0].physical_path == test_phisical_path
+      - website_info.site[0].ip == test_website_ip
+      - website_info.site[0].port == test_website_port
+      - website_info.site[0].hostname == test_website_hostname
+
+- name: Get info of a none existent website
+  microsoft.iis.website_info:
+    name: notReal
+  register: not_real
+  failed_when: "'Failed to fetch the info of the required Website Exception:' not in not_real.msg"
+
+- name: Fetch all websites that exist on the system
+  microsoft.iis.website_info:
+  register: all_websites_info
+
+- name: Verify all websites were fetched
+  assert:
+    that:
+      - all_websites_info.exists
+      - all_websites_info.site | length == 2
+      - all_websites_info.site[0].name == test_website_name
+      - all_websites_info.site[1].name == test_alt_website_name

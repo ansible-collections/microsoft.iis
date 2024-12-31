@@ -1,0 +1,167 @@
+---
+- name: verify website does not exist
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    state: absent
+
+- name: create new website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    site_id: "{{ test_site_id }}"
+    state: started
+    physical_path: "{{ test_phisical_path }}"
+    application_pool: DefaultAppPool
+    ip: "{{ test_website_ip }}"
+    port: "{{ test_website_port }}"
+    hostname: "{{ test_website_hostname }}"
+  register: website
+
+- name: get new website info 
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+    - website is changed
+    - website_info.site[0].name == test_website_name
+    - website_info.site[0].id == test_site_id
+    - website_info.site[0].state == "Started"
+    
+- name: create new website (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    site_id: "{{ test_site_id }}"
+    state: started
+    physical_path: "{{ test_phisical_path }}"
+    application_pool: DefaultAppPool
+    ip: "{{ test_website_ip }}"
+    port: "{{ test_website_port }}"
+    hostname: "{{ test_website_hostname }}"
+  register: website
+
+- name: get new website info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+    - website is not changed
+    - website_info.site[0].name == test_website_name
+    - website_info.site[0].state == "Started"
+
+- name: stop website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    state: stopped
+  register: website
+
+- name: get stop website info 
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+    - website is changed
+    - website_info.site[0].name == test_website_name
+    - website_info.site[0].state == "Stopped"
+
+- name: stop website (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    state: stopped
+  register: website
+
+- name: get stop website info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+    - website is not changed
+    - website_info.site[0].name == test_website_name
+    - website_info.site[0].state == "Stopped"
+
+- name: restart website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    state: restarted
+  register: website
+
+- name: get restart website info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+    - website is changed
+    - website_info.site[0].name == test_website_name
+    - website_info.site[0].state == "Started"
+
+- name: change website physical path
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    physical_path: "{{ test_alt_phisical_path }}"
+  register: website
+
+- name: get change website physical path info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+    - website is changed
+    - website_info.site[0].physical_path == test_alt_phisical_path
+
+- name: change website physical path (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    physical_path: "{{ test_alt_phisical_path }}"
+  register: website
+
+- name: get change website physical path info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+    - website is not changed
+    - website_info.site[0].physical_path == test_alt_phisical_path
+
+- name: change website application pool
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    application_pool: "{{ test_apppool }}"
+  register: website
+
+- name: get change website application pool
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+    - website is changed
+    - website_info.site[0].application_pool == test_apppool
+
+- name: change website application pool (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    application_pool: "{{ test_apppool }}"
+  register: website
+
+- name: get change website application pool info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+    - website is not changed
+    - website_info.site[0].application_pool == test_apppool
