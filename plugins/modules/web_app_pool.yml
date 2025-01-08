@@ -109,6 +109,6 @@ EXAMPLES: |
       attributes:
         recycling.periodicRestart.time: "00:00:05:00.000000"
         recycling.periodicRestart.schedule: ["00:10:00", "05:30:00"]
-        processModel.pingResponseTime: "00:03:00"  
+        processModel.pingResponseTime: "00:03:00"
 
 RETURN: {}
