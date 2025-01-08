@@ -1,0 +1,32 @@
+- name: Fetch test app pool info
+  web_app_pool_info:
+    name: '{{ test_app_pool_name }}'
+  register: app_pool_info
+
+- name: Check that the fetched info is correct
+  assert:
+    that:
+      - app_pool_info.exists
+      - app_pool_info.app_pools[0].name == test_app_pool_name
+      - app_pool_info.app_pools[0].attributes.cpu.limit == 95
+      - app_pool_info.app_pools[0].attributes.managedPipelineMode == "Classic"
+      - app_pool_info.app_pools[0].attributes.processModel.identityType == "LocalSystem"
+      - app_pool_info.app_pools[0].attributes.processModel.loadUserProfile == true
+      - app_pool_info.app_pools[0].attributes.recycling.periodicRestart.time.Days == 1
+      - app_pool_info.app_pools[0].attributes.recycling.periodicRestart.time.Hours == 5
+
+- name: Get info of a none existent app pool
+  web_app_pool_info:
+    name: notReal
+  register: not_real
+  failed_when: "'Failed to fetch the info of the required application pool Exception:' not in not_real.msg"
+
+- name: Fetch all app pools that exist on the system
+  web_app_pool_info:
+  register: all_app_pools_info
+
+- name: Verify all app pools were fetched
+  assert:
+    that:
+      - all_app_pools_info.exists
+      - all_app_pools_info.app_pools | length > 2
