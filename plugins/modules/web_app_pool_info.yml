@@ -28,7 +28,7 @@ EXAMPLES: |
     microsoft.iis.web_app_pool_info:
       name: DefaultAppPool
     register: stored_info
-  
+
   - name: Returns information about all application pools that exist on the system
     microsoft.iis.web_app_pool_info:
     register: stored_info_all
