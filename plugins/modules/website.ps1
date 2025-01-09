@@ -146,7 +146,7 @@ Try {
     }
 }
 Catch {
-    $module.FailJson("$($module.Result) - $($_.Exception.Message)")
+    $module.FailJson("$($module.Result) - $($_.Exception.Message)", $_)
 }
 
 $module.ExitJson()
