@@ -1,0 +1,87 @@
+---
+- name: test site exists, but stopped in case of duplicate web binding
+  vars:
+    test_sites:
+      - "{{ test_site_name_A }}"
+      - "{{ test_site_name_B }}"
+  website:
+    name: "{{ item }}"
+    state: stopped
+    physical_path: 'C:\inetpub\wwwroot'
+  loop: "{{ test_sites }}"
+
+- name: Ensure test app is absent (baseline)
+  vars:
+    app_site_pairs:
+      - { site: "{{ test_site_name_A }}", app: "{{ test_app_name_A }}" }
+      - { site: "{{ test_site_name_B }}", app: "{{ test_app_name_B }}" }
+  web_application:
+    state: absent
+    site: "{{ item.site }}"
+    name: "{{ item.app }}"
+  loop: "{{ app_site_pairs }}"
+
+- name: create test app A
+  web_application:
+    state: present
+    site: "{{ test_site_name_A }}"
+    name: "{{ test_app_name_A }}"
+    physical_path: "{{ test_physical_path_A }}"
+    application_pool: "{{ test_apppool }}"
+  register: result
+
+- name: create test app B
+  web_application:
+    state: present
+    site: "{{ test_site_name_B }}"
+    name: "{{ test_app_name_B }}"
+    physical_path: "{{ test_physical_path_B }}"
+  register: result
+
+- name: Fetch info for test_app A
+  web_application_info:
+    name: "{{ test_app_name_A }}"
+  register: test_info
+
+- name: Check that the fetched info for test_app A is correct
+  assert:
+    that:
+      - test_info.exists
+      - test_info.applications[0].name == test_app_name_A
+      - test_info.applications[0].physical_path == test_physical_path_A
+      - test_info.applications[0].site == test_site_name_A
+      - test_info.applications[0].application_pool == test_apppool
+      - test_info.applications[0].enabled_protocols == 'http'
+      - test_info.applications[0].connect_as == 'pass_through'
+
+- name: Fetch info for all applications
+  web_application_info:
+  register: test_info_all
+
+- name: Verify that all applications were fetched
+  assert:
+    that:
+      - test_info_all.exists
+      - test_info_all.applications | length == 2
+
+- name: Fetch info for by site B
+  web_application_info:
+    site: "{{ test_site_name_B }}"
+  register: test_info_b_by_site
+
+- name: Check that the fetched info for test_app B is correct
+  assert:
+    that:
+      - test_info_b_by_site.exists
+      - test_info_b_by_site.applications[0].name == test_app_name_B
+      - test_info_b_by_site.applications[0].physical_path == test_physical_path_B
+      - test_info_b_by_site.applications[0].site == test_site_name_B
+      - test_info_b_by_site.applications[0].application_pool == "DefaultAppPool"
+      - test_info_b_by_site.applications[0].enabled_protocols == 'http'
+      - test_info_b_by_site.applications[0].connect_as == 'pass_through'
+
+- name: Fetch by site and name
+  web_application_info:
+    site: "{{ test_site_name_A }}"
+    name: "{{ test_app_name_A }}"
+  register: test_info_a_by_site_and_name

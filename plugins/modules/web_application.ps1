@@ -12,13 +12,10 @@ $spec = @{
         state = @{ type = "str"; default = "present"; choices = "absent", "present" }
         physical_path = @{ type = "str"; aliases = @("path") }
         application_pool = @{ type = "str" }
-        connect_as = @{ type = "str"; default = "pass_through"; choices = "specific_user", "pass_through" }
+        connect_as = @{ type = "str"; choices = "specific_user", "pass_through" }
         username = @{ type = "str" }
         password = @{ type = "str"; no_log = $true }
     }
-    required_if = @(
-        , @("connect_as", "specific_user", @("username", "password"))
-    )
     supports_check_mode = $true
 }
 
@@ -32,6 +29,15 @@ $connect_as = $module.Params.connect_as
 $username = $module.Params.username
 $password = $module.Params.password
 $check_mode = $module.CheckMode
+
+if ($connect_as -eq 'specific_user') {
+    if (-not $username) {
+        $module.FailJson("missing required arguments: username")
+    }
+    if (-not $password) {
+        $module.FailJson("missing required arguments: password")
+    }
+}
 
 # Ensure WebAdministration module is loaded
 if ($null -eq (Get-Module "WebAdministration" -ErrorAction SilentlyContinue)) {
@@ -51,20 +57,17 @@ try {
     # Add application
     if (($state -eq 'present') -and (-not $application)) {
         if (-not $physical_path) {
-            $module.FailJson("missing required arguments: path")
+            $module.FailJson("missing required arguments: physical_path")
         }
         if (-not (Test-Path -LiteralPath $physical_path)) {
-            $module.FailJson("specified folder must already exist: path")
+            $module.FailJson("specified folder must already exist: '$physical_path'")
         }
 
         $application_parameters = @{
             Name = $name
             PhysicalPath = $physical_path
             Site = $site
-        }
-
-        if ($application_pool) {
-            $application_parameters.ApplicationPool = $application_pool
+            ApplicationPool = $application_pool
         }
 
         if (-not $check_mode) {
@@ -85,7 +88,7 @@ try {
         # Change Physical Path if needed
         if ($physical_path) {
             if (-not (Test-Path -LiteralPath $physical_path)) {
-                $module.FailJson("specified folder must already exist: path")
+                $module.FailJson("specified folder must already exist: '$physical_path'")
             }
 
             $folder = Get-Item -LiteralPath $physical_path
