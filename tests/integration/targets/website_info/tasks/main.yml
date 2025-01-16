@@ -1,34 +1,6 @@
 ---
 - name: run website_info integration tests 
   block:
-  - name: ensure IIS features are installed
-    ansible.windows.win_feature:
-      name: Web-Server
-      state: present
-      include_management_tools: True
-    register: feature_install
-
-  - name: reboot after feature install
-    ansible.windows.win_reboot:
-    when: feature_install.reboot_required
-
-  - name: get iis configuration checksum
-    ansible.windows.win_stat:
-      path: C:\Windows\System32\inetsrv\config\applicationHost.config
-      checksum_algorithm: sha1
-    register: stat_result
-
-  - name: take a copy of the original iis configuration
-    ansible.windows.win_copy:
-      src: C:\Windows\System32\inetsrv\config\applicationHost.config
-      dest: '{{ remote_tmp_dir }}\applicationHost.config'
-      remote_src: yes
-    register: copy_result
-  
-  - assert:
-      that:
-        - "stat_result.stat.checksum == copy_result.checksum"
-  
   - name: create website directory structure
     ansible.windows.win_file:
       path: "{{ item }}"
@@ -50,14 +22,6 @@
 
   always:
   # Cleanup
-  - name: remove website directory structure
-    ansible.windows.win_file:
-      path: "{{ item }}"
-      state: absent
-    loop:
-      - "{{ test_phisical_path }}"
-      - "{{ test_alt_phisical_path }}"
-
   - name: remove test website
     microsoft.iis.website:
       name: "{{ item }}"
@@ -74,25 +38,10 @@
       - "{{ test_phisical_path }}"
       - "{{ test_alt_phisical_path }}"
 
-  - name: restore iis configuration
-    ansible.windows.win_copy:
-      src: '{{ remote_tmp_dir }}\applicationHost.config'
-      dest: C:\Windows\System32\inetsrv\config\applicationHost.config
-      remote_src: yes
-    register: copy_result
-
-  - assert:
-      that:
-        - "stat_result.stat.checksum == copy_result.checksum"
-
-  - name: remove IIS feature if it was installed
-    ansible.windows.win_feature:
-      name: Web-Server
+  - name: remove website directory structure
+    ansible.windows.win_file:
+      path: "{{ item }}"
       state: absent
-      include_management_tools: True
-    when: feature_install is changed
-    register: feature_uninstall
-
-  - name: reboot after removing IIS features
-    ansible.windows.win_reboot:
-    when: feature_uninstall.reboot_required | default(False)
+    loop:
+      - "{{ test_phisical_path }}"
+      - "{{ test_alt_phisical_path }}"

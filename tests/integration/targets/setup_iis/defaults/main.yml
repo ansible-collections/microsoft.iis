@@ -1,0 +1,3 @@
+iis_config_file_name: applicationHost.config
+iis_config_bck_file_name: applicationHost.config.bck
+iis_config_file_path: C:\Windows\System32\inetsrv\config\
