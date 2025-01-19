@@ -1,0 +1,24 @@
+- name: stop IIS service
+  ansible.windows.win_service:
+    name: W3SVC
+    state: stopped
+
+- name: restore iis configuration file
+  ansible.windows.win_copy:
+    src: '{{ iis_config_file_path }}\{{ iis_config_bck_file_name }}'
+    dest: '{{ iis_config_file_path }}\{{ iis_config_file_name }}'
+    remote_src: yes
+  register: copy_result
+  until: copy_result is successful
+  retries: 5
+  delay: 5
+
+- name: delete backup file
+  ansible.windows.win_file:
+    path: '{{ iis_config_file_path }}\{{ iis_config_bck_file_name }}'
+    state: absent
+
+- name: start IIS service
+  ansible.windows.win_service:
+    name: W3SVC
+    state: started

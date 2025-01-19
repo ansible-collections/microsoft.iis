@@ -1,0 +1,2 @@
+- name: restore iis configuration
+  include_tasks: restore_iis_conf.yml
