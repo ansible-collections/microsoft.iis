@@ -1,0 +1,14 @@
+---
+test_app_name_A: TestAppA
+test_app_name_B: TestAppB
+
+test_site_name_A: 'Test Site One'
+test_site_name_B: 'Test Site Two'
+
+test_user: testuser
+test_password: testpass
+
+test_physical_path_A: "{{ remote_tmp_dir }}"
+test_physical_path_B: "{{ remote_tmp_dir }}/folderb"
+
+test_apppool: 'testapppool'

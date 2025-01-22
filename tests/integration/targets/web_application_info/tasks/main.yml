@@ -1,0 +1,45 @@
+---
+- name: block to ensure there is a cleanup after the tests
+  block:
+  - name: Create physical path directory exists for Test Site B
+    ansible.windows.win_file:
+      path: "{{ test_physical_path_B }}"
+      state: directory
+
+  # Tests
+  - name: run tests on hosts that support it
+    include_tasks: tests.yml
+
+  always:
+  # Cleanup
+  - name: remove test application A
+    web_application:
+      state: absent
+      site: "{{ test_site_name_A }}"
+      name: "{{ test_app_name_A }}"
+
+  - name: remove test application B
+    web_application:
+      state: absent
+      site: "{{ test_site_name_B }}"
+      name: "{{ test_app_name_B }}"
+
+  - name: remove test application pool
+    web_app_pool:
+      name: "{{ test_apppool }}"
+      state: absent
+
+  - name: remove test site A
+    website:
+      name: "{{ test_site_name_A }}"
+      state: absent
+
+  - name: remove test site B
+    website:
+      name: "{{ test_site_name_B }}"
+      state: absent
+
+  - name: Remove directory that was created for Test Site B
+    ansible.windows.win_file:
+      path: "{{ test_physical_path_B }}"
+      state: absent

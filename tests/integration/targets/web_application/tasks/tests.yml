@@ -1,0 +1,198 @@
+---
+- name: test site exists, but stopped in case of duplicate web binding
+  website:
+    name: "{{ test_site_name }}"
+    state: stopped
+    physical_path: 'C:\inetpub\wwwroot'
+
+- name: test app is absent (baseline)
+  web_application:
+    state: absent
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+
+- name: create test app - check mode
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    physical_path: "{{ test_physical_path }}"
+  check_mode: true
+  register: result
+
+- name: Fetch info for test app - check mode
+  web_application_info:
+    name: "{{ test_app_name }}"
+  register: test_info_check
+
+- assert:
+    that:
+    - result.changed == true
+    - not test_info_check.exists
+
+- name: create test app
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    physical_path: "{{ test_physical_path }}"
+  register: result
+
+- name: Fetch info for test app
+  web_application_info:
+    name: "{{ test_app_name }}"
+  register: test_info
+
+- assert:
+    that:
+    - result.changed == true
+    - test_info.applications[0].physical_path == test_physical_path
+
+- name: create test app (idempotent)
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    physical_path: "{{ test_physical_path }}"
+  register: result
+
+- assert:
+    that:
+    - result.changed == false
+
+- name: set test app credentials - check mode
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    connect_as: specific_user
+    username: "{{ test_user }}"
+    password: "{{ test_password }}"
+  register: result
+  check_mode: true
+
+- name: Fetch info for test app creds - check mode
+  web_application_info:
+    name: "{{ test_app_name }}"
+  register: test_info_check
+
+- assert:
+    that:
+    - result.changed == true
+    - test_info_check.applications[0].connect_as == 'pass_through'
+
+- name: set test app credentials
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    connect_as: specific_user
+    username: "{{ test_user }}"
+    password: "{{ test_password }}"
+  register: result
+
+- name: Fetch info for test app creds
+  web_application_info:
+    name: "{{ test_app_name }}"
+  register: test_info
+
+- assert:
+    that:
+    - result.changed == true
+    - test_info.applications[0].physical_path == test_physical_path
+    - test_info.applications[0].connect_as == 'specific_user'
+    - test_info.applications[0].username == test_user
+
+- name: set test app credentials (idempotent)
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    connect_as: specific_user
+    username: "{{ test_user }}"
+    password: "{{ test_password }}"
+  register: result
+
+- assert:
+    that:
+    - result.changed == false
+
+- name: create new test application pool
+  web_app_pool:
+    name: "{{ test_apppool }}"
+    state: present
+
+- name: change app pool and use pass through authentication
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    connect_as: pass_through
+    application_pool: "{{ test_apppool }}"
+  register: result
+
+- name: Fetch info test_app with app pool
+  web_application_info:
+    name: "{{ test_app_name }}"
+  register: test_info
+
+- assert:
+    that:
+    - result.changed == true
+    - test_info.applications[0].physical_path == test_physical_path
+    - test_info.applications[0].application_pool == test_apppool
+    - test_info.applications[0].connect_as == 'pass_through'
+
+- name: Verify input failure due to missing username and password when connecting as specific user
+  web_application:
+    state: present
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+    connect_as: specific_user
+    application_pool: "{{ test_apppool }}"
+  register: failure
+  failed_when: "'missing required arguments: username' not in failure.msg"
+
+- name: Remove test app - check mode
+  web_application:
+    state: absent
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+  check_mode: true
+
+- name: Fetch info for test app after removal - check mode
+  web_application_info:
+    name: "{{ test_app_name }}"
+  register: test_info_check_removal
+
+- assert:
+    that:
+    - result.changed == true
+    - test_info_check_removal.exists
+
+- name: Remove test app
+  web_application:
+    state: absent
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+
+- name: Fetch info for test app after removal
+  web_application_info:
+    name: "{{ test_app_name }}"
+  register: test_info_check_removal
+
+- assert:
+    that:
+    - result.changed == true
+    - not test_info_check_removal.exists
+
+- name: Remove test app (idempotent)
+  web_application:
+    state: absent
+    site: "{{ test_site_name }}"
+    name: "{{ test_app_name }}"
+  register: result
+
+- assert:
+    that:
+    - result.changed == false

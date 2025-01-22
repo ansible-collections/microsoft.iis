@@ -1,0 +1,24 @@
+---
+- name: Run on Server block to handle the tests
+  block:
+  # Tests
+  - name: run tests on hosts that support it
+    include_tasks: tests.yml
+
+  always:
+  # Cleanup
+  - name: remove test application
+    web_application:
+      state: absent
+      site: "{{ test_site_name }}"
+      name: "{{ test_app_name }}"
+
+  - name: remove test application pool
+    web_app_pool:
+      name: "{{ test_apppool }}"
+      state: absent
+
+  - name: remove test site
+    website:
+      name: "{{ test_site_name }}"
+      state: absent
