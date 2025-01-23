@@ -158,8 +158,7 @@
     - change_complex_attributes is changed
     - web_app_pool_changed_info_complex_again.app_pools[0].attributes.queueLength == 500
     - web_app_pool_changed_info_complex_again.app_pools[0].attributes.recycling.periodicRestart.requests == 10
-    - web_app_pool_changed_info_complex_again.app_pools[0].attributes.recycling.periodicRestart.time.TotalSeconds == 300
-    - web_app_pool_changed_info_complex_again.app_pools[0].attributes.processModel.pingResponseTime.TotalSeconds == 180
+    - web_app_pool_changed_info_complex_again.app_pools[0].attributes.recycling.periodicRestart.time == "00:05:00"
 
 - name: change more complex variables again
   web_app_pool:

@@ -54,7 +54,10 @@ function Get-AppPoolInfo ($name) {
             $attribute_name = $attribute.Name
             if ($attribute_name -notlike "*password*") {
                 $attribute_value = $attribute_parent.$attribute_name
-
+                # Convert TimeSpan to string if applicable
+                if ($attribute_value -is [TimeSpan]) {
+                    $attribute_value = $attribute_value.ToString("c") # Converts to hh:mm:ss or d.hh:mm:ss format
+                }
                 if ($element -eq "attributes") {
                     $appPoolInfoDict.attributes.Add($attribute_name, $attribute_value)
                 }
@@ -75,6 +78,10 @@ function Get-AppPoolInfo ($name) {
     foreach ($attribute in $pool.recycling.periodicRestart.Attributes) {
         $attribute_name = $attribute.Name
         $attribute_value = $pool.recycling.periodicRestart.$attribute_name
+        # Convert TimeSpan to string if applicable
+        if ($attribute_value -is [TimeSpan]) {
+            $attribute_value = $attribute_value.ToString("c") # Converts to hh:mm:ss or d.hh:mm:ss format
+        }
         $appPoolInfoDict.attributes.recycling.periodicRestart.Add($attribute_name, $attribute_value)
     }
     return $appPoolInfoDict
