@@ -17,9 +17,14 @@
     state: started
     physical_path: "{{ test_phisical_path }}"
     application_pool: "{{ test_apppool }}"
-    ip: "{{ test_website_ip }}"
-    port: "{{ test_website_port }}"
-    hostname: "{{ test_website_hostname }}"
+    bindings:
+      set:
+        - ip: "{{ test_website_ip }}"
+          port: "{{ test_website_port }}"
+          hostname: "{{ test_website_hostname }}"
+          protocol: "http"
+          require_server_name_indication: false
+          use_centrelized_certificate_store: false
   register: website1
 
 - name: create second website
@@ -29,9 +34,14 @@
     state: started
     physical_path: "{{ test_alt_phisical_path }}"
     application_pool: "{{ test_alt_apppool }}"
-    ip: "{{ test_alt_website_ip }}"
-    port: "{{ test_alt_website_port }}"
-    hostname: "{{ test_alt_website_hostname }}"
+    bindings:
+      set:
+        - ip: "{{ test_alt_website_ip }}"
+          port: "{{ test_alt_website_port }}"
+          hostname: "{{ test_alt_website_hostname }}"
+          protocol: "http"
+          require_server_name_indication: false
+          use_centrelized_certificate_store: false
   register: website2
 
 - name: Fetch test website info
@@ -44,13 +54,16 @@
     that:
       - website_info.exists
       - website_info.site[0].name == test_website_name
-      - website_info.site[0].id == test_site_id
+      - website_info.site[0].site_id == test_site_id
       - website_info.site[0].state == "Started"
       - website_info.site[0].application_pool == test_apppool
       - website_info.site[0].physical_path == test_phisical_path
-      - website_info.site[0].ip == test_website_ip
-      - website_info.site[0].port == test_website_port
-      - website_info.site[0].hostname == test_website_hostname
+      - website_info.site[0].bindings[0].ip == test_website_ip
+      - website_info.site[0].bindings[0].port == test_website_port
+      - website_info.site[0].bindings[0].hostname == test_website_hostname
+      - website_info.site[0].bindings[0].protocol == "http"
+      - website_info.site[0].bindings[0].require_server_name_indication == false
+      - website_info.site[0].bindings[0].use_centrelized_certificate_store == false
 
 - name: Get info of a none existent website
   microsoft.iis.website_info:

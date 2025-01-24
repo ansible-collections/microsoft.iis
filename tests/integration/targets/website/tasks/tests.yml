@@ -11,9 +11,11 @@
     state: started
     physical_path: "{{ test_phisical_path }}"
     application_pool: DefaultAppPool
-    ip: "{{ test_website_ip }}"
-    port: "{{ test_website_port }}"
-    hostname: "{{ test_website_hostname }}"
+    bindings:
+      set:
+        - ip: "{{ test_website_ip }}"
+          port: "{{ test_website_port }}"
+          hostname: "{{ test_website_hostname }}"
   register: website
 
 - name: get new website info 
@@ -25,7 +27,7 @@
     that:
     - website is changed
     - website_info.site[0].name == test_website_name
-    - website_info.site[0].id == test_site_id
+    - website_info.site[0].site_id == test_site_id
     - website_info.site[0].state == "Started"
     
 - name: create new website (idempotent)
@@ -35,9 +37,11 @@
     state: started
     physical_path: "{{ test_phisical_path }}"
     application_pool: DefaultAppPool
-    ip: "{{ test_website_ip }}"
-    port: "{{ test_website_port }}"
-    hostname: "{{ test_website_hostname }}"
+    bindings:
+      set:
+        - ip: "{{ test_website_ip }}"
+          port: "{{ test_website_port }}"
+          hostname: "{{ test_website_hostname }}"
   register: website
 
 - name: get new website info (idempotent)

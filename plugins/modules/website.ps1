@@ -5,6 +5,25 @@
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
 
+# Define Bindings Options
+$binding_options = @{
+    type = 'list'
+    elements = 'dict'
+    options = @{
+        ip = @{ type = 'str' }
+        port = @{ type = 'int' }
+        hostname = @{ type = 'str' }
+        protocol = @{ type = 'str' ; default = 'http' ; choices = @('http', 'https') }
+        require_server_name_indication = @{ type = 'bool'; default = $false }
+        use_centrelized_certificate_store = @{ type = 'bool'; default = $false }
+        certificate_hash = @{ type = 'str' }
+        certificate_store_name = @{ type = 'str' }
+    }
+    required_together = @(
+        , @('certificate_hash', 'certificate_store_name')
+    )
+}
+
 $spec = @{
     options = @{
         name = @{
@@ -25,19 +44,30 @@ $spec = @{
         physical_path = @{
             type = "str"
         }
-        ip = @{
-            type = "str"
-        }
-        port = @{
-            type = "int"
-        }
-        hostname = @{
-            type = "str"
+        bindings = @{
+            default = @{}
+            type = 'dict'
+            options = @{
+                add = $binding_options
+                set = $binding_options
+                remove = @{
+                    type = 'list'
+                    elements = 'dict'
+                    options = @{
+                        ip = @{ type = 'str' }
+                        port = @{ type = 'int' }
+                        hostname = @{ type = 'str' }
+                    }
+                }
+            }
+            mutually_exclusive = @(
+                , @('set', 'add')
+                , @('set', 'remove')
+            )
         }
     }
     supports_check_mode = $true
 }
-
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
 $name = $module.Params.name
@@ -45,9 +75,7 @@ $state = $module.Params.state
 $site_id = $module.Params.site_id
 $application_pool = $module.Params.application_pool
 $physical_path = $module.Params.physical_path
-$bind_ip = $module.Params.ip
-$bind_port = $module.Params.port
-$bind_hostname = $module.Params.hostname
+$bindings = $module.Params.bindings
 
 $check_mode = $module.CheckMode
 $module.Result.changed = $false
@@ -79,15 +107,6 @@ Try {
         If ($site_id) {
             $site_parameters.ID = $site_id
         }
-        If ($bind_port) {
-            $site_parameters.Port = $bind_port
-        }
-        If ($bind_ip) {
-            $site_parameters.IPAddress = $bind_ip
-        }
-        If ($bind_hostname) {
-            $site_parameters.HostHeader = $bind_hostname
-        }
         # Fix for error "New-Item : Index was outside the bounds of the array."
         # This is a bug in the New-WebSite commandlet. Apparently there must be at least one site configured in IIS otherwise New-WebSite crashes.
         # For more details, see http://stackoverflow.com/questions/3573889/ps-c-new-website-blah-throws-index-was-outside-the-bounds-of-the-array
@@ -103,6 +122,8 @@ Try {
         if ( -not $check_mode) {
             $site = New-Website @site_parameters -Force
         }
+        # Verify that initial site has no binding
+        Get-WebBinding -Name $site.Name | Remove-WebBinding -WhatIf:$check_mode
         $module.Result.changed = $true
     }
     # Remove site
@@ -127,6 +148,84 @@ Try {
         if ($application_pool) {
             If ($application_pool -ne $site.applicationPool) {
                 Set-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)" -name applicationPool -value $application_pool -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+        }
+        # Add Remove or Set bindings if needed
+        if ($bindings) {
+            $site_bindings = (Get-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)").Bindings.Collection
+            $toAdd = @()
+            $toRemove = @()
+            if ($null -ne $bindings.set) {
+                $toAdd = $bindings.set | Where-Object { -not ($site_bindings.bindingInformation -contains "$($_.ip):$($_.port):$($_.hostname)") }
+                $user_bindings = $bindings.set | ForEach-Object { "$($_.ip):$($_.port):$($_.hostname)" }
+                if ($null -ne $site_bindings.bindingInformation) {
+                    $toRemove = $site_bindings.bindingInformation | Where-Object { $_ -notin $user_bindings }
+                }
+            }
+            else {
+                if ($bindings.add) {
+                    $toAdd = $bindings.add | Where-Object { -not ($site_bindings.bindingInformation -contains "$($_.ip):$($_.port):$($_.hostname)") }
+                }
+                if ($bindings.remove) {
+                    $user_bindings = $bindings.remove | ForEach-Object { "$($_.ip):$($_.port):$($_.hostname)" }
+                    $toRemove = $site_bindings.bindingInformation | Where-Object { $_ -in $user_bindings }
+                }
+            }
+            $toAdd | ForEach-Object {
+                $ssl_flags = 0
+                if ($_.require_server_name_indication) {
+                    If ($_.protocol -ne 'https') {
+                        $module.FailJson("require_server_name_indication can only be set for https protocol")
+                    }
+                    If (-Not $_.hostname) {
+                        $module.FailJson("must specify hostname value when require_server_name_indication is set.")
+                    }
+                    $ssl_flags += 1
+                }
+                if ($_.use_centrelized_certificate_store) {
+                    If ($_.protocol -ne 'https') {
+                        $module.FailJson("use_centrelized_certificate_store can only be set for https protocol")
+                    }
+                    If (-Not $_.hostname) {
+                        $module.FailJson("must specify hostname value when use_centrelized_certificate_store is set.")
+                    }
+                    If ($_.certificate_hash) {
+                        $module.FailJson("You set use_centrelized_certificate_store to $($_.use_centrelized_certificate_store).
+                        This indicates you wish to use the Central Certificate Store feature.
+                        This cannot be used in combination with certficiate_hash and certificate_store_name. When using the Central Certificate Store feature,
+                        the certificate is automatically retrieved from the store rather than manually assigned to the binding.")
+                    }
+                    $ssl_flags += 2
+                }
+                If ($_.protocol -eq 'https') {
+                    if (-Not $_.use_centrelized_certificate_store -and -Not $_.certificate_hash) {
+                        $module.FailJson("must either specify a certficiate_hash or use_centrelized_certificate_store.")
+                    }
+                }
+                If ($_.certificate_hash) {
+                    If ($_.protocol -ne 'https') {
+                        $module.FailJson("You can only provide a certificate thumbprint when protocol is set to https")
+                    }
+                    # Validate cert path
+                    $cert_path = "cert:\LocalMachine\$($_.certificate_store_name)\$($_.certificate_hash)"
+                    If (-Not (Test-Path -LiteralPath $cert_path) ) {
+                        $module.FailJson("Unable to locate certificate at $cert_path")
+                    }
+                }
+                if (-not $check_mode) {
+                    New-WebBinding -Name $site.Name -IPAddress $_.ip -Port $_.port -HostHeader $_.hostname -Protocol $_.protocol -SslFlags $ssl_flags
+                    If ($_.certificate_hash) {
+                        $new_binding = Get-WebBinding -Name $site.Name -IPAddress $_.ip -Port $_.port -HostHeader $_.hostname
+                        $new_binding.AddSslCertificate($_.certificate_hash, $_.certificate_store_name)
+                    }
+                }
+                $module.Result.changed = $true
+            }
+            $toRemove | ForEach-Object {
+                $remove_binding = $_ -split ':'
+                Get-WebBinding -Name $site.Name -IPAddress $remove_binding[0] -Port $remove_binding[1]`
+                    -HostHeader $remove_binding[2] | Remove-WebBinding -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
         }

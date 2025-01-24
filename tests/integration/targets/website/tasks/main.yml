@@ -16,6 +16,7 @@
 
   # Tests
   - include_tasks: tests.yml
+  - include_tasks: bindings.yml
 
   always:
   # Cleanup
@@ -36,3 +37,16 @@
     loop:
       - "{{ test_phisical_path }}"
       - "{{ test_alt_phisical_path }}"
+
+  - name: cleanup certreq files
+    ansible.windows.win_file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      - c:\windows\temp\certreq1.txt
+      - c:\windows\temp\certreqresp1.txt
+      
+  - name: remove certs
+    raw: 'remove-item cert:\localmachine\my\{{ item }} -force -ea silentlycontinue'
+    with_items:
+      - "{{ thumbprint1.stdout_lines[0] }}"

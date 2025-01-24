@@ -33,15 +33,37 @@ function Get-WebsiteInfo ($name) {
         $module.Result.exists = $true
     }
     $site_bindings = Get-WebBinding -Name $name
+    $bindings_list = @(
+        $site_bindings | ForEach-Object {
+            $ssl_flags = $_.sslFlags
+            $use_centrelized_certificate_store = [math]::Floor($ssl_flags / 2)
+            $require_server_name_indication = $ssl_flags % 2
+            $certificate_hash = $_.certificateHash
+            $certificate_store_name = $_.certificateStoreName
+            $psObject = [PSCustomObject]@{
+                ip = $($_.bindingInformation -split ":")[0]
+                port = [int]$($_.bindingInformation -split ":")[1]
+                hostname = $($_.bindingInformation -split ":")[2]
+                protocol = $_.protocol
+                use_centrelized_certificate_store = [bool]$use_centrelized_certificate_store
+                require_server_name_indication = [bool]$require_server_name_indication
+            }
+            if ($certificate_hash) {
+                $psObject | Add-Member -MemberType NoteProperty -Name "certificate_hash" -Value $certificate_hash
+            }
+            if ($certificate_store_name) {
+                $psObject | Add-Member -MemberType NoteProperty -Name "certificate_store_name" -Value $certificate_store_name
+            }
+            $psObject
+        }
+    )
     $WebsiteInfoDict = @{
         name = $site.Name
-        id = $site.ID
+        site_id = $site.ID
         state = $site.State
         physical_path = $site.PhysicalPath
         application_pool = $site.applicationPool
-        ip = $($site_bindings.bindingInformation -split ":")[0]
-        port = [int]$($site_bindings.bindingInformation -split ":")[1]
-        hostname = $($site_bindings.bindingInformation -split ":")[2]
+        bindings = $bindings_list
     }
     return $WebsiteInfoDict
 }
