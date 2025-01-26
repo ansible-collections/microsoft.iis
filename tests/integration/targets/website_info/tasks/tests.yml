@@ -23,8 +23,8 @@
           port: "{{ test_website_port }}"
           hostname: "{{ test_website_hostname }}"
           protocol: "http"
-          require_server_name_indication: false
-          use_centrelized_certificate_store: false
+          use_sni: false
+          use_ccs: false
   register: website1
 
 - name: create second website
@@ -40,8 +40,8 @@
           port: "{{ test_alt_website_port }}"
           hostname: "{{ test_alt_website_hostname }}"
           protocol: "http"
-          require_server_name_indication: false
-          use_centrelized_certificate_store: false
+          use_sni: false
+          use_ccs: false
   register: website2
 
 - name: Fetch test website info
@@ -62,8 +62,8 @@
       - website_info.site[0].bindings[0].port == test_website_port
       - website_info.site[0].bindings[0].hostname == test_website_hostname
       - website_info.site[0].bindings[0].protocol == "http"
-      - website_info.site[0].bindings[0].require_server_name_indication == false
-      - website_info.site[0].bindings[0].use_centrelized_certificate_store == false
+      - website_info.site[0].bindings[0].use_sni == false
+      - website_info.site[0].bindings[0].use_ccs == false
 
 - name: Get info of a none existent website
   microsoft.iis.website_info:

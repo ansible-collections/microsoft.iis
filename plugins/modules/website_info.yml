@@ -52,7 +52,7 @@ RETURN:
         {
           "name": "Default Web Site",
           "state": "Started"
-          "id": 1,
+          "site_id": 1,
           "physical_path": "C:\\inetpub\\wwwroot",
           "application_pool": "DefaultAppPool",
           "bindings": [
@@ -61,8 +61,8 @@ RETURN:
               "port": 80,
               "hostname": "iis_website.com",
               "protocol": "http",
-              "use_centrelized_certificate_store": false,
-              "require_server_name_indication": false
+              "use_ccs": false,
+              "use_sni": false
             }
           ]
         }
@@ -73,7 +73,7 @@ RETURN:
           - Name of the website.
         type: str
         sample: Default Web Site
-      id:
+      site_id:
         description:
           - Specifies the website ID.
         type: str
@@ -115,21 +115,19 @@ RETURN:
             description: The website used protocol
             type: str
             sample: "http"
-          require_server_name_indication:
-            description: To require Server Name Indication (SNI) for SSL certificates
+          use_sni:
+            description: Require Server Name Indication (SNI) for SSL certificates
             type: str
             sample: "true"
-          use_centrelized_certificate_store:
-            description: To use IIS Centralized Certificate Store (CCS) for SSL certificates
+          use_ccs:
+            description: Use Centralized Certificate Store (CCS) for SSL certificates
             type: str
             sample: "true"
           certificate_hash:
             description: The SSL certificate hash used by the server
-            returned: when exist
             type: str
             sample: "005930BD42F4869B81150A81B3B922F839412CC7"
           certificate_store_name:
             description: The SSL certificate local store name
-            returned: when exist
             type: str
             sample: "MY"

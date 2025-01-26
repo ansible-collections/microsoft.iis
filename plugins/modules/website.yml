@@ -57,7 +57,9 @@ DOCUMENTATION:
           elements: dict
           suboptions:
             hostname:
-              description: The website binding hostname (DNS)
+              description:
+                - The website binding hostname (DNS)
+                - Mandatory if use_sni or use_ccs is true
               type: str
             ip:
               description: The website binding listen IP
@@ -70,17 +72,18 @@ DOCUMENTATION:
               type: str
               default: http
               choices: ["http", "https"]
-            require_server_name_indication:
+            use_sni:
               description:
-                - To require Server Name Indication (SNI) for SSL certificates
+                - Require Server Name Indication (SNI) for SSL certificates
                 - Can be used only if protocol is https
-                - When require_server_name_indication is true must specify C(hostname) value
+                - When use_sni is true must specify C(hostname) value
               type: bool
               default: false
-            use_centrelized_certificate_store:
+            use_ccs:
               description:
-                - To use IIS Centralized Certificate Store (CCS) for SSL certificates
+                - Use Centralized Certificate Store (CCS) for SSL certificates
                 - Can be used only if protocol is https
+                - When use_ccs is true must specify C(hostname) value
                 - If Central Certificate Store (CCS) is true C(certificate_hash) and C(certificate_store_name) shouldn't be used.
               type: bool
               default: false
@@ -98,6 +101,7 @@ DOCUMENTATION:
                 - When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to
                 - C(certificate_hash) and C(certificate_store_name) are required together
               type: str
+              default: "my"
         remove:
           description:
             - Specifies a list of bindings to remove from the website.
@@ -125,7 +129,9 @@ DOCUMENTATION:
           elements: dict
           suboptions:
             hostname:
-              description: The website binding hostname (DNS)
+              description:
+                - The website binding hostname (DNS)
+                - Mandatory if use_sni or use_ccs is true
               type: str
             ip:
               description: The website binding listen IP
@@ -138,17 +144,18 @@ DOCUMENTATION:
               type: str
               default: http
               choices: ["http", "https"]
-            require_server_name_indication:
+            use_sni:
               description:
-                - To require Server Name Indication (SNI) for SSL certificates
+                - Require Server Name Indication (SNI) for SSL certificates
                 - Can be used only if protocol is https
-                - When require_server_name_indication is true must specify C(hostname) value
+                - When use_sni is true must specify C(hostname) value
               type: bool
               default: false
-            use_centrelized_certificate_store:
+            use_ccs:
               description:
-                - To use IIS Centralized Certificate Store (CCS) for SSL certificates
+                - Use Centralized Certificate Store (CCS) for SSL certificates
                 - Can be used only if protocol is https
+                - When use_ccs is true must specify C(hostname) value
                 - If Central Certificate Store (CCS) is true C(certificate_hash) and C(certificate_store_name) shouldn't be used.
               type: bool
               default: false
@@ -166,6 +173,7 @@ DOCUMENTATION:
                 - When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to
                 - C(certificate_hash) and C(certificate_store_name) are required together
               type: str
+              default: "my"
   notes:
     - This module must be run on a Windows target host with the C(IISAdministration) module installed.
   seealso:
@@ -180,8 +188,13 @@ EXAMPLES: |
       name: WebSite
       physical_path: C:\inetpub\wwwroot
       state: started
+      bindings:
+        set:
+          - ip: 127.0.0.1
+            port: 80
+            hostname: my-website.com
 
-  - name: Create a website with two bindings, set all values and starts it
+  - name: Create a website with two bindings, set all values and start it
     microsoft.iis.website:
       name: WebSite
       site_id: 2
@@ -197,10 +210,37 @@ EXAMPLES: |
             port: 8082
             hostname: my-website.net
             protocol: https
-            require_server_name_indication: true
-            use_centrelized_certificate_store: false
+            use_sni: true
+            use_ccs: false
             certificate_hash: 5409124040FA1C8FA74939BDA2EF8FD5975BD25B
             certificate_store_name: MY
+
+  - name: Remove all the bindings from an existing website
+    microsoft.iis.website:
+      name: WebSite
+      bindings:
+        set: []
+
+  - name: Remove a binding from an existing website
+    microsoft.iis.website:
+      name: WebSite
+      bindings:
+        remove:
+          - ip: 127.0.0.1
+            port: 8081
+            hostname: my-website.com
+
+  - name: Add bindings to an existing website
+    microsoft.iis.website:
+      name: WebSite
+      bindings:
+        add:
+          - ip: 127.0.0.3
+            port: 8083
+            hostname: new-website.com
+          - ip: 127.0.0.4
+            port: 8084
+            hostname: new-website.net
 
   - name: Stop a website
     microsoft.iis.website:

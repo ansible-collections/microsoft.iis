@@ -14,14 +14,11 @@ $binding_options = @{
         port = @{ type = 'int' }
         hostname = @{ type = 'str' }
         protocol = @{ type = 'str' ; default = 'http' ; choices = @('http', 'https') }
-        require_server_name_indication = @{ type = 'bool'; default = $false }
-        use_centrelized_certificate_store = @{ type = 'bool'; default = $false }
+        use_sni = @{ type = 'bool'; default = $false }
+        use_ccs = @{ type = 'bool'; default = $false }
         certificate_hash = @{ type = 'str' }
-        certificate_store_name = @{ type = 'str' }
+        certificate_store_name = @{ type = 'str'; default = "my" }
     }
-    required_together = @(
-        , @('certificate_hash', 'certificate_store_name')
-    )
 }
 
 $spec = @{
@@ -79,6 +76,58 @@ $bindings = $module.Params.bindings
 
 $check_mode = $module.CheckMode
 $module.Result.changed = $false
+
+function check_sslFlags {
+    param (
+        [Parameter(Mandatory = $true)]
+        $iisObject
+    )
+    $ssl_flags = 0
+    # Check for use_sni
+    if ($iisObject.use_sni) {
+        If ($iisObject.protocol -ne 'https') {
+            $module.FailJson("use_sni can only be set for https protocol")
+        }
+        If (-Not $iisObject.hostname) {
+            $module.FailJson("must specify hostname value when use_sni is set.")
+        }
+        $ssl_flags += 1
+    }
+    # Check for use_ccs
+    if ($iisObject.use_ccs) {
+        If ($iisObject.protocol -ne 'https') {
+            $module.FailJson("use_ccs can only be set for https protocol")
+        }
+        If (-Not $iisObject.hostname) {
+            $module.FailJson("must specify hostname value when use_ccs is set.")
+        }
+        If ($iisObject.certificate_hash) {
+            $module.FailJson("You set use_ccs to $($iisObject.use_ccs).
+            This indicates you wish to use the Central Certificate Store feature.
+            This cannot be used in combination with certficiate_hash and certificate_store_name. When using the Central Certificate Store feature,
+            the certificate is automatically retrieved from the store rather than manually assigned to the binding.")
+        }
+        $ssl_flags += 2
+    }
+    # Validate protocol is https and either use_ccs or certificate_hash is set
+    If ($iisObject.protocol -eq 'https') {
+        if (-Not $iisObject.use_ccs -and -Not $iisObject.certificate_hash) {
+            $module.FailJson("must either specify a certificate_hash or use_ccs.")
+        }
+    }
+    # Validate certificate_hash
+    If ($iisObject.certificate_hash) {
+        If ($iisObject.protocol -ne 'https') {
+            $module.FailJson("You can only provide a certificate thumbprint when protocol is set to https")
+        }
+        # Validate cert path
+        $cert_path = "cert:\LocalMachine\$($iisObject.certificate_store_name)\$($iisObject.certificate_hash)"
+        If (-Not (Test-Path -LiteralPath $cert_path)) {
+            $module.FailJson("Unable to locate certificate at $cert_path")
+        }
+    }
+    return $ssl_flags
+}
 
 # Ensure WebAdministration module is loaded
 if ($null -eq (Get-Module "WebAdministration" -ErrorAction SilentlyContinue)) {
@@ -152,12 +201,14 @@ Try {
             }
         }
         # Add Remove or Set bindings if needed
-        if ($bindings) {
+        if ( $null -ne $bindings.set -or $bindings.add.Count -gt 0 -or $bindings.remove.Count -gt 0 ) {
             $site_bindings = (Get-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)").Bindings.Collection
             $toAdd = @()
+            $toEdit = @()
             $toRemove = @()
             if ($null -ne $bindings.set) {
                 $toAdd = $bindings.set | Where-Object { -not ($site_bindings.bindingInformation -contains "$($_.ip):$($_.port):$($_.hostname)") }
+                $toEdit = $bindings.set | Where-Object { ($site_bindings.bindingInformation -contains "$($_.ip):$($_.port):$($_.hostname)") }
                 $user_bindings = $bindings.set | ForEach-Object { "$($_.ip):$($_.port):$($_.hostname)" }
                 if ($null -ne $site_bindings.bindingInformation) {
                     $toRemove = $site_bindings.bindingInformation | Where-Object { $_ -notin $user_bindings }
@@ -166,6 +217,7 @@ Try {
             else {
                 if ($bindings.add) {
                     $toAdd = $bindings.add | Where-Object { -not ($site_bindings.bindingInformation -contains "$($_.ip):$($_.port):$($_.hostname)") }
+                    $toEdit = $bindings.add | Where-Object { ($site_bindings.bindingInformation -contains "$($_.ip):$($_.port):$($_.hostname)") }
                 }
                 if ($bindings.remove) {
                     $user_bindings = $bindings.remove | ForEach-Object { "$($_.ip):$($_.port):$($_.hostname)" }
@@ -173,46 +225,7 @@ Try {
                 }
             }
             $toAdd | ForEach-Object {
-                $ssl_flags = 0
-                if ($_.require_server_name_indication) {
-                    If ($_.protocol -ne 'https') {
-                        $module.FailJson("require_server_name_indication can only be set for https protocol")
-                    }
-                    If (-Not $_.hostname) {
-                        $module.FailJson("must specify hostname value when require_server_name_indication is set.")
-                    }
-                    $ssl_flags += 1
-                }
-                if ($_.use_centrelized_certificate_store) {
-                    If ($_.protocol -ne 'https') {
-                        $module.FailJson("use_centrelized_certificate_store can only be set for https protocol")
-                    }
-                    If (-Not $_.hostname) {
-                        $module.FailJson("must specify hostname value when use_centrelized_certificate_store is set.")
-                    }
-                    If ($_.certificate_hash) {
-                        $module.FailJson("You set use_centrelized_certificate_store to $($_.use_centrelized_certificate_store).
-                        This indicates you wish to use the Central Certificate Store feature.
-                        This cannot be used in combination with certficiate_hash and certificate_store_name. When using the Central Certificate Store feature,
-                        the certificate is automatically retrieved from the store rather than manually assigned to the binding.")
-                    }
-                    $ssl_flags += 2
-                }
-                If ($_.protocol -eq 'https') {
-                    if (-Not $_.use_centrelized_certificate_store -and -Not $_.certificate_hash) {
-                        $module.FailJson("must either specify a certficiate_hash or use_centrelized_certificate_store.")
-                    }
-                }
-                If ($_.certificate_hash) {
-                    If ($_.protocol -ne 'https') {
-                        $module.FailJson("You can only provide a certificate thumbprint when protocol is set to https")
-                    }
-                    # Validate cert path
-                    $cert_path = "cert:\LocalMachine\$($_.certificate_store_name)\$($_.certificate_hash)"
-                    If (-Not (Test-Path -LiteralPath $cert_path) ) {
-                        $module.FailJson("Unable to locate certificate at $cert_path")
-                    }
-                }
+                $ssl_flags = check_sslFlags -iisObject $_
                 if (-not $check_mode) {
                     New-WebBinding -Name $site.Name -IPAddress $_.ip -Port $_.port -HostHeader $_.hostname -Protocol $_.protocol -SslFlags $ssl_flags
                     If ($_.certificate_hash) {
@@ -221,6 +234,26 @@ Try {
                     }
                 }
                 $module.Result.changed = $true
+            }
+            $toEdit | ForEach-Object {
+                $user_edit = $_
+                $ssl_flags = check_sslFlags -iisObject $user_edit
+                $site_edit = $site_bindings | Where-Object { $_.bindingInformation -eq "$($user_edit.ip):$($user_edit.port):$($user_edit.hostname)" }
+                $binding_index = $site_bindings.IndexOf($site_edit)
+                if ($site_edit.protocol -ne $user_edit.protocol) {
+                    Set-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)" -Name "Bindings.Collection[$binding_index].protocol"`
+                        -value $user_edit.protocol -WhatIf:$check_mode
+                    $module.Result.changed = $true
+                }
+                if ($site_edit.sslFlags -ne $ssl_flags) {
+                    Set-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)" -Name "Bindings.Collection[$binding_index].sslFlags"`
+                        -value $ssl_flags -WhatIf:$check_mode
+                    $module.Result.changed = $true
+                }
+                If ($user_edit.certificate_hash) {
+                    $edit_binding = Get-WebBinding -Name $site.Name -IPAddress $user_edit.ip -Port $user_edit.port -HostHeader $user_edit.hostname
+                    $edit_binding.AddSslCertificate($user_edit.certificate_hash, $user_edit.certificate_store_name)
+                }
             }
             $toRemove | ForEach-Object {
                 $remove_binding = $_ -split ':'

@@ -36,23 +36,17 @@ function Get-WebsiteInfo ($name) {
     $bindings_list = @(
         $site_bindings | ForEach-Object {
             $ssl_flags = $_.sslFlags
-            $use_centrelized_certificate_store = [math]::Floor($ssl_flags / 2)
-            $require_server_name_indication = $ssl_flags % 2
-            $certificate_hash = $_.certificateHash
-            $certificate_store_name = $_.certificateStoreName
+            $use_ccs = [math]::Floor($ssl_flags / 2)
+            $use_sni = $ssl_flags % 2
             $psObject = [PSCustomObject]@{
                 ip = $($_.bindingInformation -split ":")[0]
                 port = [int]$($_.bindingInformation -split ":")[1]
                 hostname = $($_.bindingInformation -split ":")[2]
                 protocol = $_.protocol
-                use_centrelized_certificate_store = [bool]$use_centrelized_certificate_store
-                require_server_name_indication = [bool]$require_server_name_indication
-            }
-            if ($certificate_hash) {
-                $psObject | Add-Member -MemberType NoteProperty -Name "certificate_hash" -Value $certificate_hash
-            }
-            if ($certificate_store_name) {
-                $psObject | Add-Member -MemberType NoteProperty -Name "certificate_store_name" -Value $certificate_store_name
+                use_ccs = [bool]$use_ccs
+                use_sni = [bool]$use_sni
+                certificate_hash = $_.certificateHash
+                certificate_store_name = $_.CertificateStoreName
             }
             $psObject
         }
