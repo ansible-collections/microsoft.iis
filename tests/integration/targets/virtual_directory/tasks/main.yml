@@ -1,0 +1,24 @@
+- name: Run pre-tests tasks
+  block:
+  # Tests
+  - name: Run tests on hosts that support it
+    include_tasks: tests.yml
+
+  always:
+  # Cleanup
+  - name: Remove test virtual directory
+    virtual_directory:
+      state: absent
+      site: "{{ test_site_name }}"
+      name: "{{ test_vdir_name }}"
+
+  - name: Remove test application
+    web_application:
+      name: "{{ test_app_name }}"
+      site: "{{ test_site_name }}"
+      state: absent
+
+  - name: Remove test site
+    website:
+      name: "{{ test_site_name }}"
+      state: absent
