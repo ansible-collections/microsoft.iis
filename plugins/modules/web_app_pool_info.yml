@@ -52,39 +52,19 @@ RETURN:
           "CLRConfigFile": "",
           "applicationPoolSid": "S-1-5-82-3006700770-424185619-1745488364-794895919-4004696415",
           "autoStart": true,
-          "enable32BitAppOnWin64": false,
-          "enableConfigurationOverride": true,
-          "managedPipelineMode": "Integrated",
-          "managedRuntimeLoader": "webengine4.dll",
-          "managedRuntimeVersion": "v4.0",
-          "name": "DefaultAppPool",
-          "passAnonymousToken": true,
-          "queueLength": 1000,
-          "startMode": "OnDemand",
-          "state": "Started"
           "cpu": {
             "action": "NoAction",
             "limit": 0,
             "numaNodeAffinityMode": "Soft",
             "numaNodeAssignment": "MostAvailableMemory",
             "processorGroup": 0,
-            "resetInterval": {
-              "Days": 0,
-              "Hours": 0,
-              "Milliseconds": 0,
-              "Minutes": 5,
-              "Seconds": 0,
-              "Ticks": 3000000000,
-              "TotalDays": 0.003472222222222222,
-              "TotalHours": 0.08333333333333333,
-              "TotalMilliseconds": 300000,
-              "TotalMinutes": 5,
-              "TotalSeconds": 300
-            },
+            "resetInterval": "00:05:00",
             "smpAffinitized": false,
             "smpProcessorAffinityMask": 4294967295,
             "smpProcessorAffinityMask2": 4294967295
           },
+          "enable32BitAppOnWin64": false,
+          "enableConfigurationOverride": true,
           "failure": {
             "autoShutdownExe": "",
             "autoShutdownParams": "",
@@ -93,124 +73,48 @@ RETURN:
             "orphanActionParams": "",
             "orphanWorkerProcess": false,
             "rapidFailProtection": true,
-            "rapidFailProtectionInterval": {
-              "Days": 0,
-              "Hours": 0,
-              "Milliseconds": 0,
-              "Minutes": 5,
-              "Seconds": 0,
-              "Ticks": 3000000000,
-              "TotalDays": 0.003472222222222222,
-              "TotalHours": 0.08333333333333333,
-              "TotalMilliseconds": 300000,
-              "TotalMinutes": 5,
-              "TotalSeconds": 300
-            },
+            "rapidFailProtectionInterval": "00:05:00",
             "rapidFailProtectionMaxCrashes": 5
           },
+          "managedPipelineMode": "Integrated",
+          "managedRuntimeLoader": "webengine4.dll",
+          "managedRuntimeVersion": "v4.0",
+          "name": "DefaultAppPool",
+          "passAnonymousToken": true,
           "processModel": {
             "identityType": "ApplicationPoolIdentity",
-            "idleTimeout": {
-              "Days": 0,
-              "Hours": 0,
-              "Milliseconds": 0,
-              "Minutes": 20,
-              "Seconds": 0,
-              "Ticks": 12000000000,
-              "TotalDays": 0.013888888888888888,
-              "TotalHours": 0.3333333333333333,
-              "TotalMilliseconds": 1200000,
-              "TotalMinutes": 20,
-              "TotalSeconds": 1200
-            },
+            "idleTimeout": "00:20:00",
             "idleTimeoutAction": "Terminate",
             "loadUserProfile": false,
             "logEventOnProcessModel": "IdleTimeout",
             "logonType": "LogonBatch",
             "manualGroupMembership": false,
             "maxProcesses": 1,
-            "pingInterval": {
-              "Days": 0,
-              "Hours": 0,
-              "Milliseconds": 0,
-              "Minutes": 0,
-              "Seconds": 30,
-              "Ticks": 300000000,
-              "TotalDays": 0.0003472222222222222,
-              "TotalHours": 0.008333333333333333,
-              "TotalMilliseconds": 30000,
-              "TotalMinutes": 0.5,
-              "TotalSeconds": 30
-            },
-            "pingResponseTime": {
-              "Days": 0,
-              "Hours": 0,
-              "Milliseconds": 0,
-              "Minutes": 1,
-              "Seconds": 30,
-              "Ticks": 900000000,
-              "TotalDays": 0.0010416666666666667,
-              "TotalHours": 0.024999999999999998,
-              "TotalMilliseconds": 90000,
-              "TotalMinutes": 1.5,
-              "TotalSeconds": 90
-            },
+            "pingInterval": "00:00:30",
+            "pingResponseTime": "00:01:30",
             "pingingEnabled": true,
             "requestQueueDelegatorIdentity": "",
             "setProfileEnvironment": true,
-            "shutdownTimeLimit": {
-              "Days": 0,
-              "Hours": 0,
-              "Milliseconds": 0,
-              "Minutes": 1,
-              "Seconds": 30,
-              "Ticks": 900000000,
-              "TotalDays": 0.0010416666666666667,
-              "TotalHours": 0.024999999999999998,
-              "TotalMilliseconds": 90000,
-              "TotalMinutes": 1.5,
-              "TotalSeconds": 90
-            },
-            "startupTimeLimit": {
-              "Days": 0,
-              "Hours": 0,
-              "Milliseconds": 0,
-              "Minutes": 1,
-              "Seconds": 30,
-              "Ticks": 900000000,
-              "TotalDays": 0.0010416666666666667,
-              "TotalHours": 0.024999999999999998,
-              "TotalMilliseconds": 90000,
-              "TotalMinutes": 1.5,
-              "TotalSeconds": 90
-            },
+            "shutdownTimeLimit": "00:01:30",
+            "startupTimeLimit": "00:01:30",
             "userName": ""
           },
+          "queueLength": 1000,
           "recycling": {
             "disallowOverlappingRotation": false,
             "disallowRotationOnConfigChange": false,
             "logEventOnRecycle": "Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory",
             "periodicRestart": {
-              "memory": 0,
-              "privateMemory": 0,
-              "requests": 0,
-              "time": {
-                "Days": 1,
-                "Hours": 5,
-                "Milliseconds": 0,
-                "Minutes": 0,
-                "Seconds": 0,
-                "Ticks": 1044000000000,
-                "TotalDays": 1.2083333333333333,
-                "TotalHours": 29,
-                "TotalMilliseconds": 104400000,
-                "TotalMinutes": 1740,
-                "TotalSeconds": 104400
-              }
+                "memory": 0,
+                "privateMemory": 0,
+                "requests": 0,
+                "time": "1.05:00:00"
             }
-          }
+          },
+          "startMode": "OnDemand",
+          "state": "Started"
         },
-        "Name": "DefaultAppPool"
+        "name": "DefaultAppPool"
       }
     ]'
     contains:
