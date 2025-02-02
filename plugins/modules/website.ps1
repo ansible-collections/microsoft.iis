@@ -14,8 +14,8 @@ $binding_options = @{
         port = @{ type = 'int' }
         hostname = @{ type = 'str' }
         protocol = @{ type = 'str' ; default = 'http' ; choices = @('http', 'https') }
-        use_sni = @{ type = 'bool'; default = $false }
-        use_ccs = @{ type = 'bool'; default = $false }
+        use_sni = @{ type = 'bool' }
+        use_ccs = @{ type = 'bool' }
         certificate_hash = @{ type = 'str' }
         certificate_store_name = @{ type = 'str'; default = "my" }
     }
@@ -77,32 +77,32 @@ $bindings = $module.Params.bindings
 $check_mode = $module.CheckMode
 $module.Result.changed = $false
 
-function check_sslFlags {
+function Get-SSLFlagFromBinding {
     param (
         [Parameter(Mandatory = $true)]
-        $iisObject
+        $BindingInfo
     )
     $ssl_flags = 0
     # Check for use_sni
-    if ($iisObject.use_sni) {
-        If ($iisObject.protocol -ne 'https') {
+    if ($BindingInfo.use_sni) {
+        If ($BindingInfo.protocol -ne 'https') {
             $module.FailJson("use_sni can only be set for https protocol")
         }
-        If (-Not $iisObject.hostname) {
+        If (-Not $BindingInfo.hostname) {
             $module.FailJson("must specify hostname value when use_sni is set.")
         }
         $ssl_flags += 1
     }
     # Check for use_ccs
-    if ($iisObject.use_ccs) {
-        If ($iisObject.protocol -ne 'https') {
+    if ($BindingInfo.use_ccs) {
+        If ($BindingInfo.protocol -ne 'https') {
             $module.FailJson("use_ccs can only be set for https protocol")
         }
-        If (-Not $iisObject.hostname) {
+        If (-Not $BindingInfo.hostname) {
             $module.FailJson("must specify hostname value when use_ccs is set.")
         }
-        If ($iisObject.certificate_hash) {
-            $module.FailJson("You set use_ccs to $($iisObject.use_ccs).
+        If ($BindingInfo.certificate_hash) {
+            $module.FailJson("You set use_ccs to $($BindingInfo.use_ccs).
             This indicates you wish to use the Central Certificate Store feature.
             This cannot be used in combination with certficiate_hash and certificate_store_name. When using the Central Certificate Store feature,
             the certificate is automatically retrieved from the store rather than manually assigned to the binding.")
@@ -110,18 +110,18 @@ function check_sslFlags {
         $ssl_flags += 2
     }
     # Validate protocol is https and either use_ccs or certificate_hash is set
-    If ($iisObject.protocol -eq 'https') {
-        if (-Not $iisObject.use_ccs -and -Not $iisObject.certificate_hash) {
+    If ($BindingInfo.protocol -eq 'https') {
+        if (-Not $BindingInfo.use_ccs -and -Not $BindingInfo.certificate_hash) {
             $module.FailJson("must either specify a certificate_hash or use_ccs.")
         }
     }
     # Validate certificate_hash
-    If ($iisObject.certificate_hash) {
-        If ($iisObject.protocol -ne 'https') {
+    If ($BindingInfo.certificate_hash) {
+        If ($BindingInfo.protocol -ne 'https') {
             $module.FailJson("You can only provide a certificate thumbprint when protocol is set to https")
         }
         # Validate cert path
-        $cert_path = "cert:\LocalMachine\$($iisObject.certificate_store_name)\$($iisObject.certificate_hash)"
+        $cert_path = "cert:\LocalMachine\$($BindingInfo.certificate_store_name)\$($BindingInfo.certificate_hash)"
         If (-Not (Test-Path -LiteralPath $cert_path)) {
             $module.FailJson("Unable to locate certificate at $cert_path")
         }
@@ -225,7 +225,7 @@ Try {
                 }
             }
             $toAdd | ForEach-Object {
-                $ssl_flags = check_sslFlags -iisObject $_
+                $ssl_flags = Get-SSLFlagFromBinding -BindingInfo $_
                 if (-not $check_mode) {
                     New-WebBinding -Name $site.Name -IPAddress $_.ip -Port $_.port -HostHeader $_.hostname -Protocol $_.protocol -SslFlags $ssl_flags
                     If ($_.certificate_hash) {
@@ -237,9 +237,17 @@ Try {
             }
             $toEdit | ForEach-Object {
                 $user_edit = $_
-                $ssl_flags = check_sslFlags -iisObject $user_edit
                 $site_edit = $site_bindings | Where-Object { $_.bindingInformation -eq "$($user_edit.ip):$($user_edit.port):$($user_edit.hostname)" }
                 $binding_index = $site_bindings.IndexOf($site_edit)
+                # Get existing use_sni value from site if null
+                if ($null -eq $user_edit.use_sni) {
+                    $user_edit.use_sni = $site_edit.sslFlags % 2
+                }
+                # Get existing use_ccs value from site if null
+                if ($null -eq $user_edit.use_ccs) {
+                    $user_edit.use_ccs = [math]::Floor($site_edit.sslFlags / 2)
+                }
+                $ssl_flags = Get-SSLFlagFromBinding -BindingInfo $user_edit
                 if ($site_edit.protocol -ne $user_edit.protocol) {
                     Set-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)" -Name "Bindings.Collection[$binding_index].protocol"`
                         -value $user_edit.protocol -WhatIf:$check_mode
