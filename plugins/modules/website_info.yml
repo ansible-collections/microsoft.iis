@@ -52,12 +52,19 @@ RETURN:
         {
           "name": "Default Web Site",
           "state": "Started"
-          "id": 1,
+          "site_id": 1,
           "physical_path": "C:\\inetpub\\wwwroot",
           "application_pool": "DefaultAppPool",
-          "ip": "127.0.0.1",
-          "port": "80",
-          "hostname": "iis_website.com"
+          "bindings": [
+            {
+              "ip": "127.0.0.1",
+              "port": 80,
+              "hostname": "iis_website.com",
+              "protocol": "http",
+              "use_ccs": false,
+              "use_sni": false
+            }
+          ]
         }
       ]
     contains:
@@ -66,7 +73,7 @@ RETURN:
           - Name of the website.
         type: str
         sample: Default Web Site
-      id:
+      site_id:
         description:
           - Specifies the website ID.
         type: str
@@ -86,15 +93,41 @@ RETURN:
           - Specifies the physical folder path of the website.
         type: str
         sample: "C:\\inetpub\\wwwroot"
-      ip:
-        description: The website binding listen IP
-        type: str
-        sample: "127.0.0.1"
-      port:
-        description: The website binding listen port
-        type: str
-        sample: "80"
-      hostname:
-        description: The website binding hostname (DNS)
-        type: str
-        sample: "iis_website.com"
+      bindings:
+        description:
+          - List of dictionaries that hold the information of all the website bindings.
+        type: list
+        elements: dict
+        contains:
+          hostname:
+            description: The website binding hostname (DNS)
+            type: str
+            sample: "iis_website.com"
+          ip:
+            description: The website binding listen IP
+            type: str
+            sample: "127.0.0.1"
+          port:
+            description: The website binding listen port
+            type: str
+            sample: "80"
+          protocol:
+            description: The website used protocol
+            type: str
+            sample: "http"
+          use_sni:
+            description: Require Server Name Indication (SNI) for SSL certificates
+            type: str
+            sample: "true"
+          use_ccs:
+            description: Use Centralized Certificate Store (CCS) for SSL certificates
+            type: str
+            sample: "true"
+          certificate_hash:
+            description: The SSL certificate hash used by the server
+            type: str
+            sample: "005930BD42F4869B81150A81B3B922F839412CC7"
+          certificate_store_name:
+            description: The SSL certificate local store name
+            type: str
+            sample: "MY"

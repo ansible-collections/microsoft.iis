@@ -33,15 +33,31 @@ function Get-WebsiteInfo ($name) {
         $module.Result.exists = $true
     }
     $site_bindings = Get-WebBinding -Name $name
+    $bindings_list = @(
+        $site_bindings | ForEach-Object {
+            $ssl_flags = $_.sslFlags
+            $use_ccs = [math]::Floor($ssl_flags / 2)
+            $use_sni = $ssl_flags % 2
+            $psObject = [PSCustomObject]@{
+                ip = $($_.bindingInformation -split ":")[0]
+                port = [int]$($_.bindingInformation -split ":")[1]
+                hostname = $($_.bindingInformation -split ":")[2]
+                protocol = $_.protocol
+                use_ccs = [bool]$use_ccs
+                use_sni = [bool]$use_sni
+                certificate_hash = $_.certificateHash
+                certificate_store_name = $_.CertificateStoreName
+            }
+            $psObject
+        }
+    )
     $WebsiteInfoDict = @{
         name = $site.Name
-        id = $site.ID
+        site_id = $site.ID
         state = $site.State
         physical_path = $site.PhysicalPath
         application_pool = $site.applicationPool
-        ip = $($site_bindings.bindingInformation -split ":")[0]
-        port = [int]$($site_bindings.bindingInformation -split ":")[1]
-        hostname = $($site_bindings.bindingInformation -split ":")[2]
+        bindings = $bindings_list
     }
     return $WebsiteInfoDict
 }

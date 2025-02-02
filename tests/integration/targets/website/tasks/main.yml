@@ -16,6 +16,7 @@
 
   # Tests
   - include_tasks: tests.yml
+  - include_tasks: bindings.yml
 
   always:
   # Cleanup
@@ -36,3 +37,7 @@
     loop:
       - "{{ test_phisical_path }}"
       - "{{ test_alt_phisical_path }}"
+
+  - name: remove certs
+    raw: "remove-item cert:\\localmachine\\my\\{{ thumbprint1.stdout_lines[0] }} -force -ea silentlycontinue"
+    when: thumbprint1 is defined
