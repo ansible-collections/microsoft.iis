@@ -1,0 +1,90 @@
+---
+# Copyright: (c) 2024, Hen Yaish <hyaish@redhat.com>
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION:
+  module: virtual_directory_info
+  author: Hen Yaish (@hyaish)
+  short_description: Retrive information on a virtual directory in IIS
+  description:
+    - Retrive information on a virtual directory in IIS
+    - Retrive information on an application's virtual directory in IIS
+  options:
+    name:
+      description:
+        - The name of the virtual directory to create or remove.
+      type: str
+    site:
+      description:
+        - The site name under which the virtual directory exists.
+      type: str
+    application:
+      description:
+        - The application under which the virtual directory exists.
+      type: str
+
+  seealso:
+    - module: microsoft.iis.virtual_directory
+
+EXAMPLES: |
+  - name: Get information for virtual directory on a specific site.
+    microsoft.iis.virtual_directory_info:
+      site: somesite
+      name: somedirectory
+    register: vdir_info
+
+  - name: Get information for virtual directory on a specific site and application.
+    microsoft.iis.virtual_directory_info:
+      site: somesite
+      name: somedirectory
+      application: someapplication
+    register: vdir_info
+
+RETURN:
+  exists:
+    description:
+      - Whether any virtual directories were found.
+    returned: success
+    type: bool
+    sample: true
+  directories:
+    description:
+      - List of virtual directories found.
+    returned: success
+    type: list
+    elements: dict
+    sample: '[
+      {
+        "name": "somedirectory",
+        "site": "Test Site",
+        "physical_path": "C:\\Users\\ansibleAdmin\\AppData\\Local\\Temp\\ansible.sgivydkm.qid.test",
+        "application": null,
+        "username": ""
+      }
+    ]'
+    contains:
+      name:
+        description:
+          - Name of the virtual directory.
+        type: str
+        sample: somedirectory
+      site:
+        description:
+          - Site name where the virtual directory exists.
+        type: str
+        sample: Test Site
+      physical_path:
+        description:
+          - Physical path of the virtual directory.
+        type: str
+        sample: C:\Users\ansibleAdmin\AppData\Local\Temp\ansible.sgivydkm.qid.test
+      application:
+        description:
+          - Application name under which the virtual directory exists.
+        type: str
+        sample: null
+      username:
+        description:
+          - Username for the virtual directory when using specific user authentication.
+        type: str
+        sample: ""
