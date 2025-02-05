@@ -79,7 +79,7 @@ The entire module has been removed and the functionality has been merged into th
 .. _ansible_collections.microsoft.iis.docsite.guide_migration.migrated_modules.win_iis_virtualdirectory:
 
 Module ``win_iis_virtualdirectory``
-----------------------------------
+-----------------------------------
 
 Migrated to :ref:`microsoft.iis.virtual_directory <ansible_collections.microsoft.iis.virtual_directory_module>`.
 
