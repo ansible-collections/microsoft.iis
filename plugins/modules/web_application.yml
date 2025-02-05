@@ -10,33 +10,6 @@ DOCUMENTATION:
   requirements:
     - C(IISAdministration) PowerShell module
   options:
-    name:
-      description:
-        - Name of the web application.
-      type: str
-      required: true
-    site:
-      description:
-        - Name of the site on which the application is created.
-      type: str
-      required: true
-    state:
-      description:
-        - State of the web application.
-        - If C(absent), the web application will be removed.
-        - If C(present), the web application will be created if not already present.
-      type: str
-      choices:
-        - absent
-        - present
-      default: present
-    physical_path:
-      description:
-        - The physical path on the remote host to use for the new application.
-        - The specified folder must already exist.
-      type: str
-      aliases:
-        - path
     application_pool:
       description:
         - The application pool in which the new site executes.
@@ -52,20 +25,57 @@ DOCUMENTATION:
       choices:
         - pass_through
         - specific_user
-    username:
+    name:
       description:
-        - Specifies the user name of an account that can access configuration files and content for this application.
-        - Required when I(connect_as) is set to C(specific_user).
+        - Name of the web application.
       type: str
+      required: true
     password:
       description:
         - The password associated with I(username).
         - Required when I(connect_as) is set to C(specific_user).
       type: str
+    physical_path:
+      description:
+        - The physical path on the remote host to use for the new application.
+        - The specified folder must already exist.
+      type: str
+      aliases:
+        - path
+    site:
+      description:
+        - Name of the site on which the application is created.
+      type: str
+      required: true
+    state:
+      description:
+        - State of the web application.
+        - If C(absent), the web application will be removed.
+        - If C(present), the web application will be created if not already present.
+      type: str
+      choices:
+        - absent
+        - present
+      default: present
+    username:
+      description:
+        - Specifies the user name of an account that can access configuration files and content for this application.
+        - Required when I(connect_as) is set to C(specific_user).
+      type: str
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
+    platform:
+      platforms:
+        - windows
   seealso:
+    - module: microsoft.iis.web_application_info
     - module: microsoft.iis.web_app_pool
     - module: microsoft.iis.website
-    - module: microsoft.iis.web_application_info
   author:
     - Henrik Wallström (@henrikwallstrom)
 
