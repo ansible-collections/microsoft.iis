@@ -146,7 +146,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
 <li><p><a class="reference internal" href="#requirements" id="id2">Requirements</a></p></li>
 <li><p><a class="reference internal" href="#parameters" id="id3">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id4">Attributes</a></p></li>
 <li><p><a class="reference internal" href="#see-also" id="id5">See Also</a></p></li>
 <li><p><a class="reference internal" href="#examples" id="id6">Examples</a></p></li>
 </ul>
@@ -186,7 +186,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Specifies the website bindings to add, remove or set.</p>
-<p>The combination of <code class="docutils literal notranslate"><span class="pre">ip:port:hostname</span></code> is the binding unique identifier</p>
+<p>The combination of <code class="docutils literal notranslate"><span class="pre">ip:port:hostname</span></code> is the binding unique identifier.</p>
 <p>The binding <code class="docutils literal notranslate"><span class="pre">ip:port</span></code> must be available and not used by any other website on the server.</p>
 <p>To clear all website bindings, use <em>set</em> with an empty list.</p>
 <p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">{}</span></code></p>
@@ -197,7 +197,6 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/add" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Specifies a list of bindings to add to the website.</p>
-<p>The combination of <code class="docutils literal notranslate"><span class="pre">ip:port:hostname</span></code> is the binding unique identifier</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -205,9 +204,8 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/add/certificate_hash" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Certificate hash (thumbprint) for the SSL binding. The certificate hash is the unique identifier for the certificate.</p>
-<p>You can only provide a certificate thumbprint when protocol is set to https</p>
+<p>You can only provide a certificate thumbprint when <em>protocol</em> is set to <code class="docutils literal notranslate"><span class="pre">https</span></code>.</p>
 <p>When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to the binding.</p>
-<p><code class="docutils literal notranslate"><span class="pre">certificate_hash</span></code> and <code class="docutils literal notranslate"><span class="pre">certificate_store_name</span></code> are required together</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -215,8 +213,6 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/add/certificate_store_name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Name of the certificate store where the certificate for the binding is located.</p>
-<p>When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to</p>
-<p><code class="docutils literal notranslate"><span class="pre">certificate_hash</span></code> and <code class="docutils literal notranslate"><span class="pre">certificate_store_name</span></code> are required together</p>
 <p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;my&quot;</span></code></p>
 </div></td>
 </tr>
@@ -224,29 +220,29 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <div class="ansibleOptionAnchor" id="parameter-bindings/add/hostname"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-add-hostname"><strong>hostname</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/add/hostname" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding hostname (DNS)</p>
-<p>Mandatory if use_sni or use_ccs is true</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding hostname (DNS).</p>
+<p>Mandatory if <em>use_sni</em> or <em>use_ccs</em> is true.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-bindings/add/ip"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-add-ip"><strong>ip</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/add/ip" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen IP</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen IP.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-bindings/add/port"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-add-port"><strong>port</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/add/port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen port</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen port.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-bindings/add/protocol"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-add-protocol"><strong>protocol</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/add/protocol" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website used protocol (http, https)</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website used protocol (http, https).</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;http&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
@@ -258,10 +254,10 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <div class="ansibleOptionAnchor" id="parameter-bindings/add/use_ccs"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-add-use-ccs"><strong>use_ccs</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/add/use_ccs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Use Centralized Certificate Store (CCS) for SSL certificates</p>
-<p>Can be used only if protocol is https</p>
-<p>When use_ccs is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value</p>
-<p>If Central Certificate Store (CCS) is true <code class="docutils literal notranslate"><span class="pre">certificate_hash</span></code> and <code class="docutils literal notranslate"><span class="pre">certificate_store_name</span></code> shouldn’t be used.</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Use Centralized Certificate Store (CCS) for SSL certificates.</p>
+<p>Can be used only if <em>protocol</em> is <code class="docutils literal notranslate"><span class="pre">https</span></code>.</p>
+<p>When <em>use_ccs</em> is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value.</p>
+<p>If Central Certificate Store (CCS) is true <em>certificate_hash</em> should not be used.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
@@ -273,9 +269,9 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <div class="ansibleOptionAnchor" id="parameter-bindings/add/use_sni"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-add-use-sni"><strong>use_sni</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/add/use_sni" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Require Server Name Indication (SNI) for SSL certificates</p>
-<p>Can be used only if protocol is https</p>
-<p>When use_sni is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Require Server Name Indication (SNI) for SSL certificates.</p>
+<p>Can be used only if protocol is https.</p>
+<p>When <em>use_sni</em> is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
@@ -288,28 +284,27 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/remove" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Specifies a list of bindings to remove from the website.</p>
-<p>The combination of <code class="docutils literal notranslate"><span class="pre">ip:port:hostname</span></code> is the binding unique identifier</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-bindings/remove/hostname"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-remove-hostname"><strong>hostname</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/remove/hostname" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding hostname (DNS)</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding hostname (DNS).</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-bindings/remove/ip"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-remove-ip"><strong>ip</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/remove/ip" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen IP</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen IP.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-bindings/remove/port"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-remove-port"><strong>port</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/remove/port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen port</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen port.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -318,8 +313,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Specifies the exact list of bindings to set to the website.</p>
 <p>This will remove any existing bindings if not in the specified list.</p>
-<p>This will add any bindings in the specified list if it does not exist on the website</p>
-<p>The combination of <code class="docutils literal notranslate"><span class="pre">ip:port:hostname</span></code> is the binding unique identifier</p>
+<p>This will add any bindings in the specified list if it does not exist on the website.</p>
 <p>Set to an empty list to clear all the website bindings.</p>
 </div></td>
 </tr>
@@ -328,9 +322,8 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/set/certificate_hash" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Certificate hash (thumbprint) for the SSL binding. The certificate hash is the unique identifier for the certificate.</p>
-<p>You can only provide a certificate thumbprint when protocol is set to https</p>
+<p>You can only provide a certificate thumbprint when <em>protocol</em> is set to <code class="docutils literal notranslate"><span class="pre">https</span></code>.</p>
 <p>When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to the binding.</p>
-<p><code class="docutils literal notranslate"><span class="pre">certificate_hash</span></code> and <code class="docutils literal notranslate"><span class="pre">certificate_store_name</span></code> are required together</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -338,8 +331,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/set/certificate_store_name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Name of the certificate store where the certificate for the binding is located.</p>
-<p>When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to</p>
-<p><code class="docutils literal notranslate"><span class="pre">certificate_hash</span></code> and <code class="docutils literal notranslate"><span class="pre">certificate_store_name</span></code> are required together</p>
+<p>When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to.</p>
 <p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;my&quot;</span></code></p>
 </div></td>
 </tr>
@@ -347,29 +339,29 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <div class="ansibleOptionAnchor" id="parameter-bindings/set/hostname"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-set-hostname"><strong>hostname</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/set/hostname" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding hostname (DNS)</p>
-<p>Mandatory if use_sni or use_ccs is true</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding hostname (DNS).</p>
+<p>Mandatory if <em>use_sni</em> or <em>use_ccs</em> is true.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-bindings/set/ip"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-set-ip"><strong>ip</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/set/ip" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen IP</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen IP.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-bindings/set/port"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-set-port"><strong>port</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/set/port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen port</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding listen port.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-bindings/set/protocol"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-set-protocol"><strong>protocol</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/set/protocol" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website used protocol (http, https)</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website used protocol (http, https).</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;http&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
@@ -381,10 +373,10 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <div class="ansibleOptionAnchor" id="parameter-bindings/set/use_ccs"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-set-use-ccs"><strong>use_ccs</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/set/use_ccs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Use Centralized Certificate Store (CCS) for SSL certificates</p>
-<p>Can be used only if protocol is https</p>
-<p>When use_ccs is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value</p>
-<p>If Central Certificate Store (CCS) is true <code class="docutils literal notranslate"><span class="pre">certificate_hash</span></code> and <code class="docutils literal notranslate"><span class="pre">certificate_store_name</span></code> shouldn’t be used.</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Use Centralized Certificate Store (CCS) for SSL certificates.</p>
+<p>Can be used only if <em>protocol</em> is <code class="docutils literal notranslate"><span class="pre">https</span></code>.</p>
+<p>When <em>use_ccs</em> is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value.</p>
+<p>If Central Certificate Store (CCS) is true <code class="docutils literal notranslate"><span class="pre">certificate_hash</span></code> should not be used.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
@@ -396,9 +388,9 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <div class="ansibleOptionAnchor" id="parameter-bindings/set/use_sni"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-bindings-set-use-sni"><strong>use_sni</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bindings/set/use_sni" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Require Server Name Indication (SNI) for SSL certificates</p>
-<p>Can be used only if protocol is https</p>
-<p>When use_sni is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Require Server Name Indication (SNI) for SSL certificates.</p>
+<p>Can be used only if <em>protocol</em> is <code class="docutils literal notranslate"><span class="pre">https</span></code>.</p>
+<p>When <em>use_sni</em> is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
@@ -435,8 +427,8 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-state"><strong>state</strong></p>
 <a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>State of the website</p>
-<p>In order to start the website at least one binding should be configured</p>
+<td><div class="ansible-option-cell"><p>State of the website.</p>
+<p>In order to start the website at least one binding should be configured.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>
@@ -449,14 +441,42 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 </tbody>
 </table>
 </section>
-<section id="notes">
-<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><p>This module must be run on a Windows target host with the <code class="docutils literal notranslate"><span class="pre">IISAdministration</span></code> module installed.</p></li>
-</ul>
-</div>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check_mode and return changed status prediction without modifying target, if not supported the action will be skipped.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-none">none</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed (or possibly needs changing in check_mode), when in diff mode</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-platform"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-attribute-platform"><strong>platform</strong></p>
+<a class="ansibleOptionLink" href="#attribute-platform" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-property">Platform:</strong> <strong class="ansible-attribute-support-full">windows</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Target OS/families that can be operated against</p>
+</div></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="see-also">
 <h2><a class="toc-backref" href="#id5" role="doc-backlink">See Also</a><a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
@@ -510,7 +530,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <span class="w">    </span><span class="nt">bindings</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">set</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove a binding from an existing website</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove a specific binding from an existing website</span>
 <span class="w">  </span><span class="nt">microsoft.iis.website</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">WebSite</span>
 <span class="w">    </span><span class="nt">bindings</span><span class="p">:</span>

@@ -139,12 +139,68 @@
 <p>The following modules have been migrated in some shape or form into this collection</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">community.windows.win_iis_website</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">microsoft.iis.website</span></code> - <a class="reference internal" href="#ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-website"><span class="std std-ref">details</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">community.windows.win_iis_webbinding</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">microsoft.iis.website</span></code> - <a class="reference internal" href="#ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-webbinding"><span class="std std-ref">details</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">community.windows.win_iis_virtualdirectory</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">microsoft.iis.virtual_directory</span></code> - <a class="reference internal" href="#ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-virtualdirectory"><span class="std std-ref">details</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">community.windows.win_iis_webapppool</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">microsoft.iis.web_app_pool</span></code> - <a class="reference internal" href="#ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-webapppool"><span class="std std-ref">details</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">community.windows.win_iis_webapplication</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">microsoft.iis.web_application</span></code> - <a class="reference internal" href="#ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-webapplication"><span class="std std-ref">details</span></a></p></li>
 </ul>
 <p>While these modules are mostly drop in place compatible there are some breaking changes that need to be considered. See each module entry for more information.</p>
 <section id="module-win-iis-website">
 <span id="ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-website"></span><h3>Module <code class="docutils literal notranslate"><span class="pre">win_iis_website</span></code><a class="headerlink" href="#module-win-iis-website" title="Link to this heading"></a></h3>
 <p>Migrated to <a class="reference internal" href="../website_module.html#ansible-collections-microsoft-iis-website-module"><span class="std std-ref">microsoft.iis.website</span></a>.</p>
-<p>To complete.</p>
+<p>The following options have been removed:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">parameters</span></code> - Not currently implemented in the new module</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hostname</span></code>, <code class="docutils literal notranslate"><span class="pre">ip</span></code>, <code class="docutils literal notranslate"><span class="pre">port</span></code> - Moved to the <code class="docutils literal notranslate"><span class="pre">bindings</span></code> parameter, see <a class="reference internal" href="#ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-webbinding"><span class="std std-ref">details</span></a> for more details</p></li>
+</ul>
+<p>The return values have also been removed in favour of the <a class="reference internal" href="../website_info_module.html#ansible-collections-microsoft-iis-website-info-module"><span class="std std-ref">microsoft.iis.website_info</span></a> module.</p>
+<p>This example shows how a website was defined in the old module and the equivalent definition in the new module:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Build website in win_iis_webbinding</span>
+<span class="w">  </span><span class="nt">community.windows.win_iis_website</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Acme</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">started</span>
+<span class="w">    </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.1</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">    </span><span class="nt">application_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">acme</span>
+<span class="w">    </span><span class="nt">physical_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">C:\sites\acme</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Build website in microsoft.iis.website</span>
+<span class="w">  </span><span class="nt">microsoft.iis.website</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Acme</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">started</span>
+<span class="w">    </span><span class="nt">bindings</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">set</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.1</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">    </span><span class="nt">application_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">acme</span>
+<span class="w">    </span><span class="nt">physical_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">C:\sites\acme</span>
+</pre></div>
+</div>
+</section>
+<section id="module-win-iis-webbinding">
+<span id="ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-webbinding"></span><h3>Module <code class="docutils literal notranslate"><span class="pre">win_iis_webbinding</span></code><a class="headerlink" href="#module-win-iis-webbinding" title="Link to this heading"></a></h3>
+<p>Migrated to <a class="reference internal" href="../website_module.html#ansible-collections-microsoft-iis-website-module"><span class="std std-ref">microsoft.iis.website</span></a>.</p>
+<p>The entire module has been removed and the functionality has been merged into the <a class="reference internal" href="../website_module.html#ansible-collections-microsoft-iis-website-module"><span class="std std-ref">microsoft.iis.website</span></a> module. The bindings are now specified by the <code class="docutils literal notranslate"><span class="pre">bindings</span></code> parameter in the website module and can be used to add, remove, or set multiple bindings in one operation on the website. While most of the <code class="docutils literal notranslate"><span class="pre">bindings</span></code> entries follow the same format as the old module, there are some changes to a binding entry:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">host_header</span></code> - Has been renamed to <code class="docutils literal notranslate"><span class="pre">hostname</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ssl_flags</span></code> - Has been split into <code class="docutils literal notranslate"><span class="pre">use_sni</span></code> and <code class="docutils literal notranslate"><span class="pre">use_ccs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">state</span></code> - Controlled by specifying the binding into the relevant <code class="docutils literal notranslate"><span class="pre">add</span></code>, <code class="docutils literal notranslate"><span class="pre">remote</span></code>, or <code class="docutils literal notranslate"><span class="pre">set</span></code> key</p></li>
+</ul>
+</section>
+<section id="module-win-iis-virtualdirectory">
+<span id="ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-virtualdirectory"></span><h3>Module <code class="docutils literal notranslate"><span class="pre">win_iis_virtualdirectory</span></code><a class="headerlink" href="#module-win-iis-virtualdirectory" title="Link to this heading"></a></h3>
+<p>Migrated to <a class="reference internal" href="../virtual_directory_module.html#ansible-collections-microsoft-iis-virtual-directory-module"><span class="std std-ref">microsoft.iis.virtual_directory</span></a>.</p>
+<p>The new <code class="docutils literal notranslate"><span class="pre">microsoft.iis.virtual_directory</span></code> module is largely unchanged from the old module, with the exception of the return values being removed. The new <a class="reference internal" href="../virtual_directory_info_module.html#ansible-collections-microsoft-iis-virtual-directory-info-module"><span class="std std-ref">microsoft.iis.virtual_directory_info</span></a> module can be used to retrieve information about virtual directories instead.</p>
+</section>
+<section id="module-win-iis-webapppool">
+<span id="ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-webapppool"></span><h3>Module <code class="docutils literal notranslate"><span class="pre">win_iis_webapppool</span></code><a class="headerlink" href="#module-win-iis-webapppool" title="Link to this heading"></a></h3>
+<p>Migrated to <a class="reference internal" href="../web_app_pool_module.html#ansible-collections-microsoft-iis-web-app-pool-module"><span class="std std-ref">microsoft.iis.web_app_pool</span></a>.</p>
+<p>The new <code class="docutils literal notranslate"><span class="pre">microsoft.iis.web_app_pool</span></code> module is largely unchanged from the old module, with the exception of the return values being removed. The new <a class="reference internal" href="../web_app_pool_info_module.html#ansible-collections-microsoft-iis-web-app-pool-info-module"><span class="std std-ref">microsoft.iis.web_app_pool_info</span></a> module can be used to retrieve information about web app pools instead.</p>
+</section>
+<section id="module-win-iis-webapplication">
+<span id="ansible-collections-microsoft-iis-docsite-guide-migration-migrated-modules-win-iis-webapplication"></span><h3>Module <code class="docutils literal notranslate"><span class="pre">win_iis_webapplication</span></code><a class="headerlink" href="#module-win-iis-webapplication" title="Link to this heading"></a></h3>
+<p>Migrated to <a class="reference internal" href="../web_application_module.html#ansible-collections-microsoft-iis-web-application-module"><span class="std std-ref">microsoft.iis.website</span></a>.</p>
+<p>The new <code class="docutils literal notranslate"><span class="pre">microsoft.iis.web_application</span></code> module is largely unchanged from the old module, with the exception of the return values being removed. The new <a class="reference internal" href="../web_application_info_module.html#ansible-collections-microsoft-iis-web-application-info-module"><span class="std std-ref">microsoft.iis.web_application_info</span></a> module can be used to retrieve information about web applications instead.</p>
 </section>
 </section>
 </section>
