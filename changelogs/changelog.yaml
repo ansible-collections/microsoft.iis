@@ -1,0 +1,8 @@
+ancestor: null
+releases:
+  1.0.0:
+    changes:
+      release_summary: First release of the microsoft.iis collection
+    fragments:
+    - release-summary.yml
+    release_date: '2025-02-05'
