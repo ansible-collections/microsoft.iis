@@ -7,6 +7,8 @@ DOCUMENTATION:
   short_description: Configure IIS Web Application Pools
   description:
     - Creates, removes and configures an IIS Web Application Pool.
+  requirements:
+    - C(IISAdministration) PowerShell module
   options:
     attributes:
       description:
@@ -42,12 +44,18 @@ DOCUMENTATION:
       type: str
       choices: [absent, present, restarted, started, stopped]
       default: present
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
+    platform:
+      platforms:
+        - windows
   seealso:
     - module: microsoft.iis.web_app_pool_info
-    - module: community.windows.win_iis_virtualdirectory
-    - module: community.windows.win_iis_webapplication
-    - module: community.windows.win_iis_webbinding
-    - module: community.windows.win_iis_website
   author:
     - Henrik Wallström (@henrikwallstrom)
     - Jordan Borean (@jborean93)

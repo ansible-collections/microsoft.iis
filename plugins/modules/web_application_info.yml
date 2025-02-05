@@ -21,32 +21,41 @@ DOCUMENTATION:
         - When not specified, information of all existing applications will be fetched unless name is specified.
         - Can be used in conjunction with name to fetch information for a specific application when name is not unique.
       type: str
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
+    platform:
+      platforms:
+        - windows
   seealso:
-    - module: microsoft.iis.web_app_pool
-    - module: microsoft.iis.website
     - module: microsoft.iis.web_application
+    - module: microsoft.iis.website
   author:
     - Ron Gershburg (@rgershbu)
 
 EXAMPLES: |
   - name: Fetch info for all applications under siteA
-    web_application_info:
+    microsoft.iis.web_application_info:
       site: SiteA
     register: info
 
   - name: Fetch info for web application MyApp
-    web_application_info:
+    microsoft.iis.web_application_info:
       name: MyApp
     register: info
 
   - name: Fetch info for web application MyApp using site and name - Useful when multiple sites have same app name
-    web_application_info:
+    microsoft.iis.web_application_info:
       name: MyApp
       site: SiteA
     register: info
 
   - name: Fetch info for all web applications that present in the system
-    web_application_info:
+    microsoft.iis.web_application_info:
     register: info
 
 RETURN:

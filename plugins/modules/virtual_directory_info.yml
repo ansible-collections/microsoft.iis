@@ -4,29 +4,48 @@
 
 DOCUMENTATION:
   module: virtual_directory_info
-  author: Hen Yaish (@hyaish)
   short_description: Retrive information on a virtual directory in IIS
   description:
-    - Retrive information on a virtual directory in IIS
-    - Retrive information on an application's virtual directory in IIS
+    - Retrive information on a virtual directory in IIS.
+  requirements:
+    - C(IISAdministration) PowerShell module
   options:
+    application:
+      description:
+        - The name of the IIS web application to retrieve the virtual
+          directories from. If unset, all website virtual directories will be
+          returned.
+      type: str
     name:
       description:
-        - The name of the virtual directory to create or remove.
+        - The name of the virtual directory to get the information for. If
+          unset, all virtual directories will be returned.
       type: str
     site:
       description:
-        - The site name under which the virtual directory exists.
+        - The name of the IIS website to retrieve the virtual directories from.
+          If unset, all website virtual directories will be returned.
       type: str
-    application:
-      description:
-        - The application under which the virtual directory exists.
-      type: str
-
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
+    platform:
+      platforms:
+        - windows
   seealso:
     - module: microsoft.iis.virtual_directory
+  author:
+    - Hen Yaish (@hyaish)
 
 EXAMPLES: |
+  - name: Get information for all virtual directories
+    microsoft.iis.virtual_directory_info:
+    register: vdir_info
+
   - name: Get information for virtual directory on a specific site.
     microsoft.iis.virtual_directory_info:
       site: somesite

@@ -6,7 +6,9 @@ DOCUMENTATION:
   module: web_app_pool_info
   short_description: Get information on IIS Web Application Pools
   description:
-    - Returns information about IIS Web Application Pools
+    - Returns information about IIS Web Application Pools.
+  requirements:
+    - C(IISAdministration) PowerShell module
   options:
     name:
       description:
@@ -14,12 +16,18 @@ DOCUMENTATION:
         - When not specified, information of all existing pools will be fetched
       type: str
       required: false
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
+    platform:
+      platforms:
+        - windows
   seealso:
     - module: microsoft.iis.web_app_pool
-    - module: community.windows.win_iis_virtualdirectory
-    - module: community.windows.win_iis_webapplication
-    - module: community.windows.win_iis_webbinding
-    - module: community.windows.win_iis_website
   author:
     - Ron Gershburg (@rgershbu)
 

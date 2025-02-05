@@ -6,7 +6,7 @@ DOCUMENTATION:
   module: website_info
   short_description: Get information on IIS websites
   description:
-    - Returns information about IIS websites
+    - Returns information about IIS websites.
   requirements:
     - C(IISAdministration) PowerShell module
   options:
@@ -16,8 +16,16 @@ DOCUMENTATION:
         - When not specified, information of all existing websites will be fetched
       type: str
       required: false
-  notes:
-    - This module must be run on a Windows target host with the C(IISAdministration) module installed.
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
+    platform:
+      platforms:
+        - windows
   seealso:
     - module: microsoft.iis.website
   author:
