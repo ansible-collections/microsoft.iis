@@ -8,7 +8,7 @@ DOCUMENTATION:
   description:
     - Creates, removes, and configures a virtual directory in IIS.
   requirements:
-    - C(IISAdministration) PowerShell module
+    - IISAdministration PowerShell module
   options:
     application:
       description:

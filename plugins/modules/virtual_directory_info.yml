@@ -8,7 +8,7 @@ DOCUMENTATION:
   description:
     - Retrive information on a virtual directory in IIS.
   requirements:
-    - C(IISAdministration) PowerShell module
+    - IISAdministration PowerShell module
   options:
     application:
       description:
@@ -46,13 +46,13 @@ EXAMPLES: |
     microsoft.iis.virtual_directory_info:
     register: vdir_info
 
-  - name: Get information for virtual directory on a specific site.
+  - name: Get information for virtual directory on a specific site
     microsoft.iis.virtual_directory_info:
       site: somesite
       name: somedirectory
     register: vdir_info
 
-  - name: Get information for virtual directory on a specific site and application.
+  - name: Get information for virtual directory on a specific site and application
     microsoft.iis.virtual_directory_info:
       site: somesite
       name: somedirectory
