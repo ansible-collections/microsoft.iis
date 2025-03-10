@@ -8,7 +8,7 @@ DOCUMENTATION:
   description:
     - Returns information about IIS web applications.
   requirements:
-    - C(IISAdministration) PowerShell module
+    - IISAdministration PowerShell module
   options:
     name:
       description:
@@ -38,7 +38,7 @@ DOCUMENTATION:
     - Ron Gershburg (@rgershbu)
 
 EXAMPLES: |
-  - name: Fetch info for all applications under siteA
+  - name: Fetch info for all applications under SiteA
     microsoft.iis.web_application_info:
       site: SiteA
     register: info

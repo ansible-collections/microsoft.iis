@@ -8,7 +8,7 @@ DOCUMENTATION:
   description:
     - Returns information about IIS websites.
   requirements:
-    - C(IISAdministration) PowerShell module
+    - IISAdministration PowerShell module
   options:
     name:
       description:

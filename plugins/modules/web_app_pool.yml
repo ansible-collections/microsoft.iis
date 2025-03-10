@@ -8,7 +8,7 @@ DOCUMENTATION:
   description:
     - Creates, removes and configures an IIS Web Application Pool.
   requirements:
-    - C(IISAdministration) PowerShell module
+    - IISAdministration PowerShell module
   options:
     attributes:
       description:
