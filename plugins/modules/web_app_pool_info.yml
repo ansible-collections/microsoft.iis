@@ -13,7 +13,7 @@ DOCUMENTATION:
     name:
       description:
         - Name of the application pool.
-        - When not specified, information of all existing pools will be fetched
+        - When not specified, information of all existing pools will be fetched.
       type: str
       required: false
   extends_documentation_fragment:
@@ -134,7 +134,7 @@ RETURN:
       attributes:
         description:
           - Dictionary that hold the information of a specific application pool.
-          - For full list see https://learn.microsoft.com/en-us/iis/configuration/system.applicationhost/applicationpools/add/#attributes
+          - For full list see U(https://learn.microsoft.com/en-us/iis/configuration/system.applicationhost/applicationpools/add/#attributes).
         type: dict
         contains:
           cpu:

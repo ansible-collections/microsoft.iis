@@ -124,6 +124,6 @@ RETURN:
         sample: pass_through
       username:
         description:
-          - The username of the account that can access configuration files and content for this application when I(connect_as) is set to C(specific_user).
+          - The username of the account that can access configuration files and content for this application when RV(applications.connect_as=specific_user).
         type: str
         sample: testuser
