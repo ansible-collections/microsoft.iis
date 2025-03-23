@@ -188,7 +188,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <td><div class="ansible-option-cell"><p>Specifies the website bindings to add, remove or set.</p>
 <p>The combination of <code class="docutils literal notranslate"><span class="pre">ip:port:hostname</span></code> is the binding unique identifier.</p>
 <p>The binding <code class="docutils literal notranslate"><span class="pre">ip:port</span></code> must be available and not used by any other website on the server.</p>
-<p>To clear all website bindings, use <em>set</em> with an empty list.</p>
+<p>To clear all website bindings, use <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set"><span class="std std-ref"><span class="pre">bindings.set</span></span></a></strong></code> with an empty list.</p>
 <p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">{}</span></code></p>
 </div></td>
 </tr>
@@ -204,7 +204,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/add/certificate_hash" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Certificate hash (thumbprint) for the SSL binding. The certificate hash is the unique identifier for the certificate.</p>
-<p>You can only provide a certificate thumbprint when <em>protocol</em> is set to <code class="docutils literal notranslate"><span class="pre">https</span></code>.</p>
+<p>You can only provide a certificate thumbprint when <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-add-protocol"><span class="std std-ref"><span class="pre">bindings.add.protocol=https</span></span></a></code>.</p>
 <p>When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to the binding.</p>
 </div></td>
 </tr>
@@ -221,7 +221,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/add/hostname" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding hostname (DNS).</p>
-<p>Mandatory if <em>use_sni</em> or <em>use_ccs</em> is true.</p>
+<p>Mandatory if <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-add-use-sni"><span class="std std-ref"><span class="pre">bindings.add.use_sni=true</span></span></a></code> or <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-add-use-ccs"><span class="std std-ref"><span class="pre">bindings.add.use_ccs=true</span></span></a></code>.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -255,9 +255,9 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/add/use_ccs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Use Centralized Certificate Store (CCS) for SSL certificates.</p>
-<p>Can be used only if <em>protocol</em> is <code class="docutils literal notranslate"><span class="pre">https</span></code>.</p>
-<p>When <em>use_ccs</em> is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value.</p>
-<p>If Central Certificate Store (CCS) is true <em>certificate_hash</em> should not be used.</p>
+<p>Can be used only if <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-add-protocol"><span class="std std-ref"><span class="pre">bindings.add.protocol=https</span></span></a></code>.</p>
+<p>When <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-add-use-ccs"><span class="std std-ref"><span class="pre">bindings.add.use_ccs=true</span></span></a></code>, the <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-add-hostname"><span class="std std-ref"><span class="pre">bindings.add.hostname</span></span></a></strong></code> value must be set.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-add-certificate-hash"><span class="std std-ref"><span class="pre">bindings.add.certificate_hash</span></span></a></strong></code> should not be used.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
@@ -271,7 +271,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Require Server Name Indication (SNI) for SSL certificates.</p>
 <p>Can be used only if protocol is https.</p>
-<p>When <em>use_sni</em> is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value.</p>
+<p>When <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-add-use-sni"><span class="std std-ref"><span class="pre">bindings.add.use_sni=true</span></span></a></code>, the <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-add-hostname"><span class="std std-ref"><span class="pre">bindings.add.hostname</span></span></a></strong></code> value must be set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
@@ -322,7 +322,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/set/certificate_hash" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Certificate hash (thumbprint) for the SSL binding. The certificate hash is the unique identifier for the certificate.</p>
-<p>You can only provide a certificate thumbprint when <em>protocol</em> is set to <code class="docutils literal notranslate"><span class="pre">https</span></code>.</p>
+<p>You can only provide a certificate thumbprint when <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set-protocol"><span class="std std-ref"><span class="pre">bindings.set.protocol=https</span></span></a></code>.</p>
 <p>When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to the binding.</p>
 </div></td>
 </tr>
@@ -340,7 +340,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/set/hostname" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The website binding hostname (DNS).</p>
-<p>Mandatory if <em>use_sni</em> or <em>use_ccs</em> is true.</p>
+<p>Mandatory if <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set-use-sni"><span class="std std-ref"><span class="pre">bindings.set.use_sni=true</span></span></a></code> or <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set-use-ccs"><span class="std std-ref"><span class="pre">bindings.set.use_ccs=true</span></span></a></code>.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -374,9 +374,9 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/set/use_ccs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Use Centralized Certificate Store (CCS) for SSL certificates.</p>
-<p>Can be used only if <em>protocol</em> is <code class="docutils literal notranslate"><span class="pre">https</span></code>.</p>
-<p>When <em>use_ccs</em> is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value.</p>
-<p>If Central Certificate Store (CCS) is true <code class="docutils literal notranslate"><span class="pre">certificate_hash</span></code> should not be used.</p>
+<p>Can be used only if <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set-protocol"><span class="std std-ref"><span class="pre">bindings.set.protocol=https</span></span></a></code>.</p>
+<p>When <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set-use-ccs"><span class="std std-ref"><span class="pre">bindings.set.use_ccs=true</span></span></a></code>, the <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set-hostname"><span class="std std-ref"><span class="pre">bindings.set.hostname</span></span></a></strong></code> value must be set.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set-certificate-hash"><span class="std std-ref"><span class="pre">bindings.set.certificate_hash</span></span></a></strong></code> should not be used.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
@@ -389,8 +389,8 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <a class="ansibleOptionLink" href="#parameter-bindings/set/use_sni" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Require Server Name Indication (SNI) for SSL certificates.</p>
-<p>Can be used only if <em>protocol</em> is <code class="docutils literal notranslate"><span class="pre">https</span></code>.</p>
-<p>When <em>use_sni</em> is true must specify <code class="docutils literal notranslate"><span class="pre">hostname</span></code> value.</p>
+<p>Can be used only if <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set-protocol"><span class="std std-ref"><span class="pre">bindings.set.protocol=https</span></span></a></code>.</p>
+<p>When <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set-use-sni"><span class="std std-ref"><span class="pre">bindings.set.use_sni=true</span></span></a></code>, the <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-website-module-parameter-bindings-set-hostname"><span class="std std-ref"><span class="pre">bindings.set.hostname</span></span></a></strong></code> value must be set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>

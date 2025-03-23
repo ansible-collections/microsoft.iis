@@ -183,8 +183,8 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-web-a
 <p>While you can use the numeric values for enums it is recommended to use the enum name itself, e.g., use SpecificUser instead of 3 for processModel.identityType.</p>
 <p>managedPipelineMode may be either “Integrated” or “Classic”.</p>
 <p>startMode may be either “OnDemand” or “AlwaysRunning”.</p>
-<p>Use <code class="docutils literal notranslate"><span class="pre">state</span></code> module parameter to modify the state of the app pool.</p>
-<p>When trying to set ‘processModel.password’ and you receive a ‘Value does fall within the expected range’ error, you have a corrupted keystore. Please follow <a class="reference external" href="http://structuredsight.com/2014/10/26/im-out-of-range-youre-out-of-range/">http://structuredsight.com/2014/10/26/im-out-of-range-youre-out-of-range/</a> to help fix your host.</p>
+<p>Use <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-web-app-pool-module-parameter-state"><span class="std std-ref"><span class="pre">state</span></span></a></strong></code> to modify the state of the app pool.</p>
+<p>When trying to set <code class="docutils literal notranslate"><span class="pre">processModel.password</span></code> and you receive a ‘Value does fall within the expected range’ error, you have a corrupted keystore. Please follow <a class="reference external" href="http://structuredsight.com/2014/10/26/im-out-of-range-youre-out-of-range/">http://structuredsight.com/2014/10/26/im-out-of-range-youre-out-of-range/</a> to help fix your host.</p>
 <p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">{}</span></code></p>
 </div></td>
 </tr>
@@ -200,11 +200,11 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-web-a
 <a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The state of the application pool.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">absent</span></code> will ensure the app pool is removed.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">present</span></code> will ensure the app pool is configured and exists.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">restarted</span></code> will ensure the app pool exists and will restart, this is never idempotent.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">started</span></code> will ensure the app pool exists and is started.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">stopped</span></code> will ensure the app pool exists and is stopped.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> will ensure the app pool is removed.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">present</span></code> will ensure the app pool is configured and exists.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">restarted</span></code> will ensure the app pool exists and will restart, this is never idempotent.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">started</span></code> will ensure the app pool exists and is started.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">stopped</span></code> will ensure the app pool exists and is stopped.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>

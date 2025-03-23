@@ -185,10 +185,10 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-web-a
 <div class="ansibleOptionAnchor" id="parameter-connect_as"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-web-application-module-parameter-connect-as"><strong>connect_as</strong></p>
 <a class="ansibleOptionLink" href="#parameter-connect_as" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>The type of authentication to use for this application. Either <code class="docutils literal notranslate"><span class="pre">pass_through</span></code> or <code class="docutils literal notranslate"><span class="pre">specific_user</span></code>.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">pass_through</span></code>, IIS will use the identity of the user or application pool identity to access the file system or network.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">specific_user</span></code>, IIS will use the credentials provided in <em>username</em> and <em>password</em> to access the file system or network.</p>
-<p>If not specified, the default is <code class="docutils literal notranslate"><span class="pre">pass_through</span></code> and an existing application will not be modified.</p>
+<td><div class="ansible-option-cell"><p>The type of authentication to use for this application. Either <code class="ansible-value docutils literal notranslate"><span class="pre">pass_through</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">specific_user</span></code>.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">pass_through</span></code>, IIS will use the identity of the user or application pool identity to access the file system or network.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">specific_user</span></code>, IIS will use the credentials provided in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-web-application-module-parameter-username"><span class="std std-ref"><span class="pre">username</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-web-application-module-parameter-password"><span class="std std-ref"><span class="pre">password</span></span></a></strong></code> to access the file system or network.</p>
+<p>If not specified, the default is <code class="ansible-value docutils literal notranslate"><span class="pre">pass_through</span></code> and an existing application will not be modified.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;pass_through&quot;</span></code></p></li>
@@ -207,8 +207,8 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-web-a
 <div class="ansibleOptionAnchor" id="parameter-password"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-web-application-module-parameter-password"><strong>password</strong></p>
 <a class="ansibleOptionLink" href="#parameter-password" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>The password associated with <em>username</em>.</p>
-<p>Required when <em>connect_as</em> is set to <code class="docutils literal notranslate"><span class="pre">specific_user</span></code>.</p>
+<td><div class="ansible-option-cell"><p>The password associated with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-microsoft-iis-web-application-module-parameter-username"><span class="std std-ref"><span class="pre">username</span></span></a></strong></code>.</p>
+<p>Required when <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-web-application-module-parameter-connect-as"><span class="std std-ref"><span class="pre">connect_as=specific_user</span></span></a></code>.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
@@ -233,8 +233,8 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-web-a
 <a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>State of the web application.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">absent</span></code>, the web application will be removed.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">present</span></code>, the web application will be created if not already present.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code>, the web application will be removed.</p>
+<p>If <code class="ansible-value docutils literal notranslate"><span class="pre">present</span></code>, the web application will be created if not already present.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>
@@ -247,7 +247,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-web-a
 <a class="ansibleOptionLink" href="#parameter-username" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Specifies the user name of an account that can access configuration files and content for this application.</p>
-<p>Required when <em>connect_as</em> is set to <code class="docutils literal notranslate"><span class="pre">specific_user</span></code>.</p>
+<p>Required when <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-microsoft-iis-web-application-module-parameter-connect-as"><span class="std std-ref"><span class="pre">connect_as=specific_user</span></span></a></code>.</p>
 </div></td>
 </tr>
 </tbody>
