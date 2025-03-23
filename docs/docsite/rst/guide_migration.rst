@@ -30,14 +30,14 @@ While these modules are mostly drop in place compatible there are some breaking 
 Module ``win_iis_website``
 --------------------------
 
-Migrated to :ref:`microsoft.iis.website <ansible_collections.microsoft.iis.website_module>`.
+Migrated to :ansplugin:`microsoft.iis.website#module`.
 
 The following options have been removed:
 
 * ``parameters`` - Not currently implemented in the new module
 * ``hostname``, ``ip``, ``port`` - Moved to the ``bindings`` parameter, see :ref:`details <ansible_collections.microsoft.iis.docsite.guide_migration.migrated_modules.win_iis_webbinding>` for more details
 
-The return values have also been removed in favour of the :ref:`microsoft.iis.website_info <ansible_collections.microsoft.iis.website_info_module>` module.
+The return values have also been removed in favour of the :ansplugin:`microsoft.iis.website_info#module` module.
 
 This example shows how a website was defined in the old module and the equivalent definition in the new module:
 
@@ -68,9 +68,9 @@ This example shows how a website was defined in the old module and the equivalen
 Module ``win_iis_webbinding``
 -----------------------------
 
-Migrated to :ref:`microsoft.iis.website <ansible_collections.microsoft.iis.website_module>`.
+Migrated to :ansplugin:`microsoft.iis.website#module`.
 
-The entire module has been removed and the functionality has been merged into the :ref:`microsoft.iis.website <ansible_collections.microsoft.iis.website_module>` module. The bindings are now specified by the ``bindings`` parameter in the website module and can be used to add, remove, or set multiple bindings in one operation on the website. While most of the ``bindings`` entries follow the same format as the old module, there are some changes to a binding entry:
+The entire module has been removed and the functionality has been merged into the :ansplugin:`microsoft.iis.website#module` module. The bindings are now specified by the ``bindings`` parameter in the website module and can be used to add, remove, or set multiple bindings in one operation on the website. While most of the ``bindings`` entries follow the same format as the old module, there are some changes to a binding entry:
 
 * ``host_header`` - Has been renamed to ``hostname``
 * ``ssl_flags`` - Has been split into ``use_sni`` and ``use_ccs``
@@ -81,24 +81,24 @@ The entire module has been removed and the functionality has been merged into th
 Module ``win_iis_virtualdirectory``
 -----------------------------------
 
-Migrated to :ref:`microsoft.iis.virtual_directory <ansible_collections.microsoft.iis.virtual_directory_module>`.
+Migrated to :ansplugin:`microsoft.iis.virtual_directory#module`.
 
-The new ``microsoft.iis.virtual_directory`` module is largely unchanged from the old module, with the exception of the return values being removed. The new :ref:`microsoft.iis.virtual_directory_info <ansible_collections.microsoft.iis.virtual_directory_info_module>` module can be used to retrieve information about virtual directories instead.
+The new ``microsoft.iis.virtual_directory`` module is largely unchanged from the old module, with the exception of the return values being removed. The new :ansplugin:`microsoft.iis.virtual_directory_info#module` module can be used to retrieve information about virtual directories instead.
 
 .. _ansible_collections.microsoft.iis.docsite.guide_migration.migrated_modules.win_iis_webapppool:
 
 Module ``win_iis_webapppool``
 -----------------------------
 
-Migrated to :ref:`microsoft.iis.web_app_pool <ansible_collections.microsoft.iis.web_app_pool_module>`.
+Migrated to :ansplugin:`microsoft.iis.web_app_pool#module`.
 
-The new ``microsoft.iis.web_app_pool`` module is largely unchanged from the old module, with the exception of the return values being removed. The new :ref:`microsoft.iis.web_app_pool_info <ansible_collections.microsoft.iis.web_app_pool_info_module>` module can be used to retrieve information about web app pools instead.
+The new ``microsoft.iis.web_app_pool`` module is largely unchanged from the old module, with the exception of the return values being removed. The new :ansplugin:`microsoft.iis.web_app_pool_info#module` module can be used to retrieve information about web app pools instead.
 
 .. _ansible_collections.microsoft.iis.docsite.guide_migration.migrated_modules.win_iis_webapplication:
 
 Module ``win_iis_webapplication``
 ---------------------------------
 
-Migrated to :ref:`microsoft.iis.website <ansible_collections.microsoft.iis.web_application_module>`.
+Migrated to :ansplugin:`microsoft.iis.web_application#module`.
 
-The new ``microsoft.iis.web_application`` module is largely unchanged from the old module, with the exception of the return values being removed. The new :ref:`microsoft.iis.web_application_info <ansible_collections.microsoft.iis.web_application_info_module>` module can be used to retrieve information about web applications instead.
+The new ``microsoft.iis.web_application`` module is largely unchanged from the old module, with the exception of the return values being removed. The new :ansplugin:`microsoft.iis.web_application_info#module` module can be used to retrieve information about web applications instead.

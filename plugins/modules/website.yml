@@ -20,7 +20,7 @@ DOCUMENTATION:
         - Specifies the website bindings to add, remove or set.
         - The combination of C(ip:port:hostname) is the binding unique identifier.
         - The binding C(ip:port) must be available and not used by any other website on the server.
-        - To clear all website bindings, use I(set) with an empty list.
+        - To clear all website bindings, use O(set) with an empty list.
       type: dict
       default: {}
       suboptions:
@@ -33,7 +33,7 @@ DOCUMENTATION:
             hostname:
               description:
                 - The website binding hostname (DNS).
-                - Mandatory if I(use_sni) or I(use_ccs) is true.
+                - Mandatory if O(use_sni=true) or O(use_ccs=true).
               type: str
             ip:
               description: The website binding listen IP.
@@ -50,19 +50,19 @@ DOCUMENTATION:
               description:
                 - Require Server Name Indication (SNI) for SSL certificates.
                 - Can be used only if protocol is https.
-                - When I(use_sni) is true must specify C(hostname) value.
+                - When O(use_sni=true), the O(hostname) value must be set.
               type: bool
             use_ccs:
               description:
                 - Use Centralized Certificate Store (CCS) for SSL certificates.
-                - Can be used only if I(protocol) is C(https).
-                - When I(use_ccs) is true must specify C(hostname) value.
-                - If Central Certificate Store (CCS) is true I(certificate_hash) should not be used.
+                - Can be used only if O(protocol=https).
+                - When O(use_ccs=true), the O(hostname) value must be set.
+                - If V(true), O(certificate_hash) should not be used.
               type: bool
             certificate_hash:
               description:
                 - Certificate hash (thumbprint) for the SSL binding. The certificate hash is the unique identifier for the certificate.
-                - You can only provide a certificate thumbprint when I(protocol) is set to C(https).
+                - You can only provide a certificate thumbprint when O(protocol=https).
                 - When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to
                   the binding.
               type: str
@@ -98,7 +98,7 @@ DOCUMENTATION:
             hostname:
               description:
                 - The website binding hostname (DNS).
-                - Mandatory if I(use_sni) or I(use_ccs) is true.
+                - Mandatory if O(use_sni=true) or O(use_ccs=true).
               type: str
             ip:
               description: The website binding listen IP.
@@ -114,20 +114,20 @@ DOCUMENTATION:
             use_sni:
               description:
                 - Require Server Name Indication (SNI) for SSL certificates.
-                - Can be used only if I(protocol) is C(https).
-                - When I(use_sni) is true must specify C(hostname) value.
+                - Can be used only if O(protocol=https).
+                - When O(use_sni=true), the O(hostname) value must be set.
               type: bool
             use_ccs:
               description:
                 - Use Centralized Certificate Store (CCS) for SSL certificates.
-                - Can be used only if I(protocol) is C(https).
-                - When I(use_ccs) is true must specify C(hostname) value.
-                - If Central Certificate Store (CCS) is true C(certificate_hash) should not be used.
+                - Can be used only if O(protocol=https).
+                - When O(use_ccs=true), the O(hostname) value must be set.
+                - If V(true), O(certificate_hash) should not be used.
               type: bool
             certificate_hash:
               description:
                 - Certificate hash (thumbprint) for the SSL binding. The certificate hash is the unique identifier for the certificate.
-                - You can only provide a certificate thumbprint when I(protocol) is set to C(https).
+                - You can only provide a certificate thumbprint when O(protocol=https).
                 - When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to
                   the binding.
               type: str

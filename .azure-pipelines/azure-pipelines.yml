@@ -69,8 +69,6 @@ stages:
           targets:
             - name: Sanity
               test: sanity
-            - name: Units
-              test: units
             - name: Lint
               test: lint
   - stage: Ansible_2_18
@@ -85,8 +83,6 @@ stages:
           targets:
             - name: Sanity
               test: sanity
-            - name: Units
-              test: units
   - stage: Ansible_2_17
     displayName: Ansible 2.17
     dependsOn:
@@ -99,8 +95,6 @@ stages:
           targets:
             - name: Sanity
               test: sanity
-            - name: Units
-              test: units
   - stage: Ansible_2_16
     displayName: Ansible 2.16
     dependsOn:
@@ -113,8 +107,6 @@ stages:
           targets:
             - name: Sanity
               test: sanity
-            - name: Units
-              test: units
   - stage: Windows
     displayName: Windows
     dependsOn:

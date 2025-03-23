@@ -13,7 +13,7 @@ DOCUMENTATION:
     name:
       description:
         - Name of the website.
-        - When not specified, information of all existing websites will be fetched
+        - When not specified, information of all existing websites will be fetched.
       type: str
       required: false
   extends_documentation_fragment:
@@ -108,34 +108,34 @@ RETURN:
         elements: dict
         contains:
           hostname:
-            description: The website binding hostname (DNS)
+            description: The website binding hostname (DNS).
             type: str
             sample: "iis_website.com"
           ip:
-            description: The website binding listen IP
+            description: The website binding listen IP.
             type: str
             sample: "127.0.0.1"
           port:
-            description: The website binding listen port
+            description: The website binding listen port.
             type: str
             sample: "80"
           protocol:
-            description: The website used protocol
+            description: The website used protocol.
             type: str
             sample: "http"
           use_sni:
-            description: Require Server Name Indication (SNI) for SSL certificates
+            description: Require Server Name Indication (SNI) for SSL certificates.
             type: str
             sample: "true"
           use_ccs:
-            description: Use Centralized Certificate Store (CCS) for SSL certificates
+            description: Use Centralized Certificate Store (CCS) for SSL certificates.
             type: str
             sample: "true"
           certificate_hash:
-            description: The SSL certificate hash used by the server
+            description: The SSL certificate hash used by the server.
             type: str
             sample: "005930BD42F4869B81150A81B3B922F839412CC7"
           certificate_store_name:
-            description: The SSL certificate local store name
+            description: The SSL certificate local store name.
             type: str
             sample: "MY"
