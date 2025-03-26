@@ -12,3 +12,9 @@ releases:
     fragments:
     - release-summary.yml
     release_date: '2025-03-27'
+  1.0.2:
+    changes:
+      release_summary: Another minor release for Galaxy/AH documention update
+    fragments:
+    - release-summary.yml
+    release_date: '2025-03-27'
