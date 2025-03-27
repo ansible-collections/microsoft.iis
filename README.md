@@ -31,9 +31,9 @@ See [CHANGELOG.rst](https://github.com/ansible-collections/microsoft.iis/blob/ma
 
 ## Collection Documentation
 
-Browsing the [**latest** collection documentation](https://docs.ansible.com/ansible/latest/collections/ansible/microsoft.iis) will show docs for the _latest version released in the Ansible package_ not the latest version of the collection released on Galaxy.
+Browsing the [**latest** collection documentation](https://docs.ansible.com/ansible/latest/collections/microsoft/iis) will show docs for the _latest version released in the Ansible package_ not the latest version of the collection released on Galaxy.
 
-Browsing the [**devel** collection documentation](https://docs.ansible.com/ansible/devel/collections/ansible/microsoft.iis) shows docs for the _latest version released on Galaxy_.
+Browsing the [**devel** collection documentation](https://docs.ansible.com/ansible/devel/collections/microsoft/iis) shows docs for the _latest version released on Galaxy_.
 
 We also separately publish [**latest commit** collection documentation](https://ansible-collections.github.io/microsoft.iis/branch/main/) which shows docs for the _latest commit in the `main` branch_.
 
