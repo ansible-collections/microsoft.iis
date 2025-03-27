@@ -258,4 +258,6 @@ EXAMPLES: |
       name: WebSite
       physical_path: C:\wwwroot\websites\my-website
 
-RETURN: {}
+# Null is needed for Galaxy/AH to not fall flat
+# https://github.com/ansible/ansible-hub-ui/blob/9b35b78f1f5c6a5ef2346d0470e431ba5f25d06b/src/components/render-plugin-doc.tsx#L226-L228
+RETURN: ~
