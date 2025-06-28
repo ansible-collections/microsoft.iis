@@ -30,7 +30,8 @@ function Get-WebsiteInfo ($name) {
     # Try to get all the current site details
     try {
         $site = Get-Item -LiteralPath IIS:\Sites\$name -ErrorAction Stop
-    } catch {
+    } 
+    catch {
         return $null
     }
     if ($null -ne $site) {
