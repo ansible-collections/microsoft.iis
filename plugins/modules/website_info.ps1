@@ -7,7 +7,7 @@
 
 $spec = @{
     options = @{
-        name = @{ type = "str" }
+        name = @{ type = "str" ; required = $false }
     }
     supports_check_mode = $true
 }
@@ -27,8 +27,12 @@ if ($null -eq (Get-Module -Name "WebAdministration" -ErrorAction SilentlyContinu
 }
 
 function Get-WebsiteInfo ($name) {
-    # Get all the current site details
-    $site = Get-Item -LiteralPath IIS:\Sites\$name
+    # Try to get all the current site details
+    try {
+        $site = Get-Item -LiteralPath IIS:\Sites\$name -ErrorAction Stop
+    } catch {
+        return $null
+    }
     if ($null -ne $site) {
         $module.Result.exists = $true
     }
