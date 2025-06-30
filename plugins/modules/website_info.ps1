@@ -70,12 +70,12 @@ function Get-WebsiteInfo ($name) {
 try {
     # In case a user specified website name return information only for this website
     if ($null -ne $name) {
-        $module.Result.site = Get-WebsiteInfo -name $name
+        $module.Result.site = @(Get-WebsiteInfo -name $name)
     }
     # Return information of all the websites available on the system
     else {
         $WebsiteList = $(Get-Website).Name
-        $module.Result.site = $WebsiteList | ForEach-Object { Get-WebsiteInfo -name $_ }
+        $module.Result.site = @($WebsiteList | ForEach-Object { Get-WebsiteInfo -name $_ })
     }
 }
 catch {
