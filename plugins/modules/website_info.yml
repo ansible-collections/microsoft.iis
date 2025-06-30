@@ -84,8 +84,8 @@ RETURN:
       site_id:
         description:
           - Specifies the website ID.
-        type: str
-        sample: "1"
+        type: int
+        sample: 1
       state:
         description:
           - Specifies the website state Started/Stopped.
@@ -117,16 +117,16 @@ RETURN:
             sample: "127.0.0.1"
           port:
             description: The website binding listen port.
-            type: str
-            sample: "80"
+            type: int
+            sample: 80
           protocol:
             description: The website used protocol.
             type: str
             sample: "http"
           use_sni:
             description: Require Server Name Indication (SNI) for SSL certificates.
-            type: str
-            sample: "true"
+            type: bool
+            sample: true
           use_ccs:
             description: Use Centralized Certificate Store (CCS) for SSL certificates.
             type: str
