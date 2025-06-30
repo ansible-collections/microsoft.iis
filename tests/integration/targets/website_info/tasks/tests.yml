@@ -69,7 +69,7 @@
   microsoft.iis.website_info:
     name: notReal
   register: not_real
-  failed_when: "'Failed to fetch the info of the required Website Exception:' not in not_real.msg"
+  failed_when: (not_real.exists and not_real.site | length > 0)
 
 - name: Fetch all websites that exist on the system
   microsoft.iis.website_info:
