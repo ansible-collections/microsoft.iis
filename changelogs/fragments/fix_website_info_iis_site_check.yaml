@@ -1,3 +1,0 @@
-bugfixes:
-  - website_info - fixed a crash when the specified iis site does not exist, ensuring the module no longer inserts a ``null`` in the site list.
-    (https://github.com/ansible-collections/microsoft.iis/pull/36)

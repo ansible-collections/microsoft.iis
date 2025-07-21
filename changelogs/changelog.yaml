@@ -18,3 +18,13 @@ releases:
     fragments:
     - release-summary.yml
     release_date: '2025-03-27'
+  1.0.3:
+    changes:
+      bugfixes:
+      - website_info - fixed a crash when the specified iis site does not exist, ensuring
+        the module no longer inserts a ``null`` in the site list. (https://github.com/ansible-collections/microsoft.iis/pull/36)
+      release_summary: Release summary for v1.0.3
+    fragments:
+    - fix_website_info_iis_site_check.yaml
+    - release-summary.yml
+    release_date: '2025-07-22'

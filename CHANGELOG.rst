@@ -4,6 +4,19 @@ Ansible Microsoft Internet Information Services Release Notes
 
 .. contents:: Topics
 
+v1.0.3
+======
+
+Release Summary
+---------------
+
+Release summary for v1.0.3
+
+Bugfixes
+--------
+
+- website_info - fixed a crash when the specified iis site does not exist, ensuring the module no longer inserts a ``null`` in the site list. (https://github.com/ansible-collections/microsoft.iis/pull/36)
+
 v1.0.2
 ======
 
