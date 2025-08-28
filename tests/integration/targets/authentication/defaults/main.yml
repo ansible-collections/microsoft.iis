@@ -1,0 +1,18 @@
+test_vdir_name: testvdir
+test_site_name: 'Test Site'
+test_physical_path: "{{ remote_tmp_dir }}"
+test_auth_ps_path: "IIS:\\"
+
+auth_options:
+  - location: 'Test Site'
+    auth_type: 'WindowsAuthentication'
+    enabled: true
+    ps_path: "IIS:\\"
+    providers: 'Negotiate:Kerberos'
+    usekernelmode: false
+    tokenchecking: 'None'
+  - location: 'Test Site'
+    auth_type: 'AnonymousAuthentication'
+    ps_path: "IIS:\\"
+    enabled: true
+

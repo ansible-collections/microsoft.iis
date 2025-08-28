@@ -1,0 +1,79 @@
+- name: "Set authentication to opposite state for {{ authtest_type }}"
+  block:
+    - name: "Set authentication to opposite state for {{ authtest_type }}"
+      microsoft.iis.authentication:
+        auth_type: "{{ authtest_type }}"
+        enabled: "{{ not authtest_enabled }}"
+        ps_path: "{{ authtest_ps_path | default(omit) }}"
+        location: "{{ authtest_location | default(omit) }}"
+        providers: "{{ authtest_providers | default(omit) }}"
+        usekernelmode: "{{ authtest_usekernelmode | default(omit) }}"
+        tokenchecking: "{{ authtest_tokenchecking | default(omit) }}"
+      register: opposite_set_result
+    - name: "Manual validation that authentication is set to opposite for {{ authtest_type }}"
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        (Get-WebConfigurationProperty -pspath '{{ authtest_ps_path | default("IIS:\\") }}' -location '{{ authtest_location | default("") }}' -filter 'system.webServer/security/authentication/{{ authtest_type }}' -name 'enabled').value
+      register: opposite_auth_info
+    - name: "Assert authentication is set to opposite for {{ authtest_type }}"
+      ansible.builtin.assert:
+        that:
+          - "(opposite_auth_info.stdout | trim | lower) == ((not authtest_enabled) | string | lower)"
+
+- name: "Validate check mode for setting {{ authtest_type }}"
+  block:
+    - name: "Check mode test for {{ authtest_type }}"
+      microsoft.iis.authentication:
+        auth_type: "{{ authtest_type }}"
+        enabled: "{{ authtest_enabled }}"
+        ps_path: "{{ authtest_ps_path | default(omit) }}"
+        location: "{{ authtest_location | default(omit) }}"
+        providers: "{{ authtest_providers | default(omit) }}"
+        usekernelmode: "{{ authtest_usekernelmode | default(omit) }}"
+        tokenchecking: "{{ authtest_tokenchecking | default(omit) }}"
+      check_mode: true
+      register: checkResult
+    - name: "Assert check mode changed for {{ authtest_type }}"
+      ansible.builtin.assert:
+        that:
+          - checkResult.changed == true
+
+- name: "Set authentication to desired state for {{ authtest_type }}"
+  block:
+    - name: "Set authentication for {{ authtest_type }}"
+      microsoft.iis.authentication:
+        auth_type: "{{ authtest_type }}"
+        enabled: "{{ authtest_enabled }}"
+        ps_path: "{{ authtest_ps_path | default(omit) }}"
+        location: "{{ authtest_location | default(omit) }}"
+        providers: "{{ authtest_providers | default(omit) }}"
+        usekernelmode: "{{ authtest_usekernelmode | default(omit) }}"
+        tokenchecking: "{{ authtest_tokenchecking | default(omit) }}"
+      register: setResult
+    - name: "Manual validation that authentication is set for {{ authtest_type }}"
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        (Get-WebConfigurationProperty -pspath '{{ authtest_ps_path | default("IIS:\\") }}' -location '{{ authtest_location | default("") }}' -filter 'system.webServer/security/authentication/{{ authtest_type }}' -name 'enabled').value
+      register: auth_info
+    - name: "Assert that authentication is set for {{ authtest_type }}"
+      ansible.builtin.assert:
+        that:
+          - "(auth_info.stdout | trim | lower) == (authtest_enabled | string | lower)"
+
+- name: "Idempotency check for {{ authtest_type }}"
+  block:
+    - name: "Idempotency check for {{ authtest_type }}"
+      microsoft.iis.authentication:
+        auth_type: "{{ authtest_type }}"
+        enabled: "{{ authtest_enabled }}"
+        ps_path: "{{ authtest_ps_path | default(omit) }}"
+        location: "{{ authtest_location | default(omit) }}"
+        providers: "{{ authtest_providers | default(omit) }}"
+        usekernelmode: "{{ authtest_usekernelmode | default(omit) }}"
+        tokenchecking: "{{ authtest_tokenchecking | default(omit) }}"
+      register: idemResult
+    - name: Assert idempotency
+      ansible.builtin.assert:
+        that:
+          - idemResult.changed == false
+          - idemResult.failed is not defined or not idemResult.failed

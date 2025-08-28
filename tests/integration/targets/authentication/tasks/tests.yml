@@ -1,0 +1,63 @@
+---
+- name: Run authentication tests for each default_auth_options entry
+  include_tasks: authtests.yml
+  vars:
+    authtest_type: "{{ authOpt.auth_type }}"
+    authtest_location: "{{ authOpt.location }}"
+    authtest_enabled: "{{ authOpt.enabled }}"
+    authtest_providers: "{{ authOpt.providers | default(omit) }}"
+    authtest_usekernelmode: "{{ authOpt.usekernelmode | default(omit) }}"
+    authtest_tokenchecking: "{{ authOpt.tokenchecking | default(omit) }}"
+    authtest_ps_path: "{{ authOpt.ps_path | default(omit) }}"
+  loop: "{{ auth_options }}"
+  loop_control:
+    loop_var: authOpt
+    label: "Validation tests for {{ authOpt.auth_type }}"
+
+- name: Negative test for missing required parameter
+  block:
+    - name: Run authentication with missing required ps_path/location
+      microsoft.iis.authentication:
+        auth_type: "WindowsAuthentication"
+        enabled: true
+      ignore_errors: true
+      register: missing_path_result
+    - name: Assert failure on missing required parameter
+      ansible.builtin.assert:
+        that:
+          - missing_path_result is defined
+          - missing_path_result.failed | default(false)
+
+- name: Negative test for invalid auth_type
+  block:
+    - name: Run authentication with invalid auth_type
+      microsoft.iis.authentication:
+        ps_path: "{{ test_auth_ps_path }}"
+        location: "{{ test_site_name }}"
+        auth_type: "InvalidAuthType"
+        enabled: true
+      ignore_errors: true
+      register: invalid_auth_type_result
+    - name: Assert failure on invalid auth_type
+      ansible.builtin.assert:
+        that:
+          - invalid_auth_type_result is defined
+          - invalid_auth_type_result.failed | default(false)
+
+- name: Testing empty providers edge case for WindowsAuthentication
+  block:
+    - name: Set WindowsAuthentication with empty providers
+      microsoft.iis.authentication:
+        ps_path: "{{ test_auth_ps_path }}"
+        location: "{{ test_site_name }}"
+        auth_type: "WindowsAuthentication"
+        enabled: true
+        providers: ""
+        usekernelmode: false
+        tokenchecking: "None"
+      register: empty_providers_result
+    - name: Assert WindowsAuthentication with empty providers did not fail
+      ansible.builtin.assert:
+        that:
+          - empty_providers_result is defined
+          - empty_providers_result.failed is not defined or not empty_providers_result.failed

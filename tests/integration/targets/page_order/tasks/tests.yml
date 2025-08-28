@@ -1,0 +1,88 @@
+---
+- name: Validate check mode for page order
+  block:
+    - name: Check mode test for page order
+      microsoft.iis.page_order:
+        ps_path: "{{ test_page_order_ps_path }}"
+        page_order: "{{ test_page_order }}"
+        filter: "{{ test_page_order_filter }}"
+        collection_name: "{{ test_page_order_collection_name }}"
+      check_mode: true
+      register: checkResult
+    - name: Assert check mode changed
+      ansible.builtin.assert:
+        that:
+          - checkResult.changed == true
+
+- name: Set page order and assert
+  block:
+    - name: Set page order
+      microsoft.iis.page_order:
+        ps_path: "{{ test_page_order_ps_path }}"
+        page_order: "{{ test_page_order }}"
+        filter: "{{ test_page_order_filter }}"
+        collection_name: "{{ test_page_order_collection_name }}"
+      register: setResult
+    - name: Assert page order set
+      ansible.builtin.assert:
+        that:
+          - setResult.changed == true
+          - setResult.failed is not defined or not setResult.failed
+
+- name: Verify page order is set
+  block:
+    - name: Get current page order
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        (Get-WebConfigurationProperty -pspath '{{ test_page_order_ps_path }}' -filter '{{ test_page_order_filter }}' -name 'collection').value -join ','
+      register: page_order_info
+    - name: Assert that page order is set
+      ansible.builtin.assert:
+        that:
+          - "(page_order_info.stdout | trim | lower) == (test_page_order | string | lower)"
+
+- name: Page order idempotency check
+  block:
+    - name: Apply page order for idempotency check
+      microsoft.iis.page_order:
+        ps_path: "{{ test_page_order_ps_path }}"
+        page_order: "{{ test_page_order }}"
+        filter: "{{ test_page_order_filter }}"
+        collection_name: "{{ test_page_order_collection_name }}"
+      register: result
+    - name: Assert idempotency check
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed is not defined or not result.failed
+
+- name: Negative test for missing required parameter
+  block:
+    - name: Run page_order with missing required path
+      microsoft.iis.page_order:
+        filter: "{{ test_page_order_filter }}"
+        collection_name: "{{ test_page_order_collection_name }}"
+        page_order: "{{ test_page_order }}"
+      ignore_errors: true
+      register: missing_path_result
+    - name: Assert failure on missing required parameter
+      ansible.builtin.assert:
+        that:
+          - missing_path_result is defined
+          - missing_path_result.failed | default(false)
+
+- name: Negative test for invalid filter
+  block:
+    - name: Run page_order with invalid filter
+      microsoft.iis.page_order:
+        ps_path: "{{ test_page_order_ps_path }}"
+        page_order: "{{ test_page_order }}"
+        filter: "invalid/filter/path"
+        collection_name: "{{ test_page_order_collection_name }}"
+      ignore_errors: true
+      register: invalid_filter_result
+    - name: Assert failure on invalid filter
+      ansible.builtin.assert:
+        that:
+          - invalid_filter_result is defined
+          - invalid_filter_result.failed | default(false)
