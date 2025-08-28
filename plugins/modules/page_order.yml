@@ -1,0 +1,51 @@
+---
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# yamllint disable rule:line-length
+
+# This file provides documentation for the page_order module in the style of the microsoft.iis collection.
+
+module: page_order
+short_description: Configures default document order in IIS
+version_added: '1.0.0'
+description:
+  - Adds or modifies the default document order in IIS using WebAdministration modules.
+options:
+  ps_path:
+    description:
+      - "The PSPath to the site. Example: MACHINE/WEBROOT/APPHOST. Cannot be set if website_path is used."
+    type: str
+    required: false
+    mutually_exclusive: website_path
+  website_path:
+    description:
+      - "The WebsitePath for the site. Example: 'Default Web Site' or 'IIS:\\'. Cannot be set if ps_path is used."
+    type: str
+    required: false
+    mutually_exclusive: ps_path
+  page_order:
+    description:
+      - "Comma separated string of page names to be used. Example: 'default.aspx,Default.htm,Default.asp'."
+    type: str
+    required: true
+  filter:
+    description:
+      - "Filter to be passed to Get-WebConfigurationProperty. Example: 'system.webServer/defaultDocument/files'."
+    type: str
+    required: true
+  collection_name:
+    description:
+      - "The 'collection' name that is being targeted, this gets appended to the 'filter' parameter when getting the current value with Get-WebConfigurationProperty. Example: 'add'."
+    type: str
+    default: add
+seealso:
+  - module: microsoft.iis.authentication
+author:
+  - Justin Cook (@ch0nx)
+
+examples:
+  - name: Configure default page order
+    microsoft.iis.page_order:
+      ps_path: "IIS:\\Sites\\Default Web Site"
+      page_order: "default.aspx,Default.htm,Default.asp"
+      filter: "system.webServer/defaultDocument/files"
+      collection_name: "add"
