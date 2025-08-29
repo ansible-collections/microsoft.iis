@@ -33,9 +33,6 @@ try {
 } catch {
   $module.FailJson("Failed to ensure WebAdministration module is loaded: $_", $_)
 }
-if ($module.Params.ps_path) {
-  $iisPath = $module.Params.ps_path
-}
 
 $psPath = $module.Params.ps_path
 $location = $module.Params.location
@@ -144,7 +141,9 @@ function Get-IISAuthConfig {
     # diffString is used for result reporting, have to use a separate variable because modifying a value in the hash breaks the loop
     $diffString = ''
     foreach ($key in $returnValue.Keys) {
-      if ($key -eq 'diffString') { continue }
+      if ($key -eq 'diffString') {
+        continue
+      }
       if ($diffString -ne '') {
         $diffString += ';'
       }
@@ -153,6 +152,7 @@ function Get-IISAuthConfig {
     }
     $returnValue['diffString'] = $diffString
     return $returnValue
+
   }
 }
 function Set-IISAuthConfig {
@@ -198,9 +198,7 @@ function Set-IISAuthConfig {
   Process {
     # Override filter for authentication to allow for specific set paths
     $filter = 'system.webServer/security/authentication'
-    $setSplat = @{
-      PSPath = $PSPath
-    }
+    $setSplat = @{ PSPath = $PSPath }
     if ($Location) {
       $setSplat.Add('Location', $Location)
     }

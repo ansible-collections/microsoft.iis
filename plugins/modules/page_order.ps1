@@ -8,6 +8,7 @@
 # Note: If troubleshooting, use $DebugPreference = 'Continue' and Start-Transcript <filepath>
 # in order to get debug output to a readable location. Ansible does not store debug stream output.
 
+
 $ErrorActionPreference = "Stop"
 $spec = @{
   options             = @{
@@ -50,6 +51,7 @@ $module.Result.diff = @{
   after  = ""
 }
 $module.Result.msg = ""
+
 function Get-IISPageOrder {
   [OutputType([string])]
   param(
@@ -155,6 +157,7 @@ function Set-IISPageOrder {
     }
   }
 }
+
 # NOTE: If you try to use $module properties in these conditions, it can cause the module to just hang forever and have
 # powershell slowly bloat in memory forever.
 Write-Debug "Calling Get-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName"
