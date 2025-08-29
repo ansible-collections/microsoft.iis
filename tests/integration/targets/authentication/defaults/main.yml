@@ -15,4 +15,3 @@ auth_options:
     auth_type: 'AnonymousAuthentication'
     ps_path: "IIS:\\"
     enabled: true
-

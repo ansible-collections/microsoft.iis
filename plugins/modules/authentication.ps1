@@ -238,7 +238,8 @@ function Set-IISAuthConfig {
                     }
                 }
                 # After enabling, re-read config to get updated state
-                $GetResult = Get-IISAuthConfig -Module $Module -PSPath $PSPath -AuthType $AuthType -Enabled $Enabled -Location $Location -UseKernelMode $UseKernelMode -TokenChecking $TokenChecking -Providers $Providers
+                $GetResult = Get-IISAuthConfig -Module $Module -PSPath $PSPath -AuthType $AuthType -Enabled $Enabled `
+                    -Location $Location -UseKernelMode $UseKernelMode -TokenChecking $TokenChecking -Providers $Providers
             }
 
             # Step 2: Set other properties if needed (now that enabled is set)
@@ -257,9 +258,9 @@ function Set-IISAuthConfig {
                 if ($PSCmdlet.ShouldProcess($TokenChecking, 'Set TokenChecking')) {
                     try {
                         Write-Debug (
-                            "Calling Set-WebConfigurationProperty -pspath $PSPath -location $location `
-                                -filter `"$($filter)/WindowsAuthentication/extendedProtection`" `
-                                -Name 'TokenChecking' -Value $TokenChecking"
+                            "Calling Set-WebConfigurationProperty -pspath $PSPath -location $location " +
+                            "-filter `"$($filter)/WindowsAuthentication/extendedProtection`" " +
+                            "-Name 'TokenChecking' -Value $TokenChecking"
                         )
                         Set-WebConfigurationProperty @setSplat -filter "$($filter)/WindowsAuthentication/extendedProtection" -Name 'TokenChecking' -Value $TokenChecking
                     }
@@ -272,8 +273,8 @@ function Set-IISAuthConfig {
                 if ($PSCmdlet.ShouldProcess($AuthType, 'Remove WindowsAuthentication provider order')) {
                     try {
                         Write-Debug (
-                            "Calling Remove-WebConfigurationProperty @setSplat -Filter `"$($filter)/WindowsAuthentication/providers`" `
-                                -name 'collection'"
+                            "Calling Remove-WebConfigurationProperty @setSplat -Filter `"$($filter)/WindowsAuthentication/providers`" " +
+                            "-name 'collection'"
                         )
                         Remove-WebConfigurationProperty @setSplat -Filter "$($filter)/WindowsAuthentication/providers" -name 'collection'
                     }
@@ -285,8 +286,8 @@ function Set-IISAuthConfig {
                     if ($PSCmdlet.ShouldProcess($provider, 'Add WindowsAuthentication provider')) {
                         try {
                             Write-Debug (
-                                "Calling Add-WebConfiguration -Location $location -filter `"$($filter)/WindowsAuthentication/providers`" `
-                                    -Value $provider"
+                                "Calling Add-WebConfiguration -Location $location -filter `"$($filter)/WindowsAuthentication/providers`" " +
+                                "-Value $provider"
                             )
                             Add-WebConfiguration -Location $location -filter "$($filter)/WindowsAuthentication/providers" -Value $provider
                         }

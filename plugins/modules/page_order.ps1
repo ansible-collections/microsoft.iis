@@ -15,7 +15,7 @@ $spec = @{
         website_path = @{ type = 'str' }
         page_order = @{ type = 'str' }
         filter = @{ type = 'str' }
-        collection_name = @{ type = 'str' }
+        collection_name = @{ type = 'str'; default = 'add' }
     }
     required_one_of = @(
         , @('ps_path', 'website_path')
@@ -176,7 +176,9 @@ if ($orderCheck -ne $pageOrder) {
         Remove-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -WhatIf:$module.CheckMode
     }
     Write-Debug (
-        "Calling Set-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -PageOrder $pageOrder -WhatIf:$($module.CheckMode)"
+        "Calling Set-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName " +
+        "-PageOrder $pageOrder " +
+        "-WhatIf:$($module.CheckMode)"
     )
     Set-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -PageOrder $pageOrder -WhatIf:$module.CheckMode
     $orderCheck = $NULL
