@@ -15,7 +15,7 @@ $spec = @{
         enabled = @{ required = $true; type = 'bool' }
         providers = @{ required = $false; type = 'str' }
         usekernelmode = @{ required = $false; type = 'bool' }
-        tokenchecking = @{ required = $false; type = 'str' } # validate-modules: ignore no-log-needed
+        tokenchecking = @{ required = $false; type = 'str'; no_log = $false }
     }
     required_if = @(
         , @('auth_type', 'WindowsAuthentication', @('providers', 'usekernelmode', 'tokenchecking'))
