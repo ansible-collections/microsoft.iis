@@ -14,13 +14,11 @@ DOCUMENTATION:
         - "The PSPath to the site. Example: MACHINE/WEBROOT/APPHOST. Cannot be set if website_path is used."
       type: str
       required: false
-      mutually_exclusive: website_path
     website_path:
       description:
         - "The WebsitePath for the site. Example: 'Default Web Site' or 'IIS:\\'. Cannot be set if ps_path is used."
       type: str
       required: false
-      mutually_exclusive: ps_path
     page_order:
       description:
         - "Comma separated string of page names to be used. Example: 'default.aspx,Default.htm,Default.asp'."
