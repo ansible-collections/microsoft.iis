@@ -1,5 +1,4 @@
----
-DOCUMENTATION: |
+DOCUMENTATION:
   module: page_order
   short_description: Configures default document order in IIS
   version_added: '1.0.0'
@@ -34,6 +33,16 @@ DOCUMENTATION: |
       type: str
       required: false
       default: add
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
+    platform:
+      platforms:
+        - windows
   seealso:
     - module: microsoft.iis.authentication
   author:
@@ -46,3 +55,17 @@ EXAMPLES: |
       page_order: "default.aspx,Default.htm,Default.asp"
       filter: "system.webServer/defaultDocument/files"
       collection_name: "add"
+
+RETURN:
+  before:
+    description:
+      - The page order before changes were made.
+    returned: always
+    type: str
+    sample: 'Default.htm,Default.asp'
+  after:
+    description:
+      - The page order after changes were made.
+    returned: always
+    type: str
+    sample: 'default.aspx,Default.htm,Default.asp'

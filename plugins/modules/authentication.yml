@@ -1,8 +1,9 @@
 ---
+---
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # yamllint disable rule:line-length
 
-DOCUMENTATION: |
+DOCUMENTATION:
   module: authentication
   short_description: Configures authentication options in IIS
   version_added: '1.0.0'
@@ -17,7 +18,7 @@ DOCUMENTATION: |
       default: "IIS:\\"
     location:
       description:
-        - The Location parameter for refining results, as an argument for WebAdministration cmdlets.
+        - "The Location parameter for refining results, as an argument for WebAdministration cmdlets."
       type: str
       required: false
     auth_type:
@@ -27,7 +28,7 @@ DOCUMENTATION: |
       required: true
     enabled:
       description:
-        - Whether or not the authentication method listed is enabled.
+        - "Whether or not the authentication method listed is enabled."
       type: bool
       required: true
     providers:
@@ -45,6 +46,16 @@ DOCUMENTATION: |
         - "Value to be used for the 'TokenChecking' option for WindowsAuthentication extended protection."
       type: str
       required: false
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
+    platform:
+      platforms:
+        - windows
   seealso:
     - module: microsoft.iis.page_order
   author:
@@ -59,3 +70,23 @@ EXAMPLES: |
       providers: "Negotiate:Kerberos"
       usekernelmode: false
       tokenchecking: "None"
+
+RETURN:
+  diff:
+    description:
+      - Dictionary showing before and after values for authentication settings.
+    returned: always
+    type: dict
+    sample:
+      before:
+        enabled: false
+        providers: "Negotiate"
+      after:
+        enabled: true
+        providers: "Negotiate:Kerberos"
+  msg:
+    description:
+      - Message summarizing the operation performed.
+    returned: always
+    type: str
+    sample: "Authentication settings updated."
