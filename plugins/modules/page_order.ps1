@@ -11,17 +11,17 @@
 
 $ErrorActionPreference = 'Stop'
 $spec = @{
-    options             = @{
-        ps_path         = @{ type = 'str' }
-        website_path    = @{ type = 'str' }
-        page_order      = @{ type = 'str' }
-        filter          = @{ type = 'str' }
+    options = @{
+        ps_path = @{ type = 'str' }
+        website_path = @{ type = 'str' }
+        page_order = @{ type = 'str' }
+        filter = @{ type = 'str' }
         collection_name = @{ type = 'str' }
     }
-    required_one_of     = @(
+    required_one_of = @(
         , @('ps_path', 'website_path')
     )
-    mutually_exclusive  = @(
+    mutually_exclusive = @(
         , @('ps_path', 'website_path')
     )
     supports_check_mode = $true
@@ -51,7 +51,7 @@ $filter = $module.Params.filter
 $collectionName = $module.Params.collection_name
 $module.Result.diff = @{
     before = ''
-    after  = ''
+    after = ''
 }
 $module.Result.msg = ''
 

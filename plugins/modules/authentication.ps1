@@ -9,17 +9,17 @@
 # in order to get debug output to a readable location. Ansible does not store debug stream output.
 $ErrorActionPreference = 'Stop'
 $spec = @{
-    options             = @{
-        ps_path       = @{ default = 'IIS:\'; required = $false; type = 'str' }
-        location      = @{ required = $false; type = 'str' }
-        auth_type     = @{ required = $true; type = 'str' }
-        enabled       = @{ required = $true; type = 'bool' }
-        providers     = @{ required = $false; type = 'str' }
+    options = @{
+        ps_path = @{ default = 'IIS:\'; required = $false; type = 'str' }
+        location = @{ required = $false; type = 'str' }
+        auth_type = @{ required = $true; type = 'str' }
+        enabled = @{ required = $true; type = 'bool' }
+        providers = @{ required = $false; type = 'str' }
         usekernelmode = @{ required = $false; type = 'bool' }
         # yamllint disable rule:no-log-needed
         tokenchecking = @{ required = $false; type = 'str' }
     }
-    required_if         = @(
+    required_if = @(
         , @('auth_type', 'WindowsAuthentication', @('providers', 'usekernelmode', 'tokenchecking'))
     )
     supports_check_mode = $true
@@ -44,7 +44,7 @@ $UseKernelMode = $module.Params.usekernelmode
 $tokenChecking = $module.Params.tokenchecking
 $module.Result.diff = @{
     before = ''
-    after  = ''
+    after = ''
 }
 $module.Result.msg = ''
 function Get-IISAuthConfig {
@@ -86,12 +86,12 @@ function Get-IISAuthConfig {
     Process {
         $filter = "system.webServer/security/authentication/$($AuthType)"
         $returnValue = [ordered]@{
-            'result'             = $true
-            'providerMatch'      = $true
-            'enabledMatch'       = $true
-            'kernelModeMatch'    = $true
+            'result' = $true
+            'providerMatch' = $true
+            'enabledMatch' = $true
+            'kernelModeMatch' = $true
             'tokenCheckingMatch' = $true
-            'diffString'         = ''
+            'diffString' = ''
         }
         try {
             Write-Debug "Calling Get-WebConfiguration -pspath $PSPath -Location $Location -filter $filter"
@@ -286,9 +286,9 @@ function Set-IISAuthConfig {
 }
 # Build conditional splat for modules, windows auth requires extra args
 $authSplat = @{
-    PSPath   = $psPath
+    PSPath = $psPath
     AuthType = $authType
-    Enabled  = $enabled
+    Enabled = $enabled
 }
 if ($null -ne $location) {
     $authSplat.Add('Location', $location)
