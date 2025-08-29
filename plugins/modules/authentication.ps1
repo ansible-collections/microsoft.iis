@@ -1,4 +1,3 @@
-
 #!powershell
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
@@ -16,8 +15,7 @@ $spec = @{
         enabled = @{ required = $true; type = 'bool' }
         providers = @{ required = $false; type = 'str' }
         usekernelmode = @{ required = $false; type = 'bool' }
-        # yamllint disable rule:no-log-needed
-        tokenchecking = @{ required = $false; type = 'str' }
+        tokenchecking = @{ required = $false; type = 'str' } # yamllint disable rule:no-log-needed
     }
     required_if = @(
         , @('auth_type', 'WindowsAuthentication', @('providers', 'usekernelmode', 'tokenchecking'))
@@ -95,7 +93,8 @@ function Get-IISAuthConfig {
         }
         try {
             Write-Debug "Calling Get-WebConfiguration -pspath $PSPath -Location $Location -filter $filter"
-            $testResult = Get-WebConfiguration -pspath $PSPath -Location $Location -filter $filter
+            $testResult = Get-WebConfiguration -pspath $PSPath -Location $Location `
+                -filter $filter
         }
         catch {
             $module.FailJson("Error retrieving web configuration: $($_.Exception.Message)", $_)
@@ -118,28 +117,43 @@ function Get-IISAuthConfig {
         elseif ($AuthType -eq 'WindowsAuthentication') {
             # WindowsAuthentication requires additional checks
             if (($testResult.providers.collection.value -join ',') -ne ($Providers -split ',')) {
-                Write-Debug "Setting result to false due to 'provider' mismatch: $($testResult.providers.collection.value):$($Providers -split ',')"
+                Write-Debug (
+                    "Setting result to false due to 'provider' mismatch: " +
+                    "$($testResult.providers.collection.value):$($Providers -split ',')"
+                )
                 $returnValue['result'] = $false
                 $returnValue['providerMatch'] = $false
             }
             if ($testResult.enabled -ne $Enabled) {
-                Write-Debug "Setting result to false due to 'Enabled' mismatch (WindowsAuth): $($testResult.enabled):$($Enabled)"
+                Write-Debug (
+                    "Setting result to false due to 'Enabled' mismatch (WindowsAuth): " +
+                    "$($testResult.enabled):$($Enabled)"
+                )
                 $returnValue['result'] = $false
                 $returnValue['enabledMatch'] = $false
             }
             if ($testResult.usekernelmode -ne $UseKernelMode) {
-                Write-Debug "Setting result to false due to 'usekernelmode' mismatch: $($testResult.usekernelmode):$($UseKernelMode)"
+                Write-Debug (
+                    "Setting result to false due to 'usekernelmode' mismatch: " +
+                    "$($testResult.usekernelmode):$($UseKernelMode)"
+                )
                 $returnValue['result'] = $false
                 $returnValue['kernelModeMatch'] = $false
             }
             if ($testResult.extendedProtection.TokenChecking -ne $TokenChecking) {
-                Write-Debug "Setting result to false due to 'TokenChecking' mismatch: $($testResult.TokenChecking):$($TokenChecking)"
+                Write-Debug (
+                    "Setting result to false due to 'TokenChecking' mismatch: " +
+                    "$($testResult.TokenChecking):$($TokenChecking)"
+                )
                 $returnValue['result'] = $false
                 $returnValue['tokenCheckingMatch'] = $false
             }
         }
         elseif ( ( $testResult.enabled -ne $Enabled ) -and ( $AuthType -ne 'WindowsAuthentication') ) {
-            Write-Debug "Setting result to false due to 'Enabled' mismatch (non-WindowsAuth): $($testResult.enabled):$($Enabled)"
+            Write-Debug (
+                "Setting result to false due to 'Enabled' mismatch (non-WindowsAuth): " +
+                "$($testResult.enabled):$($Enabled)"
+            )
             $returnValue['result'] = $false
             $returnValue['enabledMatch'] = $false
         }
@@ -152,7 +166,9 @@ function Get-IISAuthConfig {
             if ($diffString -ne '') {
                 $diffString += ';'
             }
-            Write-Debug "Adding '$($key):$($returnValue[$key])' to $diffString"
+            Write-Debug (
+                "Adding '$($key):$($returnValue[$key])' to $diffString"
+            )
             $diffString += "$($key):$($returnValue[$key])"
         }
         $returnValue['diffString'] = $diffString
@@ -214,7 +230,8 @@ function Set-IISAuthConfig {
                 if ($PSCmdlet.ShouldProcess($authType, 'Set to enabled')) {
                     try {
                         Write-Debug "Calling Set-WebConfiguration @setSplat -filter `"$($filter)/WindowsAuthentication`" -value $Enabled"
-                        Set-WebConfiguration @setSplat -filter "$($filter)/WindowsAuthentication" -value $Enabled
+                        Set-WebConfiguration @setSplat -filter "$($filter)/WindowsAuthentication" `
+                            -value $Enabled
                     }
                     catch {
                         $module.FailJson("Error setting WindowsAuthentication to $($Enabled): $($_.Exception.Message)", $_)
@@ -239,7 +256,11 @@ function Set-IISAuthConfig {
             if (!$GetResult.tokenCheckingMatch) {
                 if ($PSCmdlet.ShouldProcess($TokenChecking, 'Set TokenChecking')) {
                     try {
-                        Write-Debug "Calling Set-WebConfigurationProperty -pspath $PSPath -location $location -filter `"$($filter)/WindowsAuthentication/extendedProtection`" -Name 'TokenChecking' -Value $TokenChecking"
+                        Write-Debug (
+                            "Calling Set-WebConfigurationProperty -pspath $PSPath -location $location `
+                                -filter `"$($filter)/WindowsAuthentication/extendedProtection`" `
+                                -Name 'TokenChecking' -Value $TokenChecking"
+                        )
                         Set-WebConfigurationProperty @setSplat -filter "$($filter)/WindowsAuthentication/extendedProtection" -Name 'TokenChecking' -Value $TokenChecking
                     }
                     catch {
@@ -250,7 +271,10 @@ function Set-IISAuthConfig {
             if (!$GetResult.providerMatch) {
                 if ($PSCmdlet.ShouldProcess($AuthType, 'Remove WindowsAuthentication provider order')) {
                     try {
-                        Write-Debug "Calling Remove-WebConfigurationProperty @setSplat -Filter `"$($filter)/WindowsAuthentication/providers`" -name 'collection'"
+                        Write-Debug (
+                            "Calling Remove-WebConfigurationProperty @setSplat -Filter `"$($filter)/WindowsAuthentication/providers`" `
+                                -name 'collection'"
+                        )
                         Remove-WebConfigurationProperty @setSplat -Filter "$($filter)/WindowsAuthentication/providers" -name 'collection'
                     }
                     catch {
@@ -260,7 +284,10 @@ function Set-IISAuthConfig {
                 foreach ($provider in ($Providers -split ',')) {
                     if ($PSCmdlet.ShouldProcess($provider, 'Add WindowsAuthentication provider')) {
                         try {
-                            Write-Debug "Calling Add-WebConfiguration -Location $location -filter `"$($filter)/WindowsAuthentication/providers`" -Value $provider"
+                            Write-Debug (
+                                "Calling Add-WebConfiguration -Location $location -filter `"$($filter)/WindowsAuthentication/providers`" `
+                                    -Value $provider"
+                            )
                             Add-WebConfiguration -Location $location -filter "$($filter)/WindowsAuthentication/providers" -Value $provider
                         }
                         catch {

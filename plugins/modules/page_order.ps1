@@ -1,4 +1,3 @@
-
 #!powershell
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
@@ -176,7 +175,9 @@ if ($orderCheck -ne $pageOrder) {
         Write-Debug "Calling Remove-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -WhatIf:$($module.CheckMode)"
         Remove-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -WhatIf:$module.CheckMode
     }
-    Write-Debug "Calling Set-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -PageOrder $pageOrder -WhatIf:$($module.CheckMode)"
+    Write-Debug (
+        "Calling Set-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -PageOrder $pageOrder -WhatIf:$($module.CheckMode)"
+    )
     Set-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -PageOrder $pageOrder -WhatIf:$module.CheckMode
     $orderCheck = $NULL
     $orderCheck = Get-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName
