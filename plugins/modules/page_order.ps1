@@ -11,11 +11,11 @@
 $ErrorActionPreference = 'Stop'
 $spec = @{
     options = @{
-        ps_path = @{ type = 'str' }
-        website_path = @{ type = 'str' }
-        page_order = @{ type = 'str' }
-        filter = @{ type = 'str' }
-        collection_name = @{ type = 'str'; default = 'add' }
+        ps_path = @{ default = 'IIS:\Sites\Default Web Site'; required = $false; type = 'str' }
+        website_path = @{ required = $false; type = 'str' }
+        page_order = @{ required = $true; type = 'str' }
+        filter = @{ required = $false; type = 'str'; default = 'system.webServer/defaultDocument/files' }
+        collection_name = @{ required = $false; type = 'str'; default = 'add' }
     }
     required_one_of = @(
         , @('ps_path', 'website_path')

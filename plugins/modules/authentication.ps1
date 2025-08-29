@@ -246,7 +246,10 @@ function Set-IISAuthConfig {
             if (!$GetResult.kernelModeMatch) {
                 if ($PSCmdlet.ShouldProcess($UseKernelMode, 'Set useKernelMode')) {
                     try {
-                        Write-Debug "Calling Set-WebConfigurationProperty @setSplat -filter `"$($filter)/WindowsAuthentication`" -Name 'useKernelMode' -Value $UseKernelMode"
+                        Write-Debug (
+                            "Calling Set-WebConfigurationProperty @setSplat -filter `"$($filter)/WindowsAuthentication`" " +
+                            "-Name 'useKernelMode' -Value $UseKernelMode"
+                        )
                         Set-WebConfigurationProperty @setSplat -filter "$($filter)/WindowsAuthentication" -Name 'useKernelMode' -Value $UseKernelMode
                     }
                     catch {
@@ -262,7 +265,8 @@ function Set-IISAuthConfig {
                             "-filter `"$($filter)/WindowsAuthentication/extendedProtection`" " +
                             "-Name 'TokenChecking' -Value $TokenChecking"
                         )
-                        Set-WebConfigurationProperty @setSplat -filter "$($filter)/WindowsAuthentication/extendedProtection" -Name 'TokenChecking' -Value $TokenChecking
+                        Set-WebConfigurationProperty @setSplat -filter "$($filter)/WindowsAuthentication/extendedProtection" -Name 'TokenChecking' `
+                            -Value $TokenChecking
                     }
                     catch {
                         $module.FailJson("Error setting token checking for WindowsAuthentication: $($_.Exception.Message)", $_)

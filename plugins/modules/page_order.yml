@@ -14,6 +14,7 @@ DOCUMENTATION:
         - "The PSPath to the site. Example: MACHINE/WEBROOT/APPHOST. Cannot be set if website_path is used."
       type: str
       required: false
+      default: 'IIS:\Sites\Default Web Site'
     website_path:
       description:
         - "The WebsitePath for the site. Example: 'Default Web Site' or 'IIS:\\'. Cannot be set if ps_path is used."
@@ -28,7 +29,8 @@ DOCUMENTATION:
       description:
         - "Filter to be passed to Get-WebConfigurationProperty. Example: 'system.webServer/defaultDocument/files'."
       type: str
-      required: true
+      required: false
+      default: 'system.webServer/defaultDocument/files'
     collection_name:
       description:
         - "The 'collection' name that is being targeted, this gets appended to the 'filter' parameter when getting the current value with Get-WebConfigurationProperty. Example: 'add'."
