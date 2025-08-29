@@ -2,56 +2,55 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # yamllint disable rule:line-length
 
-# This file provides documentation for the authentication module in the style of the microsoft.iis collection.
+DOCUMENTATION: |
+  module: authentication
+  short_description: Configures authentication options in IIS
+  version_added: '1.0.0'
+  description:
+    - Adds or modifies authentication options in IIS, including WindowsAuthentication and associated providers.
+  options:
+    ps_path:
+      description:
+        - "The PSPath to the site. Example: 'IIS:\\'."
+      type: str
+      required: false
+      default: "IIS:\\"
+    location:
+      description:
+        - The Location parameter for refining results, as an argument for WebAdministration cmdlets.
+      type: str
+      required: false
+    auth_type:
+      description:
+        - "IIS authentication type. Example: 'WindowsAuthentication', 'AnonymousAuthentication', etc."
+      type: str
+      required: true
+    enabled:
+      description:
+        - Whether or not the authentication method listed is enabled.
+      type: bool
+      required: true
+    providers:
+      description:
+        - "Comma separated string of providers, can only be used with WindowsAuthentication auth type."
+      type: str
+      required: false
+    usekernelmode:
+      description:
+        - "Whether or not UseKernelMode is enabled for WindowsAuthentication."
+      type: bool
+      required: false
+    tokenchecking:
+      description:
+        - "Value to be used for the 'TokenChecking' option for WindowsAuthentication extended protection."
+      type: str
+      required: false
+  seealso:
+    - module: microsoft.iis.page_order
+  author:
+    - Justin Cook (@ch0nx)
 
-module: authentication
-short_description: Configures authentication options in IIS
-version_added: '1.0.0'
-description:
-  - Adds or modifies authentication options in IIS, including WindowsAuthentication and associated providers.
-options:
-  ps_path:
-    description:
-      - "The PSPath to the site. Example: 'IIS:\\'."
-    type: str
-    required: false
-    default: "IIS:\\"
-  location:
-    description:
-      - The Location parameter for refining results, as an argument for WebAdministration cmdlets.
-    type: str
-    required: false
-  auth_type:
-    description:
-      - "IIS authentication type. Example: 'WindowsAuthentication', 'AnonymousAuthentication', etc."
-    type: str
-    required: true
-  enabled:
-    description:
-      - Whether or not the authentication method listed is enabled.
-    type: bool
-    required: true
-  providers:
-    description:
-      - "Comma separated string of providers, can only be used with WindowsAuthentication auth type."
-    type: str
-    required: false
-  usekernelmode:
-    description:
-      - "Whether or not UseKernelMode is enabled for WindowsAuthentication."
-    type: bool
-    required: false
-  tokenchecking:
-    description:
-      - "Value to be used for the 'TokenChecking' option for WindowsAuthentication extended protection."
-    type: str
-    required: false
-seealso:
-  - module: microsoft.iis.page_order
-author:
-  - Justin Cook (@ch0nx)
-
-examples:
+EXAMPLES: |
   - name: Configure Windows Authentication
     microsoft.iis.authentication:
       location: "Default Web Site"

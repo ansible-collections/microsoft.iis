@@ -1,5 +1,7 @@
 
 #!powershell
+# GNU General Public License v3.0+
+# (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 #AnsibleRequires -CSharpUtil Ansible.Basic
 #AnsibleRequires -PowerShell Ansible.ModuleUtils.AddType
 
@@ -14,7 +16,8 @@ $spec = @{
     enabled       = @{ required = $true; type = "bool" }
     providers     = @{ required = $false; type = "str" }
     usekernelmode = @{ required = $false; type = "bool" }
-    tokenchecking = @{ required = $false; type = "str" }
+  # yamllint disable rule:no-log-needed
+  tokenchecking = @{ required = $false; type = "str" }
   }
   required_if         = @(
     , @('auth_type', 'WindowsAuthentication', @('providers', 'usekernelmode', 'tokenchecking'))
