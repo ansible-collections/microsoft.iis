@@ -40,7 +40,7 @@ DOCUMENTATION:
         - "Whether or not UseKernelMode is enabled for WindowsAuthentication."
       type: bool
       required: false
-  tokenchecking:
+    tokenchecking:
       description:
         - "Value to be used for the 'TokenChecking' option for WindowsAuthentication extended protection."
       type: str
