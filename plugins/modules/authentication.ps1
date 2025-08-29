@@ -16,8 +16,8 @@ $spec = @{
     enabled       = @{ required = $true; type = "bool" }
     providers     = @{ required = $false; type = "str" }
     usekernelmode = @{ required = $false; type = "bool" }
-  # yamllint disable rule:no-log-needed
-  tokenchecking = @{ required = $false; type = "str" }
+    # yamllint disable rule:no-log-needed
+    tokenchecking = @{ required = $false; type = "str" }
   }
   required_if         = @(
     , @('auth_type', 'WindowsAuthentication', @('providers', 'usekernelmode', 'tokenchecking'))
