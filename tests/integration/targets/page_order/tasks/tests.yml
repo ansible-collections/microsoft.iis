@@ -62,14 +62,13 @@
       microsoft.iis.page_order:
         filter: "{{ test_page_order_filter }}"
         collection_name: "{{ test_page_order_collection_name }}"
-        page_order: "{{ test_page_order }}"
       ignore_errors: true
-      register: missing_path_result
+      register: missing_order_result
     - name: Assert failure on missing required parameter
       ansible.builtin.assert:
         that:
-          - missing_path_result is defined
-          - missing_path_result.failed | default(false)
+          - missing_order_result is defined
+          - missing_order_result.failed | default(false)
 
 - name: Negative test for invalid filter
   block:
