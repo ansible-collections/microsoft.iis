@@ -40,6 +40,7 @@ DOCUMENTATION:
         - "Whether or not UseKernelMode is enabled for WindowsAuthentication."
       type: bool
       required: false
+    # validate-modules: ignore no-log-needed
     tokenchecking:
       description:
         - "Value to be used for the 'TokenChecking' option for WindowsAuthentication extended protection."
