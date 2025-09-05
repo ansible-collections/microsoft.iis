@@ -1,12 +1,10 @@
 #!powershell
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-#AnsibleRequires -CSharpUtil Ansible.Basic
 #AnsibleRequires -PowerShell Ansible.ModuleUtils.AddType
 
 # Note: If troubleshooting, use $DebugPreference = 'Continue' and Start-Transcript <filepath>
 # in order to get debug output to a readable location. Ansible does not store debug stream output.
-$ErrorActionPreference = 'Stop'
 $spec = @{
     options = @{
         ps_path = @{ default = 'IIS:\'; required = $false; type = 'str' }
@@ -14,11 +12,11 @@ $spec = @{
         auth_type = @{ required = $true; type = 'str' }
         enabled = @{ required = $true; type = 'bool' }
         providers = @{ required = $false; type = 'str' }
-        usekernelmode = @{ required = $false; type = 'bool' }
-        tokenchecking = @{ required = $false; type = 'str'; no_log = $false }
+        use_kernel_mode = @{ required = $false; type = 'bool' }
+        token_checking = @{ required = $false; type = 'str'; no_log = $false }
     }
     required_if = @(
-        , @('auth_type', 'WindowsAuthentication', @('providers', 'usekernelmode', 'tokenchecking'))
+        , @('auth_type', 'WindowsAuthentication', @('providers', 'use_kernel_mode', 'token_checking'))
     )
     supports_check_mode = $true
 }
@@ -38,8 +36,8 @@ $location = $module.Params.location
 $authType = $module.Params.auth_type
 $enabled = $module.Params.enabled
 $Providers = $module.Params.providers
-$UseKernelMode = $module.Params.usekernelmode
-$tokenChecking = $module.Params.tokenchecking
+$UseKernelMode = $module.Params.use_kernel_mode
+$tokenChecking = $module.Params.token_checking
 $module.Result.diff = @{
     before = ''
     after = ''
@@ -52,31 +50,31 @@ function Get-IISAuthConfig {
         [Ansible.Basic.AnsibleModule]
         $Module,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [String]
         $PSPath = 'IIS:/',
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $AuthType,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true)]
         [bool]
         $Enabled,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [String]
         $Location,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [bool]
         $UseKernelMode,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
         $TokenChecking,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
         $Providers
     )
@@ -183,35 +181,35 @@ function Set-IISAuthConfig {
         [Ansible.Basic.AnsibleModule]
         $Module,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [System.Collections.IDictionary]
         $GetResult,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [String]
         $PSPath = 'IIS:/',
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $AuthType,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true)]
         [bool]
         $Enabled,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [String]
         $Location,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [bool]
         $UseKernelMode,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
         $TokenChecking,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
         $Providers
     )

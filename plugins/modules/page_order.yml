@@ -1,11 +1,10 @@
 ---
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-# yamllint disable rule:line-length
 
 DOCUMENTATION:
   module: page_order
   short_description: Configures default document order in IIS
-  version_added: '1.0.0'
+  version_added: '1.1.0'
   description:
     - Adds or modifies the default document order in IIS using WebAdministration modules.
   options:
@@ -33,7 +32,10 @@ DOCUMENTATION:
       default: 'system.webServer/defaultDocument/files'
     collection_name:
       description:
-        - "The 'collection' name that is being targeted, this gets appended to the 'filter' parameter when getting the current value with Get-WebConfigurationProperty. Example: 'add'."
+        - >
+          The 'collection' name that is being targeted, this gets appended to the 'filter'
+          parameter when getting the current value with Get-WebConfigurationProperty.
+          Example: 'add'.
       type: str
       required: false
       default: add
@@ -43,12 +45,10 @@ DOCUMENTATION:
     check_mode:
       support: full
     diff_mode:
-      support: none
+      support: full
     platform:
       platforms:
         - windows
-  seealso:
-    - module: microsoft.iis.authentication
   author:
     - Justin Cook (@ch0nx)
 
@@ -61,15 +61,9 @@ EXAMPLES: |
       collection_name: "add"
 
 RETURN:
-  before:
+  msg:
     description:
-      - The page order before changes were made.
+      - Message summarizing the operation performed.
     returned: always
     type: str
-    sample: 'Default.htm,Default.asp'
-  after:
-    description:
-      - The page order after changes were made.
-    returned: always
-    type: str
-    sample: 'default.aspx,Default.htm,Default.asp'
+    sample: "Page order does not match after attempting to set new value. Current order: , desired order: default.aspx,Default.htm,Default.asp."

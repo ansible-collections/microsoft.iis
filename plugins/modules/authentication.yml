@@ -1,11 +1,10 @@
 ---
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-# yamllint disable rule:line-length
 
 DOCUMENTATION:
   module: authentication
   short_description: Configures authentication options in IIS
-  version_added: '1.0.0'
+  version_added: '1.1.0'
   description:
     - Adds or modifies authentication options in IIS, including WindowsAuthentication and associated providers.
   options:
@@ -51,12 +50,10 @@ DOCUMENTATION:
     check_mode:
       support: full
     diff_mode:
-      support: none
+      support: full
     platform:
       platforms:
         - windows
-  seealso:
-    - module: microsoft.iis.page_order
   author:
     - Justin Cook (@ch0nx)
 
@@ -71,18 +68,6 @@ EXAMPLES: |
       tokenchecking: "None"
 
 RETURN:
-  diff:
-    description:
-      - Dictionary showing before and after values for authentication settings.
-    returned: always
-    type: dict
-    sample:
-      before:
-        enabled: false
-        providers: "Negotiate"
-      after:
-        enabled: true
-        providers: "Negotiate:Kerberos"
   msg:
     description:
       - Message summarizing the operation performed.
