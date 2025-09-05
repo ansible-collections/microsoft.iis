@@ -34,12 +34,12 @@ DOCUMENTATION:
         - "Comma separated string of providers, can only be used with WindowsAuthentication auth type."
       type: str
       required: false
-    usekernelmode:
+    use_kernel_mode:
       description:
         - "Whether or not UseKernelMode is enabled for WindowsAuthentication."
       type: bool
       required: false
-    tokenchecking:
+    token_checking:
       description:
         - "Value to be used for the 'TokenChecking' option for WindowsAuthentication extended protection."
       type: str
@@ -64,8 +64,8 @@ EXAMPLES: |
       auth_type: "WindowsAuthentication"
       enabled: true
       providers: "Negotiate:Kerberos"
-      usekernelmode: false
-      tokenchecking: "None"
+      use_kernel_mode: false
+      token_checking: "None"
 
 RETURN:
   msg:
