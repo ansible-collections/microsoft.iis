@@ -1,7 +1,7 @@
 #!powershell
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-#AnsibleRequires -PowerShell Ansible.ModuleUtils.AddType
+#AnsibleRequires -CSharpUtil Ansible.Basic
 
 # Note: If troubleshooting, use $DebugPreference = 'Continue' and Start-Transcript <filepath>
 # in order to get debug output to a readable location. Ansible does not store debug stream output.
