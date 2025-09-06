@@ -6,8 +6,8 @@
     authtest_location: "{{ authOpt.location }}"
     authtest_enabled: "{{ authOpt.enabled }}"
     authtest_providers: "{{ authOpt.providers | default(omit) }}"
-    authtest_usekernelmode: "{{ authOpt.usekernelmode | default(omit) }}"
-    authtest_tokenchecking: "{{ authOpt.tokenchecking | default(omit) }}"
+    authtest_use_kernel_mode: "{{ authOpt.use_kernel_mode | default(omit) }}"
+    authtest_token_checking: "{{ authOpt.token_checking | default(omit) }}"
     authtest_ps_path: "{{ authOpt.ps_path | default(omit) }}"
   loop: "{{ auth_options }}"
   loop_control:
@@ -53,8 +53,8 @@
         auth_type: "WindowsAuthentication"
         enabled: true
         providers: ""
-        usekernelmode: false
-        tokenchecking: "None"
+        use_kernel_mode: false
+        token_checking: "None"
       register: empty_providers_result
     - name: Assert WindowsAuthentication with empty providers did not fail
       ansible.builtin.assert:

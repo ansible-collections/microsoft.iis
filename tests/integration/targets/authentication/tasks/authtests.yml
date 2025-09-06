@@ -7,8 +7,8 @@
         ps_path: "{{ authtest_ps_path | default(omit) }}"
         location: "{{ authtest_location | default(omit) }}"
         providers: "{{ authtest_providers | default(omit) }}"
-        usekernelmode: "{{ authtest_usekernelmode | default(omit) }}"
-        tokenchecking: "{{ authtest_tokenchecking | default(omit) }}"
+        use_kernel_mode: "{{ authtest_use_kernel_mode | default(omit) }}"
+        token_checking: "{{ authtest_token_checking | default(omit) }}"
       register: opposite_set_result
     - name: "Manual validation that authentication is set to opposite for {{ authtest_type }}"
       ansible.windows.win_shell: |
@@ -29,8 +29,8 @@
         ps_path: "{{ authtest_ps_path | default(omit) }}"
         location: "{{ authtest_location | default(omit) }}"
         providers: "{{ authtest_providers | default(omit) }}"
-        usekernelmode: "{{ authtest_usekernelmode | default(omit) }}"
-        tokenchecking: "{{ authtest_tokenchecking | default(omit) }}"
+        use_kernel_mode: "{{ authtest_use_kernel_mode | default(omit) }}"
+        token_checking: "{{ authtest_token_checking | default(omit) }}"
       check_mode: true
       register: checkResult
     - name: "Assert check mode changed for {{ authtest_type }}"
@@ -47,8 +47,8 @@
         ps_path: "{{ authtest_ps_path | default(omit) }}"
         location: "{{ authtest_location | default(omit) }}"
         providers: "{{ authtest_providers | default(omit) }}"
-        usekernelmode: "{{ authtest_usekernelmode | default(omit) }}"
-        tokenchecking: "{{ authtest_tokenchecking | default(omit) }}"
+        use_kernel_mode: "{{ authtest_use_kernel_mode | default(omit) }}"
+        token_checking: "{{ authtest_token_checking | default(omit) }}"
       register: setResult
     - name: "Manual validation that authentication is set for {{ authtest_type }}"
       ansible.windows.win_shell: |
@@ -69,8 +69,8 @@
         ps_path: "{{ authtest_ps_path | default(omit) }}"
         location: "{{ authtest_location | default(omit) }}"
         providers: "{{ authtest_providers | default(omit) }}"
-        usekernelmode: "{{ authtest_usekernelmode | default(omit) }}"
-        tokenchecking: "{{ authtest_tokenchecking | default(omit) }}"
+        use_kernel_mode: "{{ authtest_use_kernel_mode | default(omit) }}"
+        token_checking: "{{ authtest_token_checking | default(omit) }}"
       register: idemResult
     - name: Assert idempotency
       ansible.builtin.assert:

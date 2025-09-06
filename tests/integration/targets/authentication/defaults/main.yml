@@ -9,8 +9,8 @@ auth_options:
     enabled: true
     ps_path: "IIS:\\"
     providers: 'Negotiate:Kerberos'
-    usekernelmode: false
-    tokenchecking: 'None'
+    use_kernel_mode: false
+    token_checking: 'None'
   - location: 'Test Site'
     auth_type: 'AnonymousAuthentication'
     ps_path: "IIS:\\"
