@@ -1,0 +1,69 @@
+---
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION:
+  module: page_order
+  short_description: Configures default document order in IIS
+  version_added: '1.1.0'
+  description:
+    - Adds or modifies the default document order in IIS using WebAdministration modules.
+  options:
+    ps_path:
+      description:
+        - "The PSPath to the site. Example: MACHINE/WEBROOT/APPHOST. Cannot be set if website_path is used."
+      type: str
+      required: false
+      default: 'IIS:\Sites\Default Web Site'
+    website_path:
+      description:
+        - "The WebsitePath for the site. Example: 'Default Web Site' or 'IIS:\\'. Cannot be set if ps_path is used."
+      type: str
+      required: false
+    page_order:
+      description:
+        - "Comma separated string of page names to be used. Example: 'default.aspx,Default.htm,Default.asp'."
+      type: str
+      required: true
+    filter:
+      description:
+        - "Filter to be passed to Get-WebConfigurationProperty. Example: 'system.webServer/defaultDocument/files'."
+      type: str
+      required: false
+      default: 'system.webServer/defaultDocument/files'
+    collection_name:
+      description:
+        - >
+          The 'collection' name that is being targeted, this gets appended to the 'filter'
+          parameter when getting the current value with Get-WebConfigurationProperty.
+          Example: 'add'.
+      type: str
+      required: false
+      default: add
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: full
+    platform:
+      platforms:
+        - windows
+  author:
+    - Justin Cook (@ch0nx)
+
+EXAMPLES: |
+  - name: Configure default page order
+    microsoft.iis.page_order:
+      ps_path: "IIS:\\Sites\\Default Web Site"
+      page_order: "default.aspx,Default.htm,Default.asp"
+      filter: "system.webServer/defaultDocument/files"
+      collection_name: "add"
+
+RETURN:
+  msg:
+    description:
+      - Message summarizing the operation performed.
+    returned: always
+    type: str
+    sample: "Page order does not match after attempting to set new value. Current order: , desired order: default.aspx,Default.htm,Default.asp."

@@ -1,0 +1,76 @@
+---
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION:
+  module: authentication
+  short_description: Configures authentication options in IIS
+  version_added: '1.1.0'
+  description:
+    - Adds or modifies authentication options in IIS, including WindowsAuthentication and associated providers.
+  options:
+    ps_path:
+      description:
+        - "The PSPath to the site. Example: 'IIS:\\'."
+      type: str
+      required: false
+      default: "IIS:\\"
+    location:
+      description:
+        - "The Location parameter for refining results, as an argument for WebAdministration cmdlets."
+      type: str
+      required: false
+    auth_type:
+      description:
+        - "IIS authentication type. Example: 'WindowsAuthentication', 'AnonymousAuthentication', etc."
+      type: str
+      required: true
+    enabled:
+      description:
+        - "Whether or not the authentication method listed is enabled."
+      type: bool
+      required: true
+    providers:
+      description:
+        - "Comma separated string of providers, can only be used with WindowsAuthentication auth type."
+      type: str
+      required: false
+    use_kernel_mode:
+      description:
+        - "Whether or not UseKernelMode is enabled for WindowsAuthentication."
+      type: bool
+      required: false
+    token_checking:
+      description:
+        - "Value to be used for the 'TokenChecking' option for WindowsAuthentication extended protection."
+      type: str
+      required: false
+  extends_documentation_fragment:
+    - ansible.builtin.action_common_attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: full
+    platform:
+      platforms:
+        - windows
+  author:
+    - Justin Cook (@ch0nx)
+
+EXAMPLES: |
+  - name: Configure Windows Authentication
+    microsoft.iis.authentication:
+      location: "Default Web Site"
+      auth_type: "WindowsAuthentication"
+      enabled: true
+      providers: "Negotiate:Kerberos"
+      use_kernel_mode: false
+      token_checking: "None"
+
+RETURN:
+  msg:
+    description:
+      - Message summarizing the operation performed.
+    returned: always
+    type: str
+    sample: "Authentication settings updated."

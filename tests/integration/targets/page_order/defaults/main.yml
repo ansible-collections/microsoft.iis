@@ -1,0 +1,7 @@
+test_site_name: "Test Site"
+test_physical_path: "{{ remote_tmp_dir }}"
+test_page_order_ps_path: "IIS:\\Sites\\{{ test_site_name }}"
+test_page_order_website_path: "{{ test_site_name }}"
+test_page_order: "default.aspx,Default.htm,Default.asp,testFile.htm"
+test_page_order_filter: "system.webServer/defaultDocument/files"
+test_page_order_collection_name: "add"
