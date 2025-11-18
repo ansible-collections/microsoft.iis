@@ -74,8 +74,12 @@ try {
     }
     # Return information of all the websites available on the system
     else {
-        $WebsiteList = $(Get-Website).Name
-        $module.Result.site = @($WebsiteList | ForEach-Object { Get-WebsiteInfo -name $_ })
+        $WebsiteList = @(Get-Website)
+        if ($WebsiteList.Count -gt 0) {
+            $module.Result.site = @($WebsiteList | ForEach-Object { Get-WebsiteInfo -name $_.Name })
+        } else {
+            $module.Result.site = @()
+        }
     }
 }
 catch {
