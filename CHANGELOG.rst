@@ -4,6 +4,24 @@ Ansible Microsoft Internet Information Services Release Notes
 
 .. contents:: Topics
 
+v1.1.0
+======
+
+Release Summary
+---------------
+
+Release summary for v1.1.0
+
+Minor Changes
+-------------
+
+- Add official support for Ansible 2.20
+
+Bugfixes
+--------
+
+- website_info - Fix error when retrieving website information but none exist - https://github.com/ansible-collections/microsoft.iis/issues/44
+
 v1.0.3
 ======
 
