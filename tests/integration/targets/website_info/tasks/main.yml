@@ -8,12 +8,33 @@
     loop:
       - "{{ test_phisical_path }}"
       - "{{ test_alt_phisical_path }}"
-  
+
+  - name: get all websites
+    microsoft.iis.website_info:
+    register: websites
+
+  - name: remove all websites
+    microsoft.iis.website:
+      name: "{{ item.name }}"
+      state: absent
+    loop: "{{ websites.site }}"
+
+  - name: get website info with no websites present
+    microsoft.iis.website_info:
+    register: website_no_sites
+
+  - name: assert get website info with no websites present
+    ansible.builtin.assert:
+      that:
+        - website_no_sites is not changed
+        - website_no_sites.exists == False
+        - website_no_sites.site | length == 0
+
   - name: create test application pool
     microsoft.iis.web_app_pool:
       name: "{{ item }}"
       state: present
-    loop: 
+    loop:
       - "{{ test_apppool }}"
       - "{{ test_alt_apppool }}"
 
