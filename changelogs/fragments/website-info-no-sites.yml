@@ -1,0 +1,4 @@
+bugfixes:
+  - >-
+    website_info - Fix error when retrieving website information but none exist -
+    https://github.com/ansible-collections/microsoft.iis/issues/44
