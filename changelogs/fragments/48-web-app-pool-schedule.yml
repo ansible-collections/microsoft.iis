@@ -1,3 +1,2 @@
 bugfixes:
   - web_app_pool - Fix ``attributes`` to accept entries with values of Array (https://github.com/ansible-collections/microsoft.iis/issues/48).
-

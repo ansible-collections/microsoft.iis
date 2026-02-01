@@ -339,7 +339,7 @@
     name: '{{test_iis_webapppool_name}}'
     state: present
     attributes:
-      recycling.periodicRestart.schedule: ["00:10:00","10:10:00"]
+      recycling.periodicRestart.schedule: ["00:10:00", "10:10:00"]
   register: collection_change_check
   check_mode: yes
 
@@ -380,7 +380,7 @@
     name: '{{test_iis_webapppool_name}}'
     state: present
     attributes:
-      recycling.periodicRestart.schedule: ["00:10:00","10:10:00"]
+      recycling.periodicRestart.schedule: ["00:10:00", "10:10:00"]
   register: collection_change
 
 - name: get result of set web pool attribute that is a collection (array)
@@ -400,7 +400,7 @@
     name: '{{test_iis_webapppool_name}}'
     state: present
     attributes:
-      recycling.periodicRestart.schedule: [ "00:10:00", "10:10:00" ]
+      recycling.periodicRestart.schedule: ["00:10:00", "10:10:00"]
   register: collection_change_again
 
 - name: assert results of set web pool attribute that is a collection (idempotent)
