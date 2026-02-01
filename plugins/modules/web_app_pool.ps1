@@ -61,13 +61,8 @@ Function Convert-CollectionToList($collection) {
             $list += $entry.Value.ToString()
         }
     }
-    elseif ($collection[0] -as [System.String]) {
-        try {
-            $list = [System.String[]]$collection
-        }
-        catch {
-            $module.FailJson("Failed to read $($attribute_key): $($_.Exception.Message)", $_)
-        }
+    elseif ($collection -as [System.TimeSpan[]]) {
+        $list = [System.TimeSpan[]]$collection
     }
     elseif ($collection -isnot [Array]) {
         $list += $collection
