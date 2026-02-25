@@ -415,6 +415,22 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-preload_enabled"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-preload-enabled"><strong>preload_enabled</strong></p>
+<a class="ansibleOptionLink" href="#parameter-preload_enabled" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+<p><em class="ansible-option-versionadded">added in microsoft.iis 1.2.0</em></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Specifies whether application preloading is enabled for the website.</p>
+<p>When <code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code>, IIS will automatically initialize the application when the application pool starts or when a configuration change is detected.</p>
+<p>This is useful for reducing the initial response time for the first request to the application.</p>
+<p>For this to work effectively, the associated application pool (see <a class="reference internal" href="web_app_pool_module.html#ansible-collections-microsoft-iis-web-app-pool-module"><span class="std std-ref">microsoft.iis.web_app_pool</span></a>) should have <code class="docutils literal notranslate"><span class="pre">startMode=AlwaysRunning</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-site_id"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-site-id"><strong>site_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-site_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -423,7 +439,7 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <p>The site ID must be available and not used by any other website on the server.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-microsoft-iis-website-module-parameter-state"><strong>state</strong></p>
 <a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -551,10 +567,11 @@ see <a class="reference internal" href="#ansible-collections-microsoft-iis-websi
 <span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8084</span>
 <span class="w">          </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">new-website.net</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop a website</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop a website and enable preload</span>
 <span class="w">  </span><span class="nt">microsoft.iis.website</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">WebSite</span>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stopped</span>
+<span class="w">    </span><span class="nt">preload_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Restart a website (non-idempotent)</span>
 <span class="w">  </span><span class="nt">microsoft.iis.website</span><span class="p">:</span>
