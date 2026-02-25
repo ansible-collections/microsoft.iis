@@ -156,6 +156,7 @@ DOCUMENTATION:
         - For this to work effectively, the associated application pool (see M(microsoft.iis.web_app_pool)) should have C(startMode=AlwaysRunning).
       type: bool
       required: false
+      version_added: 1.2.0
     site_id:
       description:
         - Explicitly set the IIS website numeric ID.
