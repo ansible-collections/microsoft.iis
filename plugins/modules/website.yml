@@ -148,6 +148,15 @@ DOCUMENTATION:
         - When create a new website physical_path is required.
         - The specified folder must already exist.
       type: str
+    preload_enabled:
+      description:
+        - Specifies whether application preloading is enabled for the website.
+        - When V(true), IIS will automatically initialize the application when the application pool starts or when a configuration change is detected.
+        - This is useful for reducing the initial response time for the first request to the application.
+        - For this to work effectively, the associated application pool (see M(microsoft.iis.web_app_pool)) should have C(startMode=AlwaysRunning).
+      type: bool
+      required: false
+      version_added: 1.2.0
     site_id:
       description:
         - Explicitly set the IIS website numeric ID.
@@ -238,10 +247,11 @@ EXAMPLES: |
             port: 8084
             hostname: new-website.net
 
-  - name: Stop a website
+  - name: Stop a website and enable preload
     microsoft.iis.website:
       name: WebSite
       state: stopped
+      preload_enabled: true
 
   - name: Restart a website (non-idempotent)
     microsoft.iis.website:

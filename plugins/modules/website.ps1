@@ -41,6 +41,9 @@ $spec = @{
         physical_path = @{
             type = "str"
         }
+        preload_enabled = @{
+            type = "bool"
+        }
         bindings = @{
             default = @{}
             type = 'dict'
@@ -72,6 +75,7 @@ $state = $module.Params.state
 $site_id = $module.Params.site_id
 $application_pool = $module.Params.application_pool
 $physical_path = $module.Params.physical_path
+$preload_enabled = $module.Params.preload_enabled
 $bindings = $module.Params.bindings
 
 $check_mode = $module.CheckMode
@@ -197,6 +201,16 @@ Try {
         if ($application_pool) {
             If ($application_pool -ne $site.applicationPool) {
                 Set-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)" -name applicationPool -value $application_pool -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+        }
+        # Set preload enabled if specified
+        if ($null -ne $preload_enabled) {
+            $site_path = "IIS:\Sites\$($site.Name)"
+            $current_preload = (Get-ItemProperty -LiteralPath $site_path).applicationDefaults.preloadEnabled
+            If ($current_preload -ne $preload_enabled) {
+                Set-ItemProperty -LiteralPath $site_path `
+                    -Name applicationDefaults.preloadEnabled -Value $preload_enabled -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
         }
