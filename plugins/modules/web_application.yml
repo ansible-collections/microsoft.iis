@@ -64,6 +64,7 @@ DOCUMENTATION:
       type: str
   extends_documentation_fragment:
     - ansible.builtin.action_common_attributes
+    - microsoft.iis.powershell
   attributes:
     check_mode:
       support: full
@@ -72,6 +73,13 @@ DOCUMENTATION:
     platform:
       platforms:
         - windows
+    powershell:
+      details:
+        - This module uses the C(IISAdministration) PowerShell module which is
+          only compatible with Windows PowerShell 5.1, PowerShell 7 is not
+          supported.
+      versions:
+        - '5.1'
   seealso:
     - module: microsoft.iis.web_application_info
     - module: microsoft.iis.web_app_pool
