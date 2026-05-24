@@ -1,2 +1,0 @@
-minor_changes:
-  - microsoft.iis.website - Add preload support for websites using the ``preload_enabled`` option
