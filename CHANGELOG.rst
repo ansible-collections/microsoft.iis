@@ -4,6 +4,19 @@ Ansible Microsoft Internet Information Services Release Notes
 
 .. contents:: Topics
 
+v1.2.0
+======
+
+Release Summary
+---------------
+
+Release summary for v1.2.0
+
+Minor Changes
+-------------
+
+- microsoft.iis.website - Add preload support for websites using the ``preload_enabled`` option
+
 v1.1.0
 ======
 

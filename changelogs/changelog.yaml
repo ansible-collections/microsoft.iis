@@ -41,3 +41,13 @@ releases:
     - release-summary.yml
     - website-info-no-sites.yml
     release_date: '2025-11-20'
+  1.2.0:
+    changes:
+      minor_changes:
+      - microsoft.iis.website - Add preload support for websites using the ``preload_enabled``
+        option
+      release_summary: Release summary for v1.2.0
+    fragments:
+    - release-summary.yml
+    - website-preload.yml
+    release_date: '2026-05-25'
