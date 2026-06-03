@@ -41,15 +41,15 @@ function Get-WebsiteInfo ($name) {
     $bindings_list = @(
         $site_bindings | ForEach-Object {
             $ssl_flags = $_.sslFlags
-            $use_ccs = [math]::Floor($ssl_flags / 2)
-            $use_sni = $ssl_flags % 2
+            $use_ccs = ($ssl_flags -band 2) -gt 0
+            $use_sni = ($ssl_flags -band 1) -gt 0
             $psObject = [PSCustomObject]@{
                 ip = $($_.bindingInformation -split ":")[0]
                 port = [int]$($_.bindingInformation -split ":")[1]
                 hostname = $($_.bindingInformation -split ":")[2]
                 protocol = $_.protocol
-                use_ccs = [bool]$use_ccs
-                use_sni = [bool]$use_sni
+                use_ccs = $use_ccs
+                use_sni = $use_sni
                 certificate_hash = $_.certificateHash
                 certificate_store_name = $_.CertificateStoreName
             }
