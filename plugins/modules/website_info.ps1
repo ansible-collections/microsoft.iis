@@ -64,6 +64,7 @@ function Get-WebsiteInfo ($name) {
         application_pool = $site.applicationPool
         bindings = $bindings_list
     }
+    #TODO: logging needs to be added here?
     return $WebsiteInfoDict
 }
 

@@ -65,6 +65,38 @@ $spec = @{
                 , @('set', 'remove')
             )
         }
+        logging = @{
+            default = @{}
+            type = 'dict'
+            options = @{
+                enabled = @{
+                    type = 'bool'
+                    default = $true
+                }
+                directory = @{
+                    type = 'str'
+                    default = '%SystemDrive%\inetpub\logs\LogFiles'
+                }
+                period = @{
+                    type = 'str'
+                    default = 'Daily'
+                    choices = @("Hourly", "Daily", "Weekly", "Monthly")
+                }
+                format = @{
+                    type = 'str'
+                    default = 'W3C'
+                    choices = @('IIS', 'NCSA', 'W3C')
+                }
+                targetW3C = @{
+                    type = 'list'
+                    elements = 'str'
+                    default = @('File')
+                    choices = @('File', 'ETW')
+                }
+                #TODO: fields
+                #TODO: custom_fields
+            }
+        }
     }
     supports_check_mode = $true
 }
@@ -77,6 +109,7 @@ $application_pool = $module.Params.application_pool
 $physical_path = $module.Params.physical_path
 $preload_enabled = $module.Params.preload_enabled
 $bindings = $module.Params.bindings
+$logging = $module.Params.logging
 
 $check_mode = $module.CheckMode
 $module.Result.changed = $false
@@ -283,6 +316,34 @@ Try {
                     -HostHeader $remove_binding[2] | Remove-WebBinding -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
+        }
+        # Configure logging if needed
+        if ($null -ne $logging -and $logging.Count -gt 0) {
+            $site_path = "IIS:\Sites\$($site.Name)"
+            $site_logging = (Get-ItemProperty -LiteralPath $site_path).LogFile
+            if ($logging.enabled -ne $site_logging.enabled) {
+                Set-ItemProperty -LiteralPath $site_path -Name LogFile.Enabled -Value $logging.enabled -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+            if ($logging.directory -ne $site_logging.directory) {
+                Set-ItemProperty -LiteralPath $site_path -Name LogFile.Directory -Value $logging.directory -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+            if ($logging.period -ne $site_logging.period) {
+                Set-ItemProperty -LiteralPath $site_path -Name LogFile.Period -Value $logging.period -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+            if ($logging.format -ne $site_logging.logFormat) {
+                Set-ItemProperty -LiteralPath $site_path -Name LogFile.LogFormat -Value $logging.format -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+            $strTargetW3C = ($logging.targetW3C | Select-Object -Unique) -join ','
+            if ($strTargetW3C -ne $site_logging.logTargetW3C) {
+                Set-ItemProperty -LiteralPath $site_path -Name LogFile.LogTargetW3C -Value $strTargetW3C -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+            #TODO: fields
+            #TODO: custom_fields
         }
         # Set run state
         if ((($state -eq 'stopped') -or ($state -eq 'restarted')) -and ($site.State -eq 'Started')) {
