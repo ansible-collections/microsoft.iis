@@ -320,26 +320,26 @@ Try {
         # Configure logging if needed
         if ($null -ne $logging -and $logging.Count -gt 0) {
             $site_path = "IIS:\Sites\$($site.Name)"
-            $site_logging = (Get-ItemProperty -LiteralPath $site_path).LogFile
+            $site_logging = (Get-ItemProperty -LiteralPath $site_path).logFile
             if ($logging.enabled -ne $site_logging.enabled) {
-                Set-ItemProperty -LiteralPath $site_path -Name LogFile.Enabled -Value $logging.enabled -WhatIf:$check_mode
+                Set-ItemProperty -LiteralPath $site_path -Name logFile.enabled -Value $logging.enabled -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
             if ($logging.directory -ne $site_logging.directory) {
-                Set-ItemProperty -LiteralPath $site_path -Name LogFile.Directory -Value $logging.directory -WhatIf:$check_mode
+                Set-ItemProperty -LiteralPath $site_path -Name logFile.directory -Value $logging.directory -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
             if ($logging.period -ne $site_logging.period) {
-                Set-ItemProperty -LiteralPath $site_path -Name LogFile.Period -Value $logging.period -WhatIf:$check_mode
+                Set-ItemProperty -LiteralPath $site_path -Name logFile.period -Value $logging.period -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
             if ($logging.format -ne $site_logging.logFormat) {
-                Set-ItemProperty -LiteralPath $site_path -Name LogFile.LogFormat -Value $logging.format -WhatIf:$check_mode
+                Set-ItemProperty -LiteralPath $site_path -Name logFile.logFormat -Value $logging.format -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
             $strTargetW3C = ($logging.targetW3C | Select-Object -Unique) -join ','
             if ($strTargetW3C -ne $site_logging.logTargetW3C) {
-                Set-ItemProperty -LiteralPath $site_path -Name LogFile.LogTargetW3C -Value $strTargetW3C -WhatIf:$check_mode
+                Set-ItemProperty -LiteralPath $site_path -Name logFile.logTargetW3C -Value $strTargetW3C -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
             #TODO: fields

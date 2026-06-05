@@ -5,6 +5,7 @@ test_apppool: TestWebSitePool
 test_site_id: 99
 test_phisical_path: C:\wwwroot\websites\my-test-website
 test_alt_phisical_path: C:\wwwroot\websites\my-test-website-alt
+test_logs_path: "{{ test_phisical_path }}\\logs"
 test_website_port: 8080
 test_website_ip: 127.0.0.1
 test_website_hostname: 'acme.com'
