@@ -137,6 +137,34 @@ DOCUMENTATION:
                 - When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to.
               type: str
               default: "my"
+    logging:
+      description:
+        - Specifies the logging configuration for a website.
+        - Allowing you to configure the log directory, period, and whether logging is enabled or not.
+      type: dict
+      default: {}
+      suboptions:
+        enabled:
+          description: Specifies whether logging for the website should be enabled or disabled.
+          type: bool
+          required: false
+        directory:
+          description: Specifies a custom path for where logs should be placed.
+          type: str
+          required: false
+        period:
+          description: Specifies the period in which new log files should be created.
+          type: str
+          choices: ["Hourly", "Daily", "Weekly", "Monthly"]
+        format:
+          description: Specifies the format in which the logs should be written.
+          type: str
+          choices: ["IIS", "NCSA", "W3C"]
+        targetW3C:
+          description: Specifies where the W3C logs should be written. Only respected when O(logging.format="W3C").
+          type: list
+          elements: str
+          choices: ["File", "ETW"]
     name:
       description:
         - The name of the website to manage.
@@ -267,6 +295,19 @@ EXAMPLES: |
     microsoft.iis.website:
       name: WebSite
       physical_path: C:\wwwroot\websites\my-website
+
+  - name: Configure logs to be written to a custom directory, and cycle every hour
+    microsoft.iis.website:
+      name: WebSite
+      logging:
+        directory: C:\logs\IIS
+        period: Hourly
+
+  - name: Disable logs on a website
+    microsoft.iis.website:
+      name: WebSite
+      logging:
+        enabled: false
 
 # Null is needed for Galaxy/AH to not fall flat
 # https://github.com/ansible/ansible-hub-ui/blob/9b35b78f1f5c6a5ef2346d0470e431ba5f25d06b/src/components/render-plugin-doc.tsx#L226-L228

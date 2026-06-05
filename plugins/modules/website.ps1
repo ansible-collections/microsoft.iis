@@ -88,8 +88,6 @@ $spec = @{
                     elements = 'str'
                     choices = @('File', 'ETW')
                 }
-                #TODO: fields
-                #TODO: custom_fields
             }
         }
     }
@@ -339,8 +337,6 @@ Try {
                     $module.Result.changed = $true
                 }
             }
-            #TODO: fields
-            #TODO: custom_fields
         }
         # Set run state
         if ((($state -eq 'stopped') -or ($state -eq 'restarted')) -and ($site.State -eq 'Started')) {

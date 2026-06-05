@@ -72,7 +72,14 @@ RETURN:
               "use_ccs": false,
               "use_sni": false
             }
-          ]
+          ],
+          "logging": {
+            "enabled": true,
+            "period": "Hourly",
+            "directory": "%SystemDrive%\inetpub\logs\LogFiles",
+            "format": "W3C",
+            "targetW3C": "File"
+          }
         }
       ]
     contains:
@@ -139,3 +146,28 @@ RETURN:
             description: The SSL certificate local store name.
             type: str
             sample: "MY"
+      logging:
+        description: Logging configuration for the website
+        type: dict
+        contains:
+          enabled:
+            description: Specifies whether logging for the website is enabled or disabled.
+            type: bool
+            sample: "true"
+          directory:
+            description: Specifies the path for where logs are being placed.
+            type: str
+            sample: "%SystemDrive%\\inetpub\\logs\\LogFiles"
+          period:
+            description: Specifies the period the log files are being cycled.
+            type: str
+            sample: "Hourly"
+          format:
+            description: Specifies the format the logs are being written.
+            type: str
+            sample: "W3C"
+          targetW3C:
+            description: Specifies where the W3C logs are being written.
+            type: list
+            elements: str
+            sample: "File"
