@@ -63,6 +63,7 @@ RETURN:
           "site_id": 1,
           "physical_path": "C:\\inetpub\\wwwroot",
           "application_pool": "DefaultAppPool",
+          "preload_enabled": true,
           "bindings": [
             {
               "ip": "127.0.0.1",
@@ -108,6 +109,10 @@ RETURN:
           - Specifies the physical folder path of the website.
         type: str
         sample: "C:\\inetpub\\wwwroot"
+      preload_enabled:
+        description: Specifies whether application preloading is enabled for the website.
+        type: bool
+        samepl: "true"
       bindings:
         description:
           - List of dictionaries that hold the information of all the website bindings.
