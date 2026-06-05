@@ -21,6 +21,18 @@ $binding_options = @{
     }
 }
 
+# Define Logging fields options
+$logging_fields_options = @{
+    type = 'list'
+    elements = 'str'
+    choices = @(
+        "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName",
+        "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "Win32Status",
+        "BytesSent", "BytesRecv", "TimeTaken", "ServerPort", "UserAgent", "Cookie",
+        "Referer", "ProtocolVersion", "Host", "HttpSubStatus"
+    )
+}
+
 $spec = @{
     options = @{
         name = @{
@@ -87,6 +99,19 @@ $spec = @{
                     type = 'list'
                     elements = 'str'
                     choices = @('File', 'ETW')
+                }
+                fields = @{
+                    default = @{}
+                    type = 'dict'
+                    options = @{
+                        add = $logging_fields_options
+                        set = $logging_fields_options
+                        remove = $logging_fields_options
+                    }
+                    mutually_exclusive = @(
+                        , @('set', 'add')
+                        , @('set', 'remove')
+                    )
                 }
             }
         }
@@ -314,27 +339,63 @@ Try {
         if ($null -ne $logging -and $logging.Count -gt 0) {
             $site_path = "IIS:\Sites\$($site.Name)"
             $site_logging = (Get-ItemProperty -LiteralPath $site_path).logFile
+            # enable logging
             if ($null -ne $logging.enabled -and $logging.enabled -ne $site_logging.enabled) {
                 Set-ItemProperty -LiteralPath $site_path -Name logFile.enabled -Value $logging.enabled -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
+            # set logging directory
             if (![string]::IsNullOrEmpty($logging.directory) -and $logging.directory -ne $site_logging.directory) {
                 Set-ItemProperty -LiteralPath $site_path -Name logFile.directory -Value $logging.directory -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
+            # set logging period
             if (![string]::IsNullOrEmpty($logging.period) -and $logging.period -ne $site_logging.period) {
                 Set-ItemProperty -LiteralPath $site_path -Name logFile.period -Value $logging.period -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
+            # set logging format
             if (![string]::IsNullOrEmpty($logging.format) -and $logging.format -ne $site_logging.logFormat) {
                 Set-ItemProperty -LiteralPath $site_path -Name logFile.logFormat -Value $logging.format -WhatIf:$check_mode
                 $module.Result.changed = $true
             }
+            # set logging target for W3C
             if ($null -ne $logging.targetW3C -and $logging.targetW3C.Length -gt 0) {
-                $strTargetW3C = ($logging.targetW3C | Select-Object -Unique) -join ','
-                if ($strTargetW3C -ne $site_logging.logTargetW3C) {
-                    Set-ItemProperty -LiteralPath $site_path -Name logFile.logTargetW3C -Value $strTargetW3C -WhatIf:$check_mode
+                $str_target_w3c = ($logging.targetW3C | Select-Object -Unique) -join ','
+                if ($str_target_w3c -ne $site_logging.logTargetW3C) {
+                    Set-ItemProperty -LiteralPath $site_path -Name logFile.logTargetW3C -Value $str_target_w3c -WhatIf:$check_mode
                     $module.Result.changed = $true
+                }
+            }
+            # modify logging fields for W3C format
+            if ($null -ne $logging.fields -and $logging.fields.Count -gt 0) {
+                # set the logging fields
+                if ($null -ne $logging.fields.set) {
+                    $str_fields = ($logging.fields.set | Select-Object -Unique) -join ','
+                    if ($str_fields -ne $site_logging.logFile.logExtFileFlags) {
+                        Set-ItemProperty -LiteralPath $site_path -Name logFile.logExtFileFlags -Value $str_fields -WhatIf:$check_mode
+                        $module.Result.changed = $true
+                    }
+                }
+                # add logging fields
+                if ($null -ne $logging.fields.add -and $logging.fields.add.Count -gt 0) {
+                    $current_fields = $site_logging.logFile.logExtFileFlags -split ','
+                    $fields_to_add = $logging.fields.add | Select-Object -Unique | Where-Object { $_ -notin $current_fields }
+                    if ($fields_to_add.Count -gt 0) {
+                        $str_fields = ($current_fields + $fields_to_add) -join ','
+                        Set-ItemProperty -LiteralPath $site_path -Name logFile.logExtFileFlags -Value $str_fields -WhatIf:$check_mode
+                        $module.Result.changed = $true
+                    }
+                }
+                # remove logging fields
+                if ($null -ne $logging.fields.remove -and $logging.fields.remove.Count -gt 0) {
+                    $current_fields = $site_logging.logFile.logExtFileFlags -split ','
+                    $fields_to_remove = $logging.fields.remove | Select-Object -Unique | Where-Object { $_ -in $current_fields }
+                    if ($fields_to_remove.Count -gt 0) {
+                        $str_fields = ($current_fields | Where-Object { $_ -notin $fields_to_remove }) -join ','
+                        Set-ItemProperty -LiteralPath $site_path -Name logFile.logExtFileFlags -Value $str_fields -WhatIf:$check_mode
+                        $module.Result.changed = $true
+                    }
                 }
             }
         }

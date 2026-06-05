@@ -65,6 +65,7 @@ function Get-WebsiteInfo ($name) {
         period = $site_logging.period
         format = $site_logging.logFormat
         targetW3C = @($site_logging.logTargetW3C -split ',')
+        fields = @($site_logging.logExtFileFlags -split ',')
     }
     # Build and return website details
     $WebsiteInfoDict = @{
