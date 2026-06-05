@@ -285,7 +285,7 @@
     that:
       - website is changed
       - website_info.site[0].logging.enabled == true
-      - website_info.site[0].logging.directory == "{{ test_logs_path }}"
+      - website_info.site[0].logging.directory == test_logs_path
       - website_info.site[0].logging.period == "Hourly"
       - website_info.site[0].logging.targetW3C == "File"
 
@@ -304,9 +304,9 @@
 
 - assert:
     that:
-      - website is changed
+      - website is not changed
       - website_info.site[0].logging.enabled == true
-      - website_info.site[0].logging.directory == "{{ test_logs_path }}"
+      - website_info.site[0].logging.directory == test_logs_path
       - website_info.site[0].logging.period == "Hourly"
       - website_info.site[0].logging.targetW3C == "File"
 
@@ -343,7 +343,7 @@
     that:
       - website is changed
       - website_info.site[0].logging.enabled == true
-      - website_info.site[0].logging.directory == "{{ test_logs_path }}"
+      - website_info.site[0].logging.directory == test_logs_path
       - website_info.site[0].logging.period == "Hourly"
       - website_info.site[0].logging.targetW3C == "File"
 
@@ -364,7 +364,7 @@
     that:
       - website is changed
       - website_info.site[0].logging.enabled == true
-      - website_info.site[0].logging.directory == "{{ test_logs_path }}"
+      - website_info.site[0].logging.directory == test_logs_path
       - website_info.site[0].logging.period == "Hourly"
       - website_info.site[0].logging.targetW3C == "ETW"
 
@@ -386,7 +386,7 @@
     that:
       - website is changed
       - website_info.site[0].logging.enabled == true
-      - website_info.site[0].logging.directory == "{{ test_logs_path }}"
+      - website_info.site[0].logging.directory == test_logs_path
       - website_info.site[0].logging.period == "Hourly"
       - website_info.site[0].logging.targetW3C == "File,ETW"
 
@@ -407,6 +407,6 @@
     that:
       - website is changed
       - website_info.site[0].logging.enabled == true
-      - website_info.site[0].logging.directory == "{{ test_logs_path }}"
+      - website_info.site[0].logging.directory == test_logs_path
       - website_info.site[0].logging.period == "Hourly"
       - website_info.site[0].logging.targetW3C == "File"
