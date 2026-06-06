@@ -79,7 +79,7 @@ RETURN:
             "period": "Hourly",
             "directory": "%SystemDrive%\inetpub\logs\LogFiles",
             "format": "W3C",
-            "targetW3C": "File",
+            "target_w3c": "File",
             "fields": [
               "Date",
               "Time",
@@ -184,7 +184,7 @@ RETURN:
             description: Specifies the format the logs are being written.
             type: str
             sample: "W3C"
-          targetW3C:
+          target_w3c:
             description: Specifies where the W3C logs are being written.
             type: list
             elements: str

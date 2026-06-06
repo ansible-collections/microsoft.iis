@@ -160,7 +160,7 @@ DOCUMENTATION:
           description: Specifies the format in which the logs should be written.
           type: str
           choices: ["IIS", "NCSA", "W3C"]
-        targetW3C:
+        target_w3c:
           description: Specifies where the W3C logs should be written. Only respected when O(logging.format="W3C").
           type: list
           elements: str
@@ -397,6 +397,14 @@ EXAMPLES: |
       name: WebSite
       logging:
         enabled: false
+
+  - name: Add Referer as a log field to a website
+    microsoft.iis.website:
+      name: WebSite
+      logging:
+        fields:
+          add:
+            - "Referer"
 
   - name: Add X-Forwarded-For as a custom log field to a website
     microsoft.iis.website:

@@ -26,10 +26,9 @@ $logging_fields_options = @{
     type = 'list'
     elements = 'str'
     choices = @(
-        "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName",
-        "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "Win32Status",
-        "BytesSent", "BytesRecv", "TimeTaken", "ServerPort", "UserAgent", "Cookie",
-        "Referer", "ProtocolVersion", "Host", "HttpSubStatus"
+        "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem",
+        "UriQuery", "HttpStatus", "Win32Status", "BytesSent", "BytesRecv", "TimeTaken", "ServerPort",
+        "UserAgent", "Cookie", "Referer", "ProtocolVersion", "Host", "HttpSubStatus"
     )
 }
 
@@ -107,7 +106,7 @@ $spec = @{
                     type = 'str'
                     choices = @('IIS', 'NCSA', 'W3C')
                 }
-                targetW3C = @{
+                target_w3c = @{
                     type = 'list'
                     elements = 'str'
                     choices = @('File', 'ETW')
@@ -391,8 +390,8 @@ Try {
                 $module.Result.changed = $true
             }
             # set logging target for W3C
-            if ($null -ne $logging.targetW3C -and $logging.targetW3C.Length -gt 0) {
-                $str_target_w3c = ($logging.targetW3C | Select-Object -Unique) -join ','
+            if ($null -ne $logging.target_w3c -and $logging.target_w3c.Length -gt 0) {
+                $str_target_w3c = ($logging.target_w3c | Select-Object -Unique) -join ','
                 if ($str_target_w3c -ne $site_logging.logTargetW3C) {
                     Set-ItemProperty -LiteralPath $site_path -Name logFile.logTargetW3C -Value $str_target_w3c -WhatIf:$check_mode
                     $module.Result.changed = $true

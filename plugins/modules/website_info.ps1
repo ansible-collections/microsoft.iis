@@ -64,7 +64,7 @@ function Get-WebsiteInfo ($name) {
         directory = $site_logging.directory
         period = $site_logging.period
         format = $site_logging.logFormat
-        targetW3C = $site_logging.logTargetW3C.Split(',', [StringSplitOptions]::RemoveEmptyEntries)
+        target_w3c = $site_logging.logTargetW3C.Split(',', [StringSplitOptions]::RemoveEmptyEntries)
         fields = $site_logging.logExtFileFlags.Split(',', [StringSplitOptions]::RemoveEmptyEntries)
         custom_fields = @(
             $site_logging.customFields.Collection | ForEach-Object {
