@@ -79,7 +79,20 @@ RETURN:
             "period": "Hourly",
             "directory": "%SystemDrive%\inetpub\logs\LogFiles",
             "format": "W3C",
-            "targetW3C": "File"
+            "targetW3C": "File",
+            "fields": [
+              "Date",
+              "Time",
+              "ClientIP",
+              "Referer"
+            ],
+            "custom_fields": [
+              {
+                "name": "UserAgent",
+                "source_name": "User-Agent",
+                "source_type": "RequestHeader"
+              }
+            ]
           }
         }
       ]
@@ -176,3 +189,25 @@ RETURN:
             type: list
             elements: str
             sample: "File"
+          fields:
+            description: Specifies which fields are being logged for the website.
+            type: list
+            elements: str
+            sample: ["Date", "Time", "ClientIP", "Referer"]
+          custom_fields:
+            description: Specifies which custom fields are being logged for the website.
+            type: list
+            elements: dict
+            contains:
+              name:
+                description: The name of the custom field.
+                type: str
+                sample: "UserAgent"
+              source_name:
+                description: The source name of the custom field, e.g. the header name in case of a request header.
+                type: str
+                sample: "User-Agent"
+              source_type:
+                description: The source type of the custom field, e.g. whether it's a request header, response header, server variable, etc.
+                type: str
+                sample: "RequestHeader"

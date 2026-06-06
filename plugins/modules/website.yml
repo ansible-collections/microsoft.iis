@@ -165,6 +165,95 @@ DOCUMENTATION:
           type: list
           elements: str
           choices: ["File", "ETW"]
+        fields:
+          description:
+            - Specifies which fields should be logged for the website. Only respected when O(logging.format="W3C").
+            - To clear all fields, use O(logging.fields.set) with an empty list.
+          type: dict
+          default: {}
+          suboptions:
+            set:
+              description:
+                - Specifies a list of fields to set for the website logging configuration.
+                - This will remove any existing fields if not in the specified list,
+                  and add any fields in the specified list if it does not exist on the website.
+              type: list
+              elements: str
+              choices: [
+                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "HttpSubStatus",
+                "HttpWin32Status", "ServerPort", "UserAgent", "Referer"
+              ]
+            add:
+              description: Specifies a list of fields to add to the website logging configuration.
+              type: list
+              elements: str
+              choices: [
+                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "HttpSubStatus",
+                "HttpWin32Status", "ServerPort", "UserAgent", "Referer"
+              ]
+            remove:
+              description: Specifies a list of fields to remove from the website logging configuration.
+              type: list
+              elements: str
+              choices: [
+                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "HttpSubStatus",
+                "HttpWin32Status", "ServerPort", "UserAgent", "Referer"
+              ]
+        custom_fields:
+          description:
+            - Specifies which custom fields should be logged for the website. Only respected when O(logging.format="W3C").
+            - To clear all custom fields, use O(logging.custom_fields.set) with an empty list.
+          type: dict
+          default: {}
+          suboptions:
+            set:
+              description:
+                - Specifies a list of custom fields to set for the website logging configuration.
+                - This will remove any existing custom fields not in the specified list,
+                  and add any custom fields in the specified list if it does not exist on the website.
+              type: list
+              elements: dict
+              suboptions:
+                name:
+                  description: The name of the custom field.
+                  type: str
+                  required: true
+                source_name:
+                  description: The source name for the custom field, such as the server variable or request header name.
+                  type: str
+                  required: true
+                source_type:
+                  description: The source type for the custom field, such as whether it's from a server variable, request header, or response header.
+                  type: str
+                  required: true
+                  choices: ["ServerVariable", "RequestHeader", "ResponseHeader"]
+            add:
+              description: Specifies a list of custom fields to add to the website logging configuration.
+              type: list
+              elements: dict
+              suboptions:
+                name:
+                  description: The name of the custom field.
+                  type: str
+                  required: true
+                source_name:
+                  description: The source name for the custom field, such as the server variable or request header name.
+                  type: str
+                  required: true
+                source_type:
+                  description: The source type for the custom field, such as whether it's from a server variable, request header, or response header.
+                  type: str
+                  required: true
+                  choices: ["ServerVariable", "RequestHeader", "ResponseHeader"]
+            remove:
+              description: Specifies a list of custom fields to remove from the website logging configuration.
+              type: list
+              elements: dict
+              suboptions:
+                name:
+                  description: The name of the custom field.
+                  type: str
+                  required: true
     name:
       description:
         - The name of the website to manage.
@@ -308,6 +397,16 @@ EXAMPLES: |
       name: WebSite
       logging:
         enabled: false
+
+  - name: Add X-Forwarded-For as a custom log field to a website
+    microsoft.iis.website:
+      name: WebSite
+      logging:
+        custom_fields:
+          add:
+            - name: X-Forwarded-For
+              source_name: X-Forwarded-For
+              source_type: RequestHeader
 
 # Null is needed for Galaxy/AH to not fall flat
 # https://github.com/ansible/ansible-hub-ui/blob/9b35b78f1f5c6a5ef2346d0470e431ba5f25d06b/src/components/render-plugin-doc.tsx#L226-L228

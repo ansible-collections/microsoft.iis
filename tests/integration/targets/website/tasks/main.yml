@@ -16,6 +16,7 @@
 
   # Tests
   - include_tasks: tests.yml
+  - include_tasks: logging.yml
   - include_tasks: bindings.yml
 
   always:

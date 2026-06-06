@@ -1,0 +1,503 @@
+---
+- name: change logging path and period for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      directory: "{{ test_logs_path }}"
+      period: hourly
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.targetW3C[0] == "File"
+
+- name: change logging path and period for website (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      directory: "{{ test_logs_path }}"
+      period: hourly
+  register: website
+
+- name: get change logging info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is not changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.targetW3C[0] == "File"
+
+- name: disable logging for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      enabled: false
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == false
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.targetW3C[0] == "File"
+
+- name: re-enable logging for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      enabled: true
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.targetW3C[0] == "File"
+
+- name: change logging W3C target to ETW for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      targetW3C:
+        - "ETW"
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.targetW3C[0] == "ETW"
+
+- name: change logging W3C target to File and ETW for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      targetW3C:
+        - "File"
+        - "ETW"
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.targetW3C[0] == "File"
+      - website_info.site[0].logging.targetW3C[1] == "ETW"
+
+- name: change logging W3C target back to File for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      targetW3C:
+        - "File"
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.targetW3C[0] == "File"
+
+- name: set logging fields for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      fields:
+        set:
+          - "Date"
+          - "Time"
+          - "ClientIP"
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.fields[0] == "Date"
+      - website_info.site[0].logging.fields[1] == "Time"
+      - website_info.site[0].logging.fields[2] == "ClientIP"
+
+- name: set logging fields for website (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      fields:
+        set:
+          - "Date"
+          - "Time"
+          - "ClientIP"
+  register: website
+
+- name: get change logging info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is not changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.fields[0] == "Date"
+      - website_info.site[0].logging.fields[1] == "Time"
+      - website_info.site[0].logging.fields[2] == "ClientIP"
+
+- name: add logging fields for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      fields:
+        add:
+          - "HttpStatus"
+          - "Referer"
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.fields[0] == "Date"
+      - website_info.site[0].logging.fields[1] == "Time"
+      - website_info.site[0].logging.fields[2] == "ClientIP"
+      - website_info.site[0].logging.fields[3] == "HttpStatus"
+      - website_info.site[0].logging.fields[4] == "Referer"
+
+- name: add logging fields for website (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      fields:
+        add:
+          - "HttpStatus"
+          - "Referer"
+  register: website
+
+- name: get change logging info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is not changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.fields[0] == "Date"
+      - website_info.site[0].logging.fields[1] == "Time"
+      - website_info.site[0].logging.fields[2] == "ClientIP"
+      - website_info.site[0].logging.fields[3] == "HttpStatus"
+      - website_info.site[0].logging.fields[4] == "Referer"
+
+- name: remove logging fields for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      fields:
+        remove:
+          - "HttpStatus"
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.fields[0] == "Date"
+      - website_info.site[0].logging.fields[1] == "Time"
+      - website_info.site[0].logging.fields[2] == "ClientIP"
+      - website_info.site[0].logging.fields[3] == "Referer"
+
+- name: remove logging fields for website (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      fields:
+        remove:
+          - "HttpStatus"
+  register: website
+
+- name: get change logging info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is not changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.fields[0] == "Date"
+      - website_info.site[0].logging.fields[1] == "Time"
+      - website_info.site[0].logging.fields[2] == "ClientIP"
+      - website_info.site[0].logging.fields[3] == "Referer"
+
+- name: set logging fields to clear for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      fields:
+        set: []
+  register: website
+
+- name: get change logging info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is not changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.fields | length == 0
+
+- name: set logging custom fields for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      custom_fields:
+        set:
+          - name: X-Forwarded-For
+            source_name: X-Forwarded-For
+            source_type: RequestHeader
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.custom_fields[0].name == "X-Forwarded-For"
+      - website_info.site[0].logging.custom_fields[0].source_name == "X-Forwarded-For"
+      - website_info.site[0].logging.custom_fields[0].source_type == "RequestHeader"
+
+- name: set logging custom fields for website (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      custom_fields:
+        set:
+          - name: X-Forwarded-For
+            source_name: X-Forwarded-For
+            source_type: RequestHeader
+  register: website
+
+- name: get change logging info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is not changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.custom_fields[0].name == "X-Forwarded-For"
+      - website_info.site[0].logging.custom_fields[0].source_name == "X-Forwarded-For"
+      - website_info.site[0].logging.custom_fields[0].source_type == "RequestHeader"
+
+- name: add logging custom fields for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      custom_fields:
+        add:
+          - name: UserAgent
+            source_name: User-Agent
+            source_type: RequestHeader
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.custom_fields[0].name == "X-Forwarded-For"
+      - website_info.site[0].logging.custom_fields[0].source_name == "X-Forwarded-For"
+      - website_info.site[0].logging.custom_fields[0].source_type == "RequestHeader"
+      - website_info.site[0].logging.custom_fields[1].name == "UserAgent"
+      - website_info.site[0].logging.custom_fields[1].source_name == "User-Agent"
+      - website_info.site[0].logging.custom_fields[1].source_type == "RequestHeader"
+
+- name: add logging custom fields for website (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      custom_fields:
+        add:
+          - name: UserAgent
+            source_name: User-Agent
+            source_type: RequestHeader
+  register: website
+
+- name: get change logging info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is not changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.custom_fields[0].name == "X-Forwarded-For"
+      - website_info.site[0].logging.custom_fields[0].source_name == "X-Forwarded-For"
+      - website_info.site[0].logging.custom_fields[0].source_type == "RequestHeader"
+      - website_info.site[0].logging.custom_fields[1].name == "UserAgent"
+      - website_info.site[0].logging.custom_fields[1].source_name == "User-Agent"
+      - website_info.site[0].logging.custom_fields[1].source_type == "RequestHeader"
+
+- name: remove logging custom fields for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      custom_fields:
+        remove:
+          - name: X-Forwarded-For
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.custom_fields[0].name == "UserAgent"
+      - website_info.site[0].logging.custom_fields[0].source_name == "User-Agent"
+      - website_info.site[0].logging.custom_fields[0].source_type == "RequestHeader"
+
+- name: remove logging custom fields for website (idempotent)
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      custom_fields:
+        remove:
+          - name: X-Forwarded-For
+  register: website
+
+- name: get change logging info (idempotent)
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is not changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.custom_fields[0].name == "UserAgent"
+      - website_info.site[0].logging.custom_fields[0].source_name == "User-Agent"
+      - website_info.site[0].logging.custom_fields[0].source_type == "RequestHeader"
+
+- name: set logging custom fields to clear for website
+  microsoft.iis.website:
+    name: "{{ test_website_name }}"
+    logging:
+      custom_fields:
+        set: []
+  register: website
+
+- name: get change logging info
+  microsoft.iis.website_info:
+    name: "{{ test_website_name }}"
+  register: website_info
+
+- assert:
+    that:
+      - website is changed
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.directory == test_logs_path
+      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.custom_fields | length == 0
