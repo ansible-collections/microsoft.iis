@@ -66,6 +66,15 @@ function Get-WebsiteInfo ($name) {
         format = $site_logging.logFormat
         targetW3C = @($site_logging.logTargetW3C -split ',')
         fields = @($site_logging.logExtFileFlags -split ',')
+        custom_fields = @(
+            $site_logging.customFields.Collection | ForEach-Object {
+                @{
+                    name = $_.logFieldName
+                    source_name = $_.sourceName
+                    source_type = $_.sourceType
+                }
+            }
+        )
     }
     # Build and return website details
     $WebsiteInfoDict = @{
