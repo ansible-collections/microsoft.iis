@@ -125,7 +125,7 @@ RETURN:
       preload_enabled:
         description: Specifies whether application preloading is enabled for the website.
         type: bool
-        samepl: "true"
+        sample: "true"
       bindings:
         description:
           - List of dictionaries that hold the information of all the website bindings.

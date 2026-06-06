@@ -180,24 +180,24 @@ DOCUMENTATION:
               type: list
               elements: str
               choices: [
-                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "HttpSubStatus",
-                "HttpWin32Status", "ServerPort", "UserAgent", "Referer"
+                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "Win32Status",
+                "BytesSent", "BytesRecv", "TimeTaken", "ServerPort", "UserAgent", "Cookie", "Referer", "ProtocolVersion", "Host", "HttpSubStatus"
               ]
             add:
               description: Specifies a list of fields to add to the website logging configuration.
               type: list
               elements: str
               choices: [
-                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "HttpSubStatus",
-                "HttpWin32Status", "ServerPort", "UserAgent", "Referer"
+                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "Win32Status",
+                "BytesSent", "BytesRecv", "TimeTaken", "ServerPort", "UserAgent", "Cookie", "Referer", "ProtocolVersion", "Host", "HttpSubStatus"
               ]
             remove:
               description: Specifies a list of fields to remove from the website logging configuration.
               type: list
               elements: str
               choices: [
-                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "HttpSubStatus",
-                "HttpWin32Status", "ServerPort", "UserAgent", "Referer"
+                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "Win32Status",
+                "BytesSent", "BytesRecv", "TimeTaken", "ServerPort", "UserAgent", "Cookie", "Referer", "ProtocolVersion", "Host", "HttpSubStatus"
               ]
         custom_fields:
           description:
