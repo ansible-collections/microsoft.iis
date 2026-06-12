@@ -1,2 +1,2 @@
 bugfixes:
-  - website - fix missing ``changed`` status when updating the certificate onan existing HTTPS binding via ``bindings.add`` (https://github.com/ansible-collections/microsoft.iis/pull/59).
+  - website - fix ``changed`` not set on cert update for existing binding via ``bindings.add`` (https://github.com/ansible-collections/microsoft.iis/pull/59).
