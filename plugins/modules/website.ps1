@@ -273,8 +273,11 @@ Try {
                     $module.Result.changed = $true
                 }
                 If ($user_edit.certificate_hash) {
-                    $edit_binding = Get-WebBinding -Name $site.Name -IPAddress $user_edit.ip -Port $user_edit.port -HostHeader $user_edit.hostname
-                    $edit_binding.AddSslCertificate($user_edit.certificate_hash, $user_edit.certificate_store_name)
+                    if ($site_edit.certificateHash -ne $user_edit.certificate_hash -or $site_edit.CertificateStoreName -ne $user_edit.certificate_store_name) {
+                        $edit_binding = Get-WebBinding -Name $site.Name -IPAddress $user_edit.ip -Port $user_edit.port -HostHeader $user_edit.hostname
+                        $edit_binding.AddSslCertificate($user_edit.certificate_hash, $user_edit.certificate_store_name)
+                        $module.Result.changed = $true
+                    }
                 }
             }
             $toRemove | ForEach-Object {
