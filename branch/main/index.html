@@ -4,9 +4,10 @@
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta content="2.24.0" name="antsibull-docs" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to my Ansible collection documentation &mdash; Ansible collections  documentation</title>
+  <title>Microsoft.Iis &mdash; Microsoft.IIS Collection  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=41de9001" />
       <link rel="stylesheet" type="text/css" href="_static/css/ansible.css?v=b54c304f" />
       <link rel="stylesheet" type="text/css" href="_static/antsibull-minimal.css" />
@@ -21,7 +22,7 @@
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Collection Index" href="collections/index.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+    <link rel="next" title="Migration guide" href="docsite/guide_migration.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
 
 
 
@@ -38,12 +39,12 @@
   </ul>
 </div>
 
-<a class="DocSite-nav" href="/" style="padding-bottom: 30px;">
+<a class="DocSite-nav" href="https://ansible-collections.github.io/microsoft.iis/branch/main/" style="padding-bottom: 30px;">
 
   <img class="DocSiteNav-logo"
     src="_static/images/Ansible-Mark-RGB_White.png"
     alt="Ansible Logo">
-  <div class="DocSiteNav-title">Ansible Collections Documentation</div>
+  <div class="DocSiteNav-title">Microsoft.IIS Collection Docs</div>
 </a>
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
@@ -53,7 +54,7 @@
           
           
           <a href="#" class="icon icon-home">
-            Ansible collections
+            Microsoft.IIS Collection
           </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
 
 <div class="version">
@@ -71,17 +72,18 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
   
-              <p class="caption" role="heading"><span class="caption-text">Collections:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="collections/index.html">Collection Index</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="docsite/guide_migration.html">Migration guide</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Plugin indexes:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="collections/index_module.html">Index of all Modules</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Reference indexes:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="virtual_directory_module.html">microsoft.iis.virtual_directory module – Configures a virtual directory in IIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="virtual_directory_info_module.html">microsoft.iis.virtual_directory_info module – Retrive information on a virtual directory in IIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_app_pool_module.html">microsoft.iis.web_app_pool module – Configure IIS Web Application Pools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_app_pool_info_module.html">microsoft.iis.web_app_pool_info module – Get information on IIS Web Application Pools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_application_module.html">microsoft.iis.web_application module – Configures IIS web applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_application_info_module.html">microsoft.iis.web_application_info module – Get information on IIS Web Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="website_module.html">microsoft.iis.website module – Configures an IIS website</a></li>
+<li class="toctree-l1"><a class="reference internal" href="website_info_module.html">microsoft.iis.website_info module – Get information on IIS websites</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -91,7 +93,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">Ansible collections</a>
+          <a href="#">Microsoft.IIS Collection</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -99,7 +101,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Welcome to my Ansible collection documentation</li>
+      <li class="breadcrumb-item active">Microsoft.Iis</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -110,27 +112,69 @@
   
            <div itemprop="articleBody">
              
-  <section id="welcome-to-my-ansible-collection-documentation">
-<span id="docsite-root-index"></span><h1>Welcome to my Ansible collection documentation<a class="headerlink" href="#welcome-to-my-ansible-collection-documentation" title="Link to this heading"></a></h1>
-<p>This docsite contains documentation of microsoft.iis.</p>
+  <section id="microsoft-iis">
+<span id="plugins-in-microsoft-iis"></span><h1>Microsoft.Iis<a class="headerlink" href="#microsoft-iis" title="Link to this heading"></a></h1>
+<p>Collection version 1.2.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#description" id="id1">Description</a></p></li>
+<li><p><a class="reference internal" href="#communication" id="id2">Communication</a></p></li>
+<li><p><a class="reference internal" href="#scenario-guides" id="id3">Scenario Guides</a></p></li>
+<li><p><a class="reference internal" href="#plugin-index" id="id4">Plugin Index</a></p></li>
+</ul>
+</nav>
+<section id="description">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Description</a><a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>Ansible collection for Microsoft Internet Information Services (IIS)</p>
+<p><strong>Author:</strong></p>
+<ul class="simple">
+<li><p>Jordan Borean &#64;jborean93</p></li>
+</ul>
+<p><strong>Supported ansible-core versions:</strong></p>
+<ul class="simple">
+<li><p>2.16.0 or newer</p></li>
+</ul>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/ansible-collections/microsoft.iis/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/ansible-collections/microsoft.iis" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/ansible-collections/microsoft.iis/issues/new/choose" rel="noopener external" target="_blank">Report an issue</a></span></li>
+</ul>
+</section>
+<section id="communication">
+<span id="communication-for-microsoft-iis"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink">Communication</a><a class="headerlink" href="#communication" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Matrix room <code class="docutils literal notranslate"><span class="pre">#windows:ansible.im</span></code>: <a class="reference external" href="https://matrix.to/#/#windows:ansible.im">General usage and support questions</a>.</p></li>
+</ul>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Collections:</span></p>
+</div>
+</section>
+<section id="scenario-guides">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Scenario Guides</a><a class="headerlink" href="#scenario-guides" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docsite/guide_migration.html">Migration guide</a></li>
 </ul>
 </div>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Plugin indexes:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="collections/index_module.html">Index of all Modules</a></li>
+</section>
+<section id="plugin-index">
+<span id="plugin-index-for-microsoft-iis"></span><h2><a class="toc-backref" href="#id4" role="doc-backlink">Plugin Index</a><a class="headerlink" href="#plugin-index" title="Link to this heading"></a></h2>
+<p>These are the plugins in the microsoft.iis collection:</p>
+<section id="modules">
+<span id="module-plugins-in-microsoft-iis"></span><h3>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="virtual_directory_module.html#ansible-collections-microsoft-iis-virtual-directory-module"><span class="std std-ref">virtual_directory module</span></a> – Configures a virtual directory in IIS</p></li>
+<li><p><a class="reference internal" href="virtual_directory_info_module.html#ansible-collections-microsoft-iis-virtual-directory-info-module"><span class="std std-ref">virtual_directory_info module</span></a> – Retrive information on a virtual directory in IIS</p></li>
+<li><p><a class="reference internal" href="web_app_pool_module.html#ansible-collections-microsoft-iis-web-app-pool-module"><span class="std std-ref">web_app_pool module</span></a> – Configure IIS Web Application Pools</p></li>
+<li><p><a class="reference internal" href="web_app_pool_info_module.html#ansible-collections-microsoft-iis-web-app-pool-info-module"><span class="std std-ref">web_app_pool_info module</span></a> – Get information on IIS Web Application Pools</p></li>
+<li><p><a class="reference internal" href="web_application_module.html#ansible-collections-microsoft-iis-web-application-module"><span class="std std-ref">web_application module</span></a> – Configures IIS web applications</p></li>
+<li><p><a class="reference internal" href="web_application_info_module.html#ansible-collections-microsoft-iis-web-application-info-module"><span class="std std-ref">web_application_info module</span></a> – Get information on IIS Web Applications</p></li>
+<li><p><a class="reference internal" href="website_module.html#ansible-collections-microsoft-iis-website-module"><span class="std std-ref">website module</span></a> – Configures an IIS website</p></li>
+<li><p><a class="reference internal" href="website_info_module.html#ansible-collections-microsoft-iis-website-info-module"><span class="std std-ref">website_info module</span></a> – Get information on IIS websites</p></li>
 </ul>
-</div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Reference indexes:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
-</ul>
 </div>
+</section>
+</section>
 </section>
 
 
@@ -139,13 +183,13 @@
           
 
 <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="collections/index.html" class="btn btn-neutral float-right" title="Collection Index" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="docsite/guide_migration.html" class="btn btn-neutral float-right" title="Migration guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Ansible contributors.</p>
+    <p>&#169; Copyright Microsoft.IIS Contributors.</p>
   </div>
 
   
