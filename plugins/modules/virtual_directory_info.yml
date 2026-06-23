@@ -4,7 +4,7 @@
 
 DOCUMENTATION:
   module: virtual_directory_info
-  short_description: Retrive information on a virtual directory in IIS
+  short_description: Retrive information on a virtual directory in IIS testing
   description:
     - Retrive information on a virtual directory in IIS.
   requirements:
