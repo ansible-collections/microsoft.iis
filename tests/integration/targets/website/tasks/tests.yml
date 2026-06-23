@@ -31,6 +31,7 @@
       - website_info.site[0].state == "Started"
       - website_info.site[0].logging.enabled == true
       - website_info.site[0].logging.format == "W3C"
+      - website_info.site[0].logging.period == "Daily"
       - website_info.site[0].logging.fields[0] == "Date"
 
 - name: create new website (idempotent)

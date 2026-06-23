@@ -66,7 +66,7 @@
       - website_info.site[0].bindings[0].use_ccs == false
       - website_info.site[0].logging.enabled == true
       - website_info.site[0].logging.format == "W3C"
-      - website_info.site[0].logging.period == "Hourly"
+      - website_info.site[0].logging.period == "Daily"
       - website_info.site[0].logging.target_w3c[0] == "File"
       - website_info.site[0].logging.fields[0] == "Date"
 
