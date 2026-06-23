@@ -137,6 +137,123 @@ DOCUMENTATION:
                 - When using the Central Certificate Store feature, the certificate is automatically retrieved from the store rather than manually assigned to.
               type: str
               default: "my"
+    logging:
+      description:
+        - Specifies the logging configuration for a website.
+        - Allowing you to configure the log directory, period, and whether logging is enabled or not.
+      type: dict
+      default: {}
+      suboptions:
+        enabled:
+          description: Specifies whether logging for the website should be enabled or disabled.
+          type: bool
+          required: false
+        directory:
+          description: Specifies a custom path for where logs should be placed.
+          type: str
+          required: false
+        period:
+          description: Specifies the period in which new log files should be created.
+          type: str
+          choices: ["Hourly", "Daily", "Weekly", "Monthly"]
+        format:
+          description: Specifies the format in which the logs should be written.
+          type: str
+          choices: ["IIS", "NCSA", "W3C"]
+        target_w3c:
+          description: Specifies where the W3C logs should be written. Only respected when O(logging.format="W3C").
+          type: list
+          elements: str
+          choices: ["File", "ETW"]
+        fields:
+          description:
+            - Specifies which fields should be logged for the website. Only respected when O(logging.format="W3C").
+            - To clear all fields, use O(logging.fields.set) with an empty list.
+          type: dict
+          default: {}
+          suboptions:
+            set:
+              description:
+                - Specifies a list of fields to set for the website logging configuration.
+                - This will remove any existing fields if not in the specified list,
+                  and add any fields in the specified list if it does not exist on the website.
+              type: list
+              elements: str
+              choices: [
+                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "Win32Status",
+                "BytesSent", "BytesRecv", "TimeTaken", "ServerPort", "UserAgent", "Cookie", "Referer", "ProtocolVersion", "Host", "HttpSubStatus"
+              ]
+            add:
+              description: Specifies a list of fields to add to the website logging configuration.
+              type: list
+              elements: str
+              choices: [
+                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "Win32Status",
+                "BytesSent", "BytesRecv", "TimeTaken", "ServerPort", "UserAgent", "Cookie", "Referer", "ProtocolVersion", "Host", "HttpSubStatus"
+              ]
+            remove:
+              description: Specifies a list of fields to remove from the website logging configuration.
+              type: list
+              elements: str
+              choices: [
+                "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem", "UriQuery", "HttpStatus", "Win32Status",
+                "BytesSent", "BytesRecv", "TimeTaken", "ServerPort", "UserAgent", "Cookie", "Referer", "ProtocolVersion", "Host", "HttpSubStatus"
+              ]
+        custom_fields:
+          description:
+            - Specifies which custom fields should be logged for the website. Only respected when O(logging.format="W3C").
+            - To clear all custom fields, use O(logging.custom_fields.set) with an empty list.
+          type: dict
+          default: {}
+          suboptions:
+            set:
+              description:
+                - Specifies a list of custom fields to set for the website logging configuration.
+                - This will remove any existing custom fields not in the specified list,
+                  and add any custom fields in the specified list if it does not exist on the website.
+              type: list
+              elements: dict
+              suboptions:
+                name:
+                  description: The name of the custom field.
+                  type: str
+                  required: true
+                source_name:
+                  description: The source name for the custom field, such as the server variable or request header name.
+                  type: str
+                  required: true
+                source_type:
+                  description: The source type for the custom field, such as whether it's from a server variable, request header, or response header.
+                  type: str
+                  required: true
+                  choices: ["ServerVariable", "RequestHeader", "ResponseHeader"]
+            add:
+              description: Specifies a list of custom fields to add to the website logging configuration.
+              type: list
+              elements: dict
+              suboptions:
+                name:
+                  description: The name of the custom field.
+                  type: str
+                  required: true
+                source_name:
+                  description: The source name for the custom field, such as the server variable or request header name.
+                  type: str
+                  required: true
+                source_type:
+                  description: The source type for the custom field, such as whether it's from a server variable, request header, or response header.
+                  type: str
+                  required: true
+                  choices: ["ServerVariable", "RequestHeader", "ResponseHeader"]
+            remove:
+              description: Specifies a list of custom fields to remove from the website logging configuration.
+              type: list
+              elements: dict
+              suboptions:
+                name:
+                  description: The name of the custom field.
+                  type: str
+                  required: true
     name:
       description:
         - The name of the website to manage.
@@ -267,6 +384,37 @@ EXAMPLES: |
     microsoft.iis.website:
       name: WebSite
       physical_path: C:\wwwroot\websites\my-website
+
+  - name: Configure logs to be written to a custom directory, and cycle every hour
+    microsoft.iis.website:
+      name: WebSite
+      logging:
+        directory: C:\logs\IIS
+        period: Hourly
+
+  - name: Disable logs on a website
+    microsoft.iis.website:
+      name: WebSite
+      logging:
+        enabled: false
+
+  - name: Add Referer as a log field to a website
+    microsoft.iis.website:
+      name: WebSite
+      logging:
+        fields:
+          add:
+            - "Referer"
+
+  - name: Add X-Forwarded-For as a custom log field to a website
+    microsoft.iis.website:
+      name: WebSite
+      logging:
+        custom_fields:
+          add:
+            - name: X-Forwarded-For
+              source_name: X-Forwarded-For
+              source_type: RequestHeader
 
 # Null is needed for Galaxy/AH to not fall flat
 # https://github.com/ansible/ansible-hub-ui/blob/9b35b78f1f5c6a5ef2346d0470e431ba5f25d06b/src/components/render-plugin-doc.tsx#L226-L228

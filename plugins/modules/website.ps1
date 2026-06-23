@@ -21,6 +21,29 @@ $binding_options = @{
     }
 }
 
+# Define Logging fields options
+$logging_fields_options = @{
+    type = 'list'
+    elements = 'str'
+    choices = @(
+        "Date", "Time", "ClientIP", "UserName", "SiteName", "ComputerName", "ServerIP", "Method", "UriStem",
+        "UriQuery", "HttpStatus", "Win32Status", "BytesSent", "BytesRecv", "TimeTaken", "ServerPort",
+        "UserAgent", "Cookie", "Referer", "ProtocolVersion", "Host", "HttpSubStatus"
+    )
+}
+
+# Define Logging custom fields options
+$logging_custom_fields_options = @{
+    type = 'list'
+    elements = 'dict'
+    options = @{
+        name = @{ type = 'str'; required = $true }
+        source_name = @{ type = 'str'; required = $true }
+        source_type = @{ type = 'str'; required = $true; choices = @('RequestHeader', 'ResponseHeader', 'ServerVariable') }
+    }
+}
+
+# Module arguments specification
 $spec = @{
     options = @{
         name = @{
@@ -65,6 +88,63 @@ $spec = @{
                 , @('set', 'remove')
             )
         }
+        logging = @{
+            default = @{}
+            type = 'dict'
+            options = @{
+                enabled = @{
+                    type = 'bool'
+                }
+                directory = @{
+                    type = 'str'
+                }
+                period = @{
+                    type = 'str'
+                    choices = @("Hourly", "Daily", "Weekly", "Monthly")
+                }
+                format = @{
+                    type = 'str'
+                    choices = @('IIS', 'NCSA', 'W3C')
+                }
+                target_w3c = @{
+                    type = 'list'
+                    elements = 'str'
+                    choices = @('File', 'ETW')
+                }
+                fields = @{
+                    default = @{}
+                    type = 'dict'
+                    options = @{
+                        add = $logging_fields_options
+                        set = $logging_fields_options
+                        remove = $logging_fields_options
+                    }
+                    mutually_exclusive = @(
+                        , @('set', 'add')
+                        , @('set', 'remove')
+                    )
+                }
+                custom_fields = @{
+                    default = @{}
+                    type = 'dict'
+                    options = @{
+                        add = $logging_custom_fields_options
+                        set = $logging_custom_fields_options
+                        remove = @{
+                            type = 'list'
+                            elements = 'dict'
+                            options = @{
+                                name = @{ type = 'str'; required = $true }
+                            }
+                        }
+                    }
+                    mutually_exclusive = @(
+                        , @('set', 'add')
+                        , @('set', 'remove')
+                    )
+                }
+            }
+        }
     }
     supports_check_mode = $true
 }
@@ -77,6 +157,7 @@ $application_pool = $module.Params.application_pool
 $physical_path = $module.Params.physical_path
 $preload_enabled = $module.Params.preload_enabled
 $bindings = $module.Params.bindings
+$logging = $module.Params.logging
 
 $check_mode = $module.CheckMode
 $module.Result.changed = $false
@@ -108,7 +189,7 @@ function Get-SSLFlagFromBinding {
         If ($BindingInfo.certificate_hash) {
             $module.FailJson("You set use_ccs to $($BindingInfo.use_ccs).
             This indicates you wish to use the Central Certificate Store feature.
-            This cannot be used in combination with certficiate_hash and certificate_store_name. When using the Central Certificate Store feature,
+            This cannot be used in combination with certificate_hash and certificate_store_name. When using the Central Certificate Store feature,
             the certificate is automatically retrieved from the store rather than manually assigned to the binding.")
         }
         $ssl_flags += 2
@@ -282,6 +363,126 @@ Try {
                 Get-WebBinding -Name $site.Name -IPAddress $remove_binding[0] -Port $remove_binding[1]`
                     -HostHeader $remove_binding[2] | Remove-WebBinding -WhatIf:$check_mode
                 $module.Result.changed = $true
+            }
+        }
+        # Configure logging if needed
+        if ($null -ne $logging -and $logging.Count -gt 0) {
+            $site_path = "IIS:\Sites\$($site.Name)"
+            $site_logging = (Get-ItemProperty -LiteralPath $site_path).logFile
+            # enable logging
+            if ($null -ne $logging.enabled -and $logging.enabled -ne $site_logging.enabled) {
+                Set-ItemProperty -LiteralPath $site_path -Name logFile.enabled -Value $logging.enabled -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+            # set logging directory
+            if (-not [string]::IsNullOrEmpty($logging.directory) -and $logging.directory -ne $site_logging.directory) {
+                Set-ItemProperty -LiteralPath $site_path -Name logFile.directory -Value $logging.directory -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+            # set logging period
+            if (-not [string]::IsNullOrEmpty($logging.period) -and $logging.period -ne $site_logging.period) {
+                Set-ItemProperty -LiteralPath $site_path -Name logFile.period -Value $logging.period -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+            # set logging format
+            if (-not [string]::IsNullOrEmpty($logging.format) -and $logging.format -ne $site_logging.logFormat) {
+                Set-ItemProperty -LiteralPath $site_path -Name logFile.logFormat -Value $logging.format -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+            # set logging target for W3C
+            if ($null -ne $logging.target_w3c -and $logging.target_w3c.Length -gt 0) {
+                $str_target_w3c = ($logging.target_w3c | Select-Object -Unique) -join ','
+                if ($str_target_w3c -ne $site_logging.logTargetW3C) {
+                    Set-ItemProperty -LiteralPath $site_path -Name logFile.logTargetW3C -Value $str_target_w3c -WhatIf:$check_mode
+                    $module.Result.changed = $true
+                }
+            }
+            # modify logging fields for W3C format
+            if ($null -ne $logging.fields -and $logging.fields.Count -gt 0) {
+                # set the logging fields
+                if ($null -ne $logging.fields.set) {
+                    $str_fields = ($logging.fields.set | Select-Object -Unique) -join ','
+                    if ($str_fields -ne $site_logging.logExtFileFlags) {
+                        Set-ItemProperty -LiteralPath $site_path -Name logFile.logExtFileFlags -Value $str_fields -WhatIf:$check_mode
+                        $module.Result.changed = $true
+                    }
+                }
+                # add logging fields
+                if ($null -ne $logging.fields.add -and $logging.fields.add.Count -gt 0) {
+                    $current_fields = $site_logging.logExtFileFlags -split ','
+                    $fields_to_add = $logging.fields.add | Select-Object -Unique | Where-Object { $_ -notin $current_fields }
+                    if ($fields_to_add.Count -gt 0) {
+                        $str_fields = ($current_fields + $fields_to_add) -join ','
+                        Set-ItemProperty -LiteralPath $site_path -Name logFile.logExtFileFlags -Value $str_fields -WhatIf:$check_mode
+                        $module.Result.changed = $true
+                    }
+                }
+                # remove logging fields
+                if ($null -ne $logging.fields.remove -and $logging.fields.remove.Count -gt 0) {
+                    $current_fields = $site_logging.logExtFileFlags -split ','
+                    $fields_to_remove = $logging.fields.remove | Select-Object -Unique | Where-Object { $_ -in $current_fields }
+                    if ($fields_to_remove.Count -gt 0) {
+                        $str_fields = ($current_fields | Where-Object { $_ -notin $fields_to_remove }) -join ','
+                        Set-ItemProperty -LiteralPath $site_path -Name logFile.logExtFileFlags -Value $str_fields -WhatIf:$check_mode
+                        $module.Result.changed = $true
+                    }
+                }
+            }
+            # modify logging custom fields for W3C format
+            if ($null -ne $logging.custom_fields -and $logging.custom_fields.Count -gt 0) {
+                # current custom fields
+                $current_custom_fields = $site_logging.customFields.Collection
+                # set the logging custom fields
+                if ($null -ne $logging.custom_fields.set) {
+                    $set_fields = $logging.custom_fields.set.Count -ne $current_custom_fields.Count
+                    if (-not $set_fields) {
+                        for ($i = 0; $i -lt $logging.custom_fields.set.Count; $i++) {
+                            $user_field = $logging.custom_fields.set[$i]
+                            $site_field = $current_custom_fields[$i]
+                            if ($user_field.name -ne $site_field.logFieldName -or $user_field.source_name -ne $site_field.sourceName `
+                                    -or $user_field.source_type -ne $site_field.sourceType) {
+                                $set_fields = $true
+                                break
+                            }
+                        }
+                    }
+                    if ($set_fields) {
+                        Clear-ItemProperty -LiteralPath $site_path -Name logFile.customFields.Collection -WhatIf:$check_mode
+                        $logging.custom_fields.set | ForEach-Object {
+                            New-ItemProperty -LiteralPath $site_path -Name logFile.customFields.Collection -Value @{
+                                logFieldName = $_.name
+                                sourceName = $_.source_name
+                                sourceType = $_.source_type
+                            } -WhatIf:$check_mode
+                        }
+                        $module.Result.changed = $true
+                    }
+                }
+                # add logging custom fields
+                if ($null -ne $logging.custom_fields.add -and $logging.custom_fields.add.Count -gt 0) {
+                    $fields_to_add = $logging.custom_fields.add | Where-Object { $_.name -notin @($current_custom_fields.logFieldName) }
+                    if ($fields_to_add.Count -gt 0) {
+                        $fields_to_add | ForEach-Object {
+                            New-ItemProperty -LiteralPath $site_path -Name logFile.customFields.Collection -Value @{
+                                logFieldName = $_.name
+                                sourceName = $_.source_name
+                                sourceType = $_.source_type
+                            } -WhatIf:$check_mode
+                        }
+                        $module.Result.changed = $true
+                    }
+                }
+                # remove logging custom fields
+                if ($null -ne $logging.custom_fields.remove -and $logging.custom_fields.remove.Count -gt 0) {
+                    $fields_to_remove = $logging.custom_fields.remove | Where-Object { $_.name -in @($current_custom_fields.logFieldName) }
+                    if ($fields_to_remove.Count -gt 0) {
+                        $fields_to_remove | ForEach-Object {
+                            Remove-WebConfigurationProperty -Filter "system.applicationHost/sites/site[@name='$($site.Name)']/logFile" `
+                                -Name 'customFields' -AtElement @{ logFieldName = $_.name } -WhatIf:$check_mode
+                        }
+                        $module.Result.changed = $true
+                    }
+                }
             }
         }
         # Set run state
