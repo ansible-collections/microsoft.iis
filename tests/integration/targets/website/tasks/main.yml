@@ -1,6 +1,6 @@
 ---
 - name: run website integration tests 
-  block:  
+  block:
   - name: create website directory structure
     ansible.windows.win_file:
       path: "{{ item }}"

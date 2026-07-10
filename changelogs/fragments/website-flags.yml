@@ -1,0 +1,4 @@
+bugfixes:
+  - >-
+    website_info - Fix logic for determining ``use_ccs`` is set to take into account new SSL flags added in Server 1809
+    or newer - https://github.com/ansible-collections/microsoft.iis/pull/57

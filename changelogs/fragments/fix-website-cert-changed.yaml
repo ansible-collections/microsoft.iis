@@ -1,0 +1,2 @@
+bugfixes:
+  - website - fix ``changed`` not set on cert update for existing binding via ``bindings.add`` (https://github.com/ansible-collections/microsoft.iis/pull/59).

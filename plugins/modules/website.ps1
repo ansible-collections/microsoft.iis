@@ -41,6 +41,9 @@ $spec = @{
         physical_path = @{
             type = "str"
         }
+        preload_enabled = @{
+            type = "bool"
+        }
         bindings = @{
             default = @{}
             type = 'dict'
@@ -72,6 +75,7 @@ $state = $module.Params.state
 $site_id = $module.Params.site_id
 $application_pool = $module.Params.application_pool
 $physical_path = $module.Params.physical_path
+$preload_enabled = $module.Params.preload_enabled
 $bindings = $module.Params.bindings
 
 $check_mode = $module.CheckMode
@@ -200,6 +204,16 @@ Try {
                 $module.Result.changed = $true
             }
         }
+        # Set preload enabled if specified
+        if ($null -ne $preload_enabled) {
+            $site_path = "IIS:\Sites\$($site.Name)"
+            $current_preload = (Get-ItemProperty -LiteralPath $site_path).applicationDefaults.preloadEnabled
+            If ($current_preload -ne $preload_enabled) {
+                Set-ItemProperty -LiteralPath $site_path `
+                    -Name applicationDefaults.preloadEnabled -Value $preload_enabled -WhatIf:$check_mode
+                $module.Result.changed = $true
+            }
+        }
         # Add Remove or Set bindings if needed
         if ( $null -ne $bindings.set -or $bindings.add.Count -gt 0 -or $bindings.remove.Count -gt 0 ) {
             $site_bindings = (Get-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)").Bindings.Collection
@@ -259,8 +273,11 @@ Try {
                     $module.Result.changed = $true
                 }
                 If ($user_edit.certificate_hash) {
-                    $edit_binding = Get-WebBinding -Name $site.Name -IPAddress $user_edit.ip -Port $user_edit.port -HostHeader $user_edit.hostname
-                    $edit_binding.AddSslCertificate($user_edit.certificate_hash, $user_edit.certificate_store_name)
+                    if ($site_edit.certificateHash -ne $user_edit.certificate_hash -or $site_edit.CertificateStoreName -ne $user_edit.certificate_store_name) {
+                        $edit_binding = Get-WebBinding -Name $site.Name -IPAddress $user_edit.ip -Port $user_edit.port -HostHeader $user_edit.hostname
+                        $edit_binding.AddSslCertificate($user_edit.certificate_hash, $user_edit.certificate_store_name)
+                        $module.Result.changed = $true
+                    }
                 }
             }
             $toRemove | ForEach-Object {
