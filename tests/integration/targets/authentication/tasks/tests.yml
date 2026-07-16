@@ -1,63 +1,146 @@
 ---
-- name: Run authentication tests for each default_auth_options entry
+- name: Run authentication tests for each auth_options entry
   include_tasks: authtests.yml
   vars:
     authtest_type: "{{ authOpt.auth_type }}"
-    authtest_location: "{{ authOpt.location }}"
     authtest_enabled: "{{ authOpt.enabled }}"
     authtest_providers: "{{ authOpt.providers | default(omit) }}"
     authtest_use_kernel_mode: "{{ authOpt.use_kernel_mode | default(omit) }}"
     authtest_token_checking: "{{ authOpt.token_checking | default(omit) }}"
-    authtest_ps_path: "{{ authOpt.ps_path | default(omit) }}"
   loop: "{{ auth_options }}"
   loop_control:
     loop_var: authOpt
     label: "Validation tests for {{ authOpt.auth_type }}"
 
-- name: Negative test for missing required parameter
+- name: Structured diff is returned mapped to module options
   block:
-    - name: Run authentication with missing required ps_path/location
+    - name: Disable AnonymousAuthentication to create a known starting state
       microsoft.iis.authentication:
-        auth_type: "WindowsAuthentication"
+        site: "{{ test_site_name }}"
+        auth_type: AnonymousAuthentication
+        enabled: false
+    - name: Enable AnonymousAuthentication and capture the diff
+      microsoft.iis.authentication:
+        site: "{{ test_site_name }}"
+        auth_type: AnonymousAuthentication
         enabled: true
-      ignore_errors: true
-      register: missing_path_result
-    - name: Assert failure on missing required parameter
+      register: diff_result
+    - name: Assert diff maps before/after to the enabled option
       ansible.builtin.assert:
         that:
-          - missing_path_result is defined
-          - missing_path_result.failed | default(false)
+          - diff_result.changed
+          - diff_result.diff.before.enabled == false
+          - diff_result.diff.after.enabled == true
 
-- name: Negative test for invalid auth_type
+- name: Three-state preserve keeps unset Windows Authentication options
   block:
-    - name: Run authentication with invalid auth_type
+    - name: Establish a known WindowsAuthentication baseline
       microsoft.iis.authentication:
-        ps_path: "{{ test_auth_ps_path }}"
-        location: "{{ test_site_name }}"
-        auth_type: "InvalidAuthType"
+        site: "{{ test_site_name }}"
+        auth_type: WindowsAuthentication
         enabled: true
-      ignore_errors: true
-      register: invalid_auth_type_result
-    - name: Assert failure on invalid auth_type
-      ansible.builtin.assert:
-        that:
-          - invalid_auth_type_result is defined
-          - invalid_auth_type_result.failed | default(false)
-
-- name: Testing empty providers edge case for WindowsAuthentication
-  block:
-    - name: Set WindowsAuthentication with empty providers
-      microsoft.iis.authentication:
-        ps_path: "{{ test_auth_ps_path }}"
-        location: "{{ test_site_name }}"
-        auth_type: "WindowsAuthentication"
-        enabled: true
-        providers: ""
+        providers:
+          - Negotiate
+          - NTLM
         use_kernel_mode: false
-        token_checking: "None"
-      register: empty_providers_result
-    - name: Assert WindowsAuthentication with empty providers did not fail
+        token_checking: None
+    - name: Change only use_kernel_mode and preserve the rest
+      microsoft.iis.authentication:
+        site: "{{ test_site_name }}"
+        auth_type: WindowsAuthentication
+        use_kernel_mode: true
+      register: preserve_result
+    - name: Assert a change was reported
       ansible.builtin.assert:
         that:
-          - empty_providers_result is defined
-          - empty_providers_result.failed is not defined or not empty_providers_result.failed
+          - preserve_result.changed
+    - name: Gather WindowsAuthentication state after the preserve run
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        $auth = Get-WebConfiguration -PSPath 'IIS:\' -Location '{{ test_site_name }}' -Filter 'system.webServer/security/authentication/WindowsAuthentication'
+        [pscustomobject]@{
+          enabled = [bool]$auth.enabled
+          providers = @($auth.providers.Collection | ForEach-Object { $_.value }) -join ','
+          useKernelMode = [bool]$auth.useKernelMode
+          tokenChecking = [string]$auth.extendedProtection.tokenChecking
+        } | ConvertTo-Json -Compress
+      register: preserve_state
+    - name: Parse the gathered state
+      ansible.builtin.set_fact:
+        preserve_state_obj: "{{ preserve_state.stdout | from_json }}"
+    - name: Assert only use_kernel_mode changed and the rest were preserved
+      ansible.builtin.assert:
+        that:
+          - preserve_state_obj.enabled | bool
+          - preserve_state_obj.providers == 'Negotiate,NTLM'
+          - preserve_state_obj.useKernelMode | bool
+          - preserve_state_obj.tokenChecking == 'None'
+
+- name: Target an application under a site
+  block:
+    - name: Create an application for application-scoped targeting
+      microsoft.iis.web_application:
+        name: "{{ test_application_name }}"
+        site: "{{ test_site_name }}"
+        physical_path: "{{ test_physical_path }}"
+    - name: Enable AnonymousAuthentication on the application
+      microsoft.iis.authentication:
+        site: "{{ test_site_name }}"
+        application: "{{ test_application_name }}"
+        auth_type: AnonymousAuthentication
+        enabled: true
+    - name: Gather AnonymousAuthentication state for the application
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        (Get-WebConfigurationProperty -PSPath 'IIS:\' -Location '{{ test_site_name }}/{{ test_application_name }}' -Filter 'system.webServer/security/authentication/AnonymousAuthentication' -Name 'enabled').Value
+      register: application_auth_info
+    - name: Assert AnonymousAuthentication is enabled on the application
+      ansible.builtin.assert:
+        that:
+          - (application_auth_info.stdout | trim | lower) == 'true'
+
+- name: Verify failure when site is not set
+  microsoft.iis.authentication:
+    auth_type: WindowsAuthentication
+    enabled: true
+  register: missing_site_result
+  failed_when: "'missing required arguments: site' not in missing_site_result.msg"
+
+- name: Verify failure for an unresolvable site
+  microsoft.iis.authentication:
+    site: "This Site Does Not Exist"
+    auth_type: WindowsAuthentication
+    enabled: true
+  register: unknown_site_result
+  failed_when: "'Unable to resolve an IIS site named' not in unknown_site_result.msg"
+
+- name: Verify failure for a nonexistent application
+  microsoft.iis.authentication:
+    site: "{{ test_site_name }}"
+    application: "This Application Does Not Exist"
+    auth_type: WindowsAuthentication
+    enabled: true
+  register: unknown_application_result
+  failed_when: "'Unable to resolve an application or virtual directory named' not in unknown_application_result.msg"
+
+- name: WindowsAuthentication with empty providers clears the provider list
+  block:
+    - name: Set WindowsAuthentication with an empty providers list
+      microsoft.iis.authentication:
+        site: "{{ test_site_name }}"
+        auth_type: WindowsAuthentication
+        enabled: true
+        providers: []
+        use_kernel_mode: false
+        token_checking: None
+    - name: Gather providers after clearing them
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        $auth = Get-WebConfiguration -PSPath 'IIS:\' -Location '{{ test_site_name }}' -Filter 'system.webServer/security/authentication/WindowsAuthentication'
+        (@($auth.providers.Collection | ForEach-Object { $_.value }) -join ',')
+      register: empty_providers_state
+    - name: Assert the providers list is empty
+      ansible.builtin.assert:
+        that:
+          - (empty_providers_state.stdout | trim) == ''
+

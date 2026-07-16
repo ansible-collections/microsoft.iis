@@ -4,46 +4,69 @@
 DOCUMENTATION:
   module: authentication
   short_description: Configures authentication options in IIS
-  version_added: '1.1.0'
+  version_added: '1.3.0'
   description:
-    - Adds or modifies authentication options in IIS, including WindowsAuthentication and associated providers.
+    - Adds or modifies authentication options in IIS, including V(WindowsAuthentication) and its providers.
   options:
-    ps_path:
+    site:
       description:
-        - "The PSPath to the site. Example: 'IIS:\\'."
+        - The name of the IIS site to configure, for example V(Default Web Site).
+        - The module resolves the site to the underlying IIS configuration path automatically.
       type: str
-      required: false
-      default: "IIS:\\"
-    location:
+      required: true
+    application:
       description:
-        - "The Location parameter for refining results, as an argument for WebAdministration cmdlets."
+        - The name of an application or virtual directory under O(site) to configure.
+        - When omitted the configuration is applied at the site root.
       type: str
       required: false
     auth_type:
       description:
-        - "IIS authentication type. Example: 'WindowsAuthentication', 'AnonymousAuthentication', etc."
+        - The IIS authentication type to configure.
+        - Each value maps to a child section of C(system.webServer/security/authentication).
       type: str
       required: true
+      choices:
+        - AnonymousAuthentication
+        - BasicAuthentication
+        - ClientCertificateMappingAuthentication
+        - DigestAuthentication
+        - IISClientCertificateMappingAuthentication
+        - WindowsAuthentication
     enabled:
       description:
-        - "Whether or not the authentication method listed is enabled."
+        - Whether the authentication type is enabled.
+        - When omitted the current value on the target is preserved.
       type: bool
-      required: true
+      required: false
     providers:
       description:
-        - "Comma separated string of providers, can only be used with WindowsAuthentication auth type."
-      type: str
+        - The ordered list of providers for O(auth_type=WindowsAuthentication).
+        - For example V(Negotiate) and V(NTLM).
+        - Only valid with O(auth_type=WindowsAuthentication).
+        - When omitted the current providers on the target are preserved.
+      type: list
+      elements: str
       required: false
     use_kernel_mode:
       description:
-        - "Whether or not UseKernelMode is enabled for WindowsAuthentication."
+        - Whether kernel-mode authentication is enabled for O(auth_type=WindowsAuthentication).
+        - Only valid with O(auth_type=WindowsAuthentication).
+        - When omitted the current value on the target is preserved.
       type: bool
       required: false
     token_checking:
       description:
-        - "Value to be used for the 'TokenChecking' option for WindowsAuthentication extended protection."
+        - The C(TokenChecking) value for the O(auth_type=WindowsAuthentication) extended protection setting.
+        - The valid values are V(None), V(Allow) and V(Require).
+        - Only valid with O(auth_type=WindowsAuthentication).
+        - When omitted the current value on the target is preserved.
       type: str
       required: false
+      choices:
+        - None
+        - Allow
+        - Require
   extends_documentation_fragment:
     - ansible.builtin.action_common_attributes
   attributes:
@@ -54,23 +77,47 @@ DOCUMENTATION:
     platform:
       platforms:
         - windows
+  seealso:
+    - module: microsoft.iis.website
   author:
     - Justin Cook (@ch0nx)
 
 EXAMPLES: |
-  - name: Configure Windows Authentication
+  - name: Configure Windows Authentication on a site
     microsoft.iis.authentication:
-      location: "Default Web Site"
-      auth_type: "WindowsAuthentication"
+      site: Default Web Site
+      auth_type: WindowsAuthentication
       enabled: true
-      providers: "Negotiate:Kerberos"
+      providers:
+        - Negotiate
+        - NTLM
       use_kernel_mode: false
-      token_checking: "None"
+      token_checking: None
+
+  - name: Enable Anonymous Authentication without changing other settings
+    microsoft.iis.authentication:
+      site: Default Web Site
+      auth_type: AnonymousAuthentication
+      enabled: true
+
+  - name: Update only the providers and preserve the other Windows Authentication settings
+    microsoft.iis.authentication:
+      site: Default Web Site
+      auth_type: WindowsAuthentication
+      providers:
+        - Negotiate
+
+  - name: Configure Windows Authentication on an application under a site
+    microsoft.iis.authentication:
+      site: Default Web Site
+      application: MyApp
+      auth_type: WindowsAuthentication
+      enabled: true
 
 RETURN:
-  msg:
+  target:
     description:
-      - Message summarizing the operation performed.
+      - The resolved IIS configuration path the authentication configuration was applied to.
     returned: always
     type: str
-    sample: "Authentication settings updated."
+    sample: IIS:\Sites\Default Web Site

@@ -6,6 +6,8 @@
       - Web-Security
       - Web-Common-Http
       - Web-Windows-Auth
+      - Web-Basic-Auth
+      - Web-Digest-Auth
     state: present
   register: iis_features
 

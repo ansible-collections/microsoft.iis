@@ -4,41 +4,29 @@
 DOCUMENTATION:
   module: page_order
   short_description: Configures default document order in IIS
-  version_added: '1.1.0'
+  version_added: '1.3.0'
   description:
-    - Adds or modifies the default document order in IIS using WebAdministration modules.
+    - Adds or modifies the default document order in IIS.
   options:
-    ps_path:
+    site:
       description:
-        - "The PSPath to the site. Example: MACHINE/WEBROOT/APPHOST. Cannot be set if website_path is used."
+        - The name of the IIS site to configure, for example V(Default Web Site).
+        - The module resolves the site to the underlying IIS configuration path automatically.
       type: str
-      required: false
-      default: 'IIS:\Sites\Default Web Site'
-    website_path:
+      required: true
+    application:
       description:
-        - "The WebsitePath for the site. Example: 'Default Web Site' or 'IIS:\\'. Cannot be set if ps_path is used."
+        - The name of an application or virtual directory under O(site) to configure.
+        - When omitted the configuration is applied at the site root.
       type: str
       required: false
     page_order:
       description:
-        - "Comma separated string of page names to be used. Example: 'default.aspx,Default.htm,Default.asp'."
-      type: str
+        - The ordered list of default document names.
+        - The first entry is served first when a request does not specify a document.
+      type: list
+      elements: str
       required: true
-    filter:
-      description:
-        - "Filter to be passed to Get-WebConfigurationProperty. Example: 'system.webServer/defaultDocument/files'."
-      type: str
-      required: false
-      default: 'system.webServer/defaultDocument/files'
-    collection_name:
-      description:
-        - >
-          The 'collection' name that is being targeted, this gets appended to the 'filter'
-          parameter when getting the current value with Get-WebConfigurationProperty.
-          Example: 'add'.
-      type: str
-      required: false
-      default: add
   extends_documentation_fragment:
     - ansible.builtin.action_common_attributes
   attributes:
@@ -49,21 +37,32 @@ DOCUMENTATION:
     platform:
       platforms:
         - windows
+  seealso:
+    - module: microsoft.iis.website
   author:
     - Justin Cook (@ch0nx)
 
 EXAMPLES: |
-  - name: Configure default page order
+  - name: Configure default document order for a site
     microsoft.iis.page_order:
-      ps_path: "IIS:\\Sites\\Default Web Site"
-      page_order: "default.aspx,Default.htm,Default.asp"
-      filter: "system.webServer/defaultDocument/files"
-      collection_name: "add"
+      site: Default Web Site
+      page_order:
+        - default.aspx
+        - Default.htm
+        - Default.asp
+
+  - name: Configure default document order for an application under a site
+    microsoft.iis.page_order:
+      site: Default Web Site
+      application: MyApp
+      page_order:
+        - default.aspx
+        - Default.htm
 
 RETURN:
-  msg:
+  target:
     description:
-      - Message summarizing the operation performed.
+      - The resolved IIS configuration path the default document order was applied to.
     returned: always
     type: str
-    sample: "Page order does not match after attempting to set new value. Current order: , desired order: default.aspx,Default.htm,Default.asp."
+    sample: IIS:\Sites\Default Web Site

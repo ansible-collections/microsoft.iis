@@ -1,17 +1,20 @@
 test_vdir_name: testvdir
+test_application_name: testapp
 test_site_name: 'Test Site'
 test_physical_path: "{{ remote_tmp_dir }}"
-test_auth_ps_path: "IIS:\\"
 
 auth_options:
-  - location: 'Test Site'
-    auth_type: 'WindowsAuthentication'
+  - auth_type: 'WindowsAuthentication'
     enabled: true
-    ps_path: "IIS:\\"
-    providers: 'Negotiate:Kerberos'
+    providers:
+      - Negotiate
+      - NTLM
     use_kernel_mode: false
     token_checking: 'None'
-  - location: 'Test Site'
-    auth_type: 'AnonymousAuthentication'
-    ps_path: "IIS:\\"
+  - auth_type: 'AnonymousAuthentication'
     enabled: true
+  - auth_type: 'BasicAuthentication'
+    enabled: true
+  - auth_type: 'DigestAuthentication'
+    enabled: true
+

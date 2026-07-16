@@ -6,55 +6,37 @@
 # Note: If troubleshooting, use $DebugPreference = 'Continue' and Start-Transcript <filepath>
 # in order to get debug output to a readable location. Ansible does not store debug stream output.
 
-
 $ErrorActionPreference = 'Stop'
 $spec = @{
-    options = @{
-        ps_path = @{ default = 'IIS:\Sites\Default Web Site'; required = $false; type = 'str' }
-        website_path = @{ required = $false; type = 'str' }
-        page_order = @{ required = $true; type = 'str' }
-        filter = @{ required = $false; type = 'str'; default = 'system.webServer/defaultDocument/files' }
-        collection_name = @{ required = $false; type = 'str'; default = 'add' }
+    options             = @{
+        site        = @{ required = $true; type = 'str' }
+        application = @{ required = $false; type = 'str' }
+        page_order  = @{ required = $true; type = 'list'; elements = 'str' }
     }
-    required_one_of = @(
-        , @('ps_path', 'website_path')
-    )
-    mutually_exclusive = @(
-        , @('ps_path', 'website_path')
-    )
     supports_check_mode = $true
 }
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
-write-debug $module
 try {
     if ($null -eq (Get-Module 'WebAdministration' -ErrorAction SilentlyContinue)) {
         Import-Module WebAdministration
     }
+} catch {
+    $module.FailJson("Failed to ensure WebAdministration module is loaded: $($_.Exception.Message)", $_)
 }
-catch {
-    $module.FailJson("Failed to ensure WebAdministration module is loaded: $_", $_)
-}
-if ($module.Params.ps_path) {
-    $iisPath = $module.Params.ps_path
-}
-elseif ($module.Params.website_path) {
-    $iisPath = $module.Params.website_path
-}
-else {
-    throw 'No ps_path or website_path specified'
-    return
-}
+
+$site = $module.Params.site
+$application = $module.Params.application
 $pageOrder = $module.Params.page_order
-$filter = $module.Params.filter
-$collectionName = $module.Params.collection_name
-$module.Result.diff = @{
-    before = ''
-    after = ''
-}
-$module.Result.msg = ''
+$filter = 'system.webServer/defaultDocument/files'
+
+$module.Diff.before = $null
+$module.Diff.after = $null
 
 function Get-IISPageOrder {
-    [OutputType([string])]
+    <#
+        Returns the currently configured default document order as an ordered array of page names.
+    #>
+    [OutputType([string[]])]
     param(
         [Parameter(Mandatory = $true)]
         [Ansible.Basic.AnsibleModule]
@@ -64,133 +46,95 @@ function Get-IISPageOrder {
         [String]
         $IisPath,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
-        $Filter,
-
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        [String]
-        $CollectionName
+        $Filter
     )
 
-    Process {
-        $ret = ''
-        try {
-            Write-Debug "Calling Get-WebConfiguration -PSPath $IisPath -filter $($Filter)/$($CollectionName)"
-            $testResult = Get-WebConfiguration -PSPath $IisPath -filter "$Filter/$CollectionName"
-        }
-        catch {
-            $module.FailJson("Error retrieving web configuration: $($_.Exception.Message)", $_)
-        }
-        $ret = $testResult.Value -join ','
-        $ret
+    try {
+        $config = Get-WebConfigurationProperty -PSPath $IisPath -Filter $Filter -Name 'collection'
+    } catch {
+        $Module.FailJson("Error retrieving web configuration: $($_.Exception.Message)", $_)
     }
-}
-
-function Remove-IISPageOrder {
-    [CmdletBinding(SupportsShouldProcess = $true)]
-    param(
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        [Ansible.Basic.AnsibleModule]
-        $Module,
-
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        [String]
-        $IisPath,
-
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        [String]
-        $Filter,
-
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        [String]
-        $CollectionName
-    )
-    Process {
-        if ($PSCmdlet.ShouldProcess($IisPath, 'Remove Current Page Order')) {
-            try {
-                $module.Result.msg += "Removing page order from path $IisPath with filter $Filter.`n"
-                Write-Debug "Calling Remove-WebConfigurationProperty -PSPath $IisPath -filter $Filter -name 'collection'"
-                $module.Result.msg += Remove-WebConfigurationProperty -PSPath $IisPath -filter $Filter -name 'collection'
-                $module.Result.msg += "`n"
-            }
-            catch {
-                $module.FailJson("Error removing page order. Exception: $($_.Exception.Message)", $_)
-            }
-        }
-    }
+    @($config | ForEach-Object { $_.value })
 }
 
 function Set-IISPageOrder {
+    <#
+        Applies the desired default document order. The existing collection is removed first because
+        Add-WebConfigurationProperty inserts at the beginning, so the desired order is added in reverse.
+    #>
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true)]
         [Ansible.Basic.AnsibleModule]
         $Module,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $IisPath,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $Filter,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        [String]
-        $CollectionName,
+        [Parameter(Mandatory = $true)]
+        [String[]]
+        $PageOrder,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        [String]
-        $PageOrder
+        [Parameter(Mandatory = $true)]
+        [bool]
+        $HasExisting
     )
-    Process {
-        if ($PSCmdlet.ShouldProcess($PageOrder, 'Add Page Order')) {
-            $splitValue = $PageOrder -split ','
-            # Need to reverse the order since Add-WebConfigurationProperty inserts at the beginning rather than appending.
-            for ($i = $splitValue.length - 1; $i -ge 0; $i--) {
-                try {
-                    Write-Debug "Calling Add-WebConfigurationProperty -PSPath $IisPath -filter $Filter -name 'Collection' -value $($splitValue[$i])"
-                    Add-WebConfigurationProperty -PSPath $IisPath -filter $Filter -name 'Collection' -value $splitValue[$i] -ErrorAction 'Stop'
-                    $module.Result.msg += "Added $($splitValue[$i]) to path $IisPath with filter $Filter.`n"
-                }
-                catch {
-                    $module.FailJson("Error adding page order. Exception: $($_.Exception.Message)", $_)
-                }
+
+    if ($PSCmdlet.ShouldProcess($IisPath, 'Set default document order')) {
+        if ($HasExisting) {
+            try {
+                Remove-WebConfigurationProperty -PSPath $IisPath -Filter $Filter -Name 'collection'
+            } catch {
+                $Module.FailJson("Error removing existing page order. Exception: $($_.Exception.Message)", $_)
+            }
+        }
+        for ($index = $PageOrder.Length - 1; $index -ge 0; $index--) {
+            try {
+                Add-WebConfigurationProperty -PSPath $IisPath -Filter $Filter -Name 'Collection' -Value $PageOrder[$index] -ErrorAction 'Stop'
+            } catch {
+                $Module.FailJson("Error adding page order. Exception: $($_.Exception.Message)", $_)
             }
         }
     }
 }
 
-# NOTE: If you try to use $module properties in these conditions, it can cause the module to just hang forever and have
-# powershell slowly bloat in memory forever.
-Write-Debug "Calling Get-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName"
-$orderCheck = Get-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName
-$module.Result.diff.before = $orderCheck
-Write-Debug "Value of orderCheck: $($orderCheck | Out-String)"
-if ($orderCheck -ne $pageOrder) {
-    $module.Result.msg += "Mismatch detected: '$orderCheck' is not equal to '$pageOrder'"
-    if ($orderCheck) {
-        Write-Debug "Calling Remove-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -WhatIf:$($module.CheckMode)"
-        Remove-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -WhatIf:$module.CheckMode
-    }
-    Write-Debug (
-        "Calling Set-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName " +
-        "-PageOrder $pageOrder " +
-        "-WhatIf:$($module.CheckMode)"
-    )
-    Set-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName -PageOrder $pageOrder -WhatIf:$module.CheckMode
-    $orderCheck = $NULL
-    $orderCheck = Get-IISPageOrder -Module $module -IisPath $iisPath -Filter $filter -CollectionName $collectionName
+if (-not (Get-Website -Name $site)) {
+    $module.FailJson("Unable to resolve an IIS site named '$site'. Verify the site exists on the target host.")
+}
+if ($application -and -not (Test-Path -LiteralPath "IIS:\Sites\$site\$application")) {
+    $module.FailJson("Unable to resolve an application or virtual directory named '$application' under site '$site'. Verify it exists on the target host.")
+}
+$target = if ($application) { "IIS:\Sites\$site\$application" } else { "IIS:\Sites\$site" }
+$module.Result.target = $target
+$currentOrder = @(Get-IISPageOrder -Module $module -IisPath $target -Filter $filter)
+$desiredOrder = @($pageOrder)
+
+if ($currentOrder.Count -gt 0) {
+    $module.Diff.before = @{ page_order = $currentOrder }
+}
+
+if (($currentOrder -join ',') -ne ($desiredOrder -join ',')) {
     $module.Result.changed = $true
-    if (!($module.CheckMode)) {
-        $module.Result.diff.after = $orderCheck
-        if ($orderCheck -ne $pageOrder) {
-            $module.FailJson("Page order does not match after attempting to set new value. Current order: $($orderCheck), desired order: $pageOrder")
+    Set-IISPageOrder -Module $module -IisPath $target -Filter $filter -PageOrder $desiredOrder `
+        -HasExisting ($currentOrder.Count -gt 0) -WhatIf:$module.CheckMode
+    if ($module.CheckMode) {
+        $module.Diff.after = @{ page_order = $desiredOrder }
+    } else {
+        $afterOrder = @(Get-IISPageOrder -Module $module -IisPath $target -Filter $filter)
+        $module.Diff.after = @{ page_order = $afterOrder }
+        if (($afterOrder -join ',') -ne ($desiredOrder -join ',')) {
+            $module.FailJson("Default document order did not match the desired state after applying changes. Current: $($afterOrder -join ','), desired: $($desiredOrder -join ',').")
         }
     }
+} elseif ($currentOrder.Count -gt 0) {
+    $module.Diff.after = @{ page_order = $currentOrder }
 }
-else {
-    $module.Result.msg += "$orderCheck value is identical to $pageOrder, nothing to do."
-}
+
 $module.ExitJson()

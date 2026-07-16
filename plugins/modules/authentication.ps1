@@ -5,351 +5,264 @@
 
 # Note: If troubleshooting, use $DebugPreference = 'Continue' and Start-Transcript <filepath>
 # in order to get debug output to a readable location. Ansible does not store debug stream output.
+
+$ErrorActionPreference = 'Stop'
 $spec = @{
-    options = @{
-        ps_path = @{ default = 'IIS:\'; required = $false; type = 'str' }
-        location = @{ required = $false; type = 'str' }
-        auth_type = @{ required = $true; type = 'str' }
-        enabled = @{ required = $true; type = 'bool' }
-        providers = @{ required = $false; type = 'str' }
+    options             = @{
+        site            = @{ required = $true; type = 'str' }
+        application     = @{ required = $false; type = 'str' }
+        auth_type       = @{
+            required = $true
+            type     = 'str'
+            choices  = @(
+                'AnonymousAuthentication'
+                'BasicAuthentication'
+                'ClientCertificateMappingAuthentication'
+                'DigestAuthentication'
+                'IISClientCertificateMappingAuthentication'
+                'WindowsAuthentication'
+            )
+        }
+        enabled         = @{ required = $false; type = 'bool' }
+        providers       = @{ required = $false; type = 'list'; elements = 'str' }
         use_kernel_mode = @{ required = $false; type = 'bool' }
-        token_checking = @{ required = $false; type = 'str'; no_log = $false }
+        token_checking  = @{ required = $false; type = 'str'; no_log = $false; choices = @('None', 'Allow', 'Require') }
     }
-    required_if = @(
-        , @('auth_type', 'WindowsAuthentication', @('providers', 'use_kernel_mode', 'token_checking'))
-    )
     supports_check_mode = $true
 }
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
-Write-Debug $module
 try {
     if ($null -eq (Get-Module 'WebAdministration' -ErrorAction SilentlyContinue)) {
         Import-Module WebAdministration
     }
-}
-catch {
-    $module.FailJson("Failed to ensure WebAdministration module is loaded: $_", $_)
+} catch {
+    $module.FailJson("Failed to ensure WebAdministration module is loaded: $($_.Exception.Message)", $_)
 }
 
-$psPath = $module.Params.ps_path
-$location = $module.Params.location
+$site = $module.Params.site
+$application = $module.Params.application
 $authType = $module.Params.auth_type
 $enabled = $module.Params.enabled
-$Providers = $module.Params.providers
-$UseKernelMode = $module.Params.use_kernel_mode
+$providers = $module.Params.providers
+$useKernelMode = $module.Params.use_kernel_mode
 $tokenChecking = $module.Params.token_checking
-$module.Result.diff = @{
-    before = ''
-    after = ''
+
+$module.Diff.before = $null
+$module.Diff.after = $null
+
+if ($authType -ne 'WindowsAuthentication') {
+    $windowsOnlySupplied = @()
+    if ($null -ne $providers) { $windowsOnlySupplied += 'providers' }
+    if ($null -ne $useKernelMode) { $windowsOnlySupplied += 'use_kernel_mode' }
+    if ($null -ne $tokenChecking) { $windowsOnlySupplied += 'token_checking' }
+    if ($windowsOnlySupplied.Count -gt 0) {
+        $module.Warn("The option(s) $($windowsOnlySupplied -join ', ') are only valid with auth_type=WindowsAuthentication and are ignored for $authType.")
+    }
 }
-$module.Result.msg = ''
+
 function Get-IISAuthConfig {
+    <#
+        Reads the current authentication configuration at the target location and returns it as a
+        hashtable whose keys map to the module options.
+    #>
     [OutputType([hashtable])]
     param(
         [Parameter(Mandatory = $true)]
         [Ansible.Basic.AnsibleModule]
         $Module,
 
-        [Parameter(Mandatory = $false)]
-        [String]
-        $PSPath = 'IIS:/',
-
         [Parameter(Mandatory = $true)]
         [String]
-        $AuthType,
+        $PSPath,
 
         [Parameter(Mandatory = $true)]
-        [bool]
-        $Enabled,
-
-        [Parameter(Mandatory = $false)]
         [String]
         $Location,
 
-        [Parameter(Mandatory = $false)]
-        [bool]
-        $UseKernelMode,
-
-        [Parameter(Mandatory = $false)]
-        [string]
-        $TokenChecking,
-
-        [Parameter(Mandatory = $false)]
-        [string]
-        $Providers
+        [Parameter(Mandatory = $true)]
+        [String]
+        $AuthType
     )
 
-    Process {
-        $filter = "system.webServer/security/authentication/$($AuthType)"
-        $returnValue = [ordered]@{
-            'result' = $true
-            'providerMatch' = $true
-            'enabledMatch' = $true
-            'kernelModeMatch' = $true
-            'tokenCheckingMatch' = $true
-            'diffString' = ''
-        }
-        try {
-            Write-Debug "Calling Get-WebConfiguration -pspath $PSPath -Location $Location -filter $filter"
-            $testResult = Get-WebConfiguration -pspath $PSPath -Location $Location `
-                -filter $filter
-        }
-        catch {
-            $module.FailJson("Error retrieving web configuration: $($_.Exception.Message)", $_)
-        }
-        if (!$testResult -and $authType -eq 'WindowsAuthentication') {
-            Write-Debug "No testresult value for $AuthType, assuming that all values need to be set"
-            $returnValue['result'] = $false
-            $returnValue['enabledMatch'] = $false
-            $returnValue['providerMatch'] = $false
-            $returnValue['kernelModeMatch'] = $false
-            $returnValue['tokenCheckingMatch'] = $false
-            return $returnValue
-        }
-        elseif (!$testResult) {
-            Write-Debug "No testresult value for $AuthType, assuming that it needs to be enabled"
-            $returnValue['result'] = $false
-            $returnValue['enabledMatch'] = $false
-            return $returnValue
-        }
-        elseif ($AuthType -eq 'WindowsAuthentication') {
-            # WindowsAuthentication requires additional checks
-            if (($testResult.providers.collection.value -join ',') -ne ($Providers -split ',')) {
-                Write-Debug (
-                    "Setting result to false due to 'provider' mismatch: " +
-                    "$($testResult.providers.collection.value):$($Providers -split ',')"
-                )
-                $returnValue['result'] = $false
-                $returnValue['providerMatch'] = $false
-            }
-            if ($testResult.enabled -ne $Enabled) {
-                Write-Debug (
-                    "Setting result to false due to 'Enabled' mismatch (WindowsAuth): " +
-                    "$($testResult.enabled):$($Enabled)"
-                )
-                $returnValue['result'] = $false
-                $returnValue['enabledMatch'] = $false
-            }
-            if ($testResult.usekernelmode -ne $UseKernelMode) {
-                Write-Debug (
-                    "Setting result to false due to 'usekernelmode' mismatch: " +
-                    "$($testResult.usekernelmode):$($UseKernelMode)"
-                )
-                $returnValue['result'] = $false
-                $returnValue['kernelModeMatch'] = $false
-            }
-            if ($testResult.extendedProtection.TokenChecking -ne $TokenChecking) {
-                Write-Debug (
-                    "Setting result to false due to 'TokenChecking' mismatch: " +
-                    "$($testResult.TokenChecking):$($TokenChecking)"
-                )
-                $returnValue['result'] = $false
-                $returnValue['tokenCheckingMatch'] = $false
-            }
-        }
-        elseif ( ( $testResult.enabled -ne $Enabled ) -and ( $AuthType -ne 'WindowsAuthentication') ) {
-            Write-Debug (
-                "Setting result to false due to 'Enabled' mismatch (non-WindowsAuth): " +
-                "$($testResult.enabled):$($Enabled)"
-            )
-            $returnValue['result'] = $false
-            $returnValue['enabledMatch'] = $false
-        }
-        # diffString is used for result reporting, have to use a separate variable because modifying a value in the hash breaks the loop
-        $diffString = ''
-        foreach ($key in $returnValue.Keys) {
-            if ($key -eq 'diffString') {
-                continue
-            }
-            if ($diffString -ne '') {
-                $diffString += ';'
-            }
-            Write-Debug (
-                "Adding '$($key):$($returnValue[$key])' to $diffString"
-            )
-            $diffString += "$($key):$($returnValue[$key])"
-        }
-        $returnValue['diffString'] = $diffString
-        return $returnValue
-
+    $filter = "system.webServer/security/authentication/$AuthType"
+    try {
+        $currentConfig = Get-WebConfiguration -PSPath $PSPath -Location $Location -Filter $filter
+    } catch {
+        $Module.FailJson("Error retrieving authentication configuration for '$AuthType': $($_.Exception.Message)", $_)
     }
+
+    $current = @{ enabled = [bool]$currentConfig.enabled }
+    if ($AuthType -eq 'WindowsAuthentication') {
+        $current.providers = @($currentConfig.providers.Collection | ForEach-Object { $_.value })
+        $current.use_kernel_mode = [bool]$currentConfig.useKernelMode
+        $current.token_checking = [string]$currentConfig.extendedProtection.tokenChecking
+    }
+    return $current
 }
+
+function Compare-IISAuth {
+    <#
+        Returns $true when the current and desired authentication states describe the same
+        configuration for the given authentication type.
+    #>
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary]
+        $CurrentState,
+
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary]
+        $DesiredState,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $AuthType
+    )
+
+    if ($CurrentState.enabled -ne $DesiredState.enabled) {
+        return $false
+    }
+    if ($AuthType -eq 'WindowsAuthentication') {
+        return (($CurrentState.providers -join ',') -eq ($DesiredState.providers -join ',')) -and
+        ($CurrentState.use_kernel_mode -eq $DesiredState.use_kernel_mode) -and
+        ($CurrentState.token_checking -eq $DesiredState.token_checking)
+    }
+    return $true
+}
+
 function Set-IISAuthConfig {
+    <#
+        Writes the desired authentication state at the target location, changing only the properties
+        that differ from the current state. Every authentication section is delegated down to the
+        site/application level, so the write is addressed at 'IIS:\' with the site/application as the
+        Location, which commits a <location> entry to ApplicationHost.config.
+    #>
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory = $true)]
         [Ansible.Basic.AnsibleModule]
         $Module,
 
-        [Parameter(Mandatory = $false)]
-        [System.Collections.IDictionary]
-        $GetResult,
-
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $true)]
         [String]
-        $PSPath = 'IIS:/',
+        $PSPath,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Location,
 
         [Parameter(Mandatory = $true)]
         [String]
         $AuthType,
 
         [Parameter(Mandatory = $true)]
-        [bool]
-        $Enabled,
+        [System.Collections.IDictionary]
+        $CurrentState,
 
-        [Parameter(Mandatory = $false)]
-        [String]
-        $Location,
-
-        [Parameter(Mandatory = $false)]
-        [bool]
-        $UseKernelMode,
-
-        [Parameter(Mandatory = $false)]
-        [string]
-        $TokenChecking,
-
-        [Parameter(Mandatory = $false)]
-        [string]
-        $Providers
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary]
+        $DesiredState
     )
 
-    Process {
-        # Override filter for authentication to allow for specific set paths
-        $filter = 'system.webServer/security/authentication'
-        $setSplat = @{ PSPath = $PSPath }
-        if ($Location) {
-            $setSplat.Add('Location', $Location)
-        }
-        # Configure properties and settings
-        if ($authType -eq 'WindowsAuthentication') {
-            # Step 1: Set 'enabled' first if needed
-            if (!$GetResult.enabledMatch) {
-                if ($PSCmdlet.ShouldProcess($authType, 'Set to enabled')) {
-                    try {
-                        Write-Debug "Calling Set-WebConfiguration @setSplat -filter `"$($filter)/WindowsAuthentication`" -value $Enabled"
-                        Set-WebConfiguration @setSplat -filter "$($filter)/WindowsAuthentication" `
-                            -value $Enabled
-                    }
-                    catch {
-                        $module.FailJson("Error setting WindowsAuthentication to $($Enabled): $($_.Exception.Message)", $_)
-                    }
-                }
-                # After enabling, re-read config to get updated state
-                $GetResult = Get-IISAuthConfig -Module $Module -PSPath $PSPath -AuthType $AuthType -Enabled $Enabled `
-                    -Location $Location -UseKernelMode $UseKernelMode -TokenChecking $TokenChecking -Providers $Providers
-            }
+    $filter = 'system.webServer/security/authentication'
+    $setSplat = @{ PSPath = $PSPath; Location = $Location }
 
-            # Step 2: Set other properties if needed (now that enabled is set)
-            if (!$GetResult.kernelModeMatch) {
-                if ($PSCmdlet.ShouldProcess($UseKernelMode, 'Set useKernelMode')) {
-                    try {
-                        Write-Debug (
-                            "Calling Set-WebConfigurationProperty @setSplat -filter `"$($filter)/WindowsAuthentication`" " +
-                            "-Name 'useKernelMode' -Value $UseKernelMode"
-                        )
-                        Set-WebConfigurationProperty @setSplat -filter "$($filter)/WindowsAuthentication" -Name 'useKernelMode' -Value $UseKernelMode
-                    }
-                    catch {
-                        $module.FailJson("Error setting kernel mode for WindowsAuthentication: $($_.Exception.Message)", $_)
-                    }
-                }
-            }
-            if (!$GetResult.tokenCheckingMatch) {
-                if ($PSCmdlet.ShouldProcess($TokenChecking, 'Set TokenChecking')) {
-                    try {
-                        Write-Debug (
-                            "Calling Set-WebConfigurationProperty -pspath $PSPath -location $location " +
-                            "-filter `"$($filter)/WindowsAuthentication/extendedProtection`" " +
-                            "-Name 'TokenChecking' -Value $TokenChecking"
-                        )
-                        Set-WebConfigurationProperty @setSplat -filter "$($filter)/WindowsAuthentication/extendedProtection" -Name 'TokenChecking' `
-                            -Value $TokenChecking
-                    }
-                    catch {
-                        $module.FailJson("Error setting token checking for WindowsAuthentication: $($_.Exception.Message)", $_)
-                    }
-                }
-            }
-            if (!$GetResult.providerMatch) {
-                if ($PSCmdlet.ShouldProcess($AuthType, 'Remove WindowsAuthentication provider order')) {
-                    try {
-                        Write-Debug (
-                            "Calling Remove-WebConfigurationProperty @setSplat -Filter `"$($filter)/WindowsAuthentication/providers`" " +
-                            "-name 'collection'"
-                        )
-                        Remove-WebConfigurationProperty @setSplat -Filter "$($filter)/WindowsAuthentication/providers" -name 'collection'
-                    }
-                    catch {
-                        $module.FailJson("Error removing providers for WindowsAuthentication: $($_.Exception.Message)", $_)
-                    }
-                }
-                foreach ($provider in ($Providers -split ',')) {
-                    if ($PSCmdlet.ShouldProcess($provider, 'Add WindowsAuthentication provider')) {
-                        try {
-                            Write-Debug (
-                                "Calling Add-WebConfiguration -Location $location -filter `"$($filter)/WindowsAuthentication/providers`" " +
-                                "-Value $provider"
-                            )
-                            Add-WebConfiguration -Location $location -filter "$($filter)/WindowsAuthentication/providers" -Value $provider
-                        }
-                        catch {
-                            $module.FailJson("Error adding $provider to WindowsAuthentication: $($_.Exception.Message)", $_)
-                        }
-                    }
-                }
-            }
-        }
-        else {
-            # Simple enable/disable for other stuff
-            if ($PSCmdlet.ShouldProcess($AuthType, "Set to $Enabled")) {
+    if ($AuthType -eq 'WindowsAuthentication') {
+        if ($CurrentState.enabled -ne $DesiredState.enabled) {
+            if ($PSCmdlet.ShouldProcess($AuthType, "Set enabled to $($DesiredState.enabled)")) {
                 try {
-                    Write-Debug "Calling Set-WebConfigurationProperty @setSplat -Filter `"$($filter)/$($AuthType)`" -Name 'Enabled' -Value $Enabled"
-                    Set-WebConfigurationProperty @setSplat -Filter "$($filter)/$($AuthType)" -Name 'Enabled' -Value $Enabled
+                    Set-WebConfigurationProperty @setSplat -Filter "$filter/WindowsAuthentication" -Name 'enabled' -Value $DesiredState.enabled
+                } catch {
+                    $Module.FailJson("Error setting WindowsAuthentication enabled to $($DesiredState.enabled): $($_.Exception.Message)", $_)
                 }
-                catch {
-                    $module.FailJson("Error setting $AuthType to $($Enabled): $($_.Exception.Message)", $_)
+            }
+        }
+        if (($CurrentState.providers -join ',') -ne ($DesiredState.providers -join ',')) {
+            if ($PSCmdlet.ShouldProcess($AuthType, 'Set providers')) {
+                try {
+                    Remove-WebConfigurationProperty @setSplat -Filter "$filter/WindowsAuthentication/providers" -Name 'collection'
+                    foreach ($provider in $DesiredState.providers) {
+                        Add-WebConfigurationProperty @setSplat -Filter "$filter/WindowsAuthentication/providers" -Name '.' -Value @{ value = $provider }
+                    }
+                } catch {
+                    $Module.FailJson("Error setting providers for WindowsAuthentication: $($_.Exception.Message)", $_)
                 }
+            }
+        }
+        if ($CurrentState.use_kernel_mode -ne $DesiredState.use_kernel_mode) {
+            if ($PSCmdlet.ShouldProcess($AuthType, "Set useKernelMode to $($DesiredState.use_kernel_mode)")) {
+                try {
+                    Set-WebConfigurationProperty @setSplat -Filter "$filter/WindowsAuthentication" -Name 'useKernelMode' -Value $DesiredState.use_kernel_mode
+                } catch {
+                    $Module.FailJson("Error setting useKernelMode for WindowsAuthentication: $($_.Exception.Message)", $_)
+                }
+            }
+        }
+        if ($CurrentState.token_checking -ne $DesiredState.token_checking) {
+            if ($PSCmdlet.ShouldProcess($AuthType, "Set tokenChecking to $($DesiredState.token_checking)")) {
+                try {
+                    Set-WebConfigurationProperty @setSplat -Filter "$filter/WindowsAuthentication/extendedProtection" -Name 'tokenChecking' -Value $DesiredState.token_checking
+                } catch {
+                    $Module.FailJson("Error setting tokenChecking for WindowsAuthentication: $($_.Exception.Message)", $_)
+                }
+            }
+        }
+    } elseif ($CurrentState.enabled -ne $DesiredState.enabled) {
+        if ($PSCmdlet.ShouldProcess($AuthType, "Set enabled to $($DesiredState.enabled)")) {
+            try {
+                Set-WebConfigurationProperty @setSplat -Filter "$filter/$AuthType" -Name 'enabled' -Value $DesiredState.enabled
+            } catch {
+                $Module.FailJson("Error setting $AuthType enabled to $($DesiredState.enabled): $($_.Exception.Message)", $_)
             }
         }
     }
 }
-# Build conditional splat for modules, windows auth requires extra args
+
+if (-not (Get-Website -Name $site)) {
+    $module.FailJson("Unable to resolve an IIS site named '$site'. Verify the site exists on the target host.")
+}
+if ($application -and -not (Test-Path -LiteralPath "IIS:\Sites\$site\$application")) {
+    $module.FailJson("Unable to resolve an application or virtual directory named '$application' under site '$site'. Verify it exists on the target host.")
+}
+$location = if ($application) { "$site/$application" } else { $site }
+$module.Result.target = if ($application) { "IIS:\Sites\$site\$application" } else { "IIS:\Sites\$site" }
+
+# Authentication sections are delegated to the site/application level, so every read and write is
+# addressed at 'IIS:\' with the site/application supplied as the Location, which resolves to the
+# matching <location> entry in ApplicationHost.config.
 $authSplat = @{
-    PSPath = $psPath
+    PSPath   = 'IIS:\'
+    Location = $location
     AuthType = $authType
-    Enabled = $enabled
-}
-if ($null -ne $location) {
-    $authSplat.Add('Location', $location)
-}
-if ($null -ne $Providers) {
-    $authSplat.Add('providers', $Providers)
-}
-if ($null -ne $UseKernelMode) {
-    $authSplat.Add('UseKernelMode', $UseKernelMode)
-}
-if ($null -ne $tokenChecking) {
-    $authSplat.Add('tokenChecking', $tokenChecking)
 }
 
-Write-Debug "authSplat value: $($authSplat | Out-String)"
-Write-Debug "Calling Get-IISAuthConfig -Module $module @authSplat"
-$beforeCheck = Get-IISAuthConfig -Module $module @authSplat
-$module.Result.diff.before = $beforeCheck.diffString
-if (!$beforeCheck.result) {
-    # Converting k/v pairs into strings with extra whitespace replacement, so it shows it all inline.
-    $module.Result.msg += $('Mismatch detected, performing set operation, check result: ' +
-        "$(($beforeCheck | Out-String -Stream | Select-Object -skip 3) -replace '\s+',':' -join ',')")
-    Write-Debug "Calling Set-IISAuthConfig -Module $module @authSplat -WhatIf:$($module.CheckMode)"
-    Set-IISAuthConfig -Module $module -GetResult $beforeCheck @authSplat -WhatIf:$module.CheckMode
+$before = Get-IISAuthConfig -Module $module @authSplat
+$module.Diff.before = $before
+
+# A supplied option overrides the current value; an option left unset keeps the current value so it
+# is not changed.
+$after = @{ enabled = if ($null -ne $enabled) { $enabled } else { $before.enabled } }
+if ($authType -eq 'WindowsAuthentication') {
+    $after.providers = if ($null -ne $providers) { @($providers) } else { $before.providers }
+    $after.use_kernel_mode = if ($null -ne $useKernelMode) { $useKernelMode } else { $before.use_kernel_mode }
+    $after.token_checking = if ($null -ne $tokenChecking) { $tokenChecking } else { $before.token_checking }
+}
+
+if (Compare-IISAuth -CurrentState $before -DesiredState $after -AuthType $authType) {
+    $module.Diff.after = $before
+} else {
     $module.Result.changed = $true
-    if (!($module.CheckMode)) {
-        $afterCheck = Get-IISAuthConfig -Module $module @authSplat
-        $module.Result.diff.after = $afterCheck.diffString
-        if (!$afterCheck.result) {
-            $module.FailJson("Settings still mismatched after running Set-IISAuthConfig: $($beforeCheck.diffString) vs $($afterCheck.diffString)")
+    Set-IISAuthConfig -Module $module @authSplat -CurrentState $before -DesiredState $after -WhatIf:$module.CheckMode
+    if ($module.CheckMode) {
+        $module.Diff.after = $after
+    } else {
+        $afterState = Get-IISAuthConfig -Module $module @authSplat
+        $module.Diff.after = $afterState
+        if (-not (Compare-IISAuth -CurrentState $afterState -DesiredState $after -AuthType $authType)) {
+            $module.FailJson("Authentication settings did not match the desired state after applying changes for '$authType'.")
         }
     }
 }
+
 $module.ExitJson()
