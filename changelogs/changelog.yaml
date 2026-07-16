@@ -51,3 +51,16 @@ releases:
     - release-summary.yml
     - website-preload.yml
     release_date: '2026-05-25'
+  1.2.1:
+    changes:
+      bugfixes:
+      - website - fix ``changed`` not set on cert update for existing binding via
+        ``bindings.add`` (https://github.com/ansible-collections/microsoft.iis/pull/59).
+      - website_info - Fix logic for determining ``use_ccs`` is set to take into account
+        new SSL flags added in Server 1809 or newer - https://github.com/ansible-collections/microsoft.iis/pull/57
+      release_summary: Release summary for v1.2.1
+    fragments:
+    - fix-website-cert-changed.yaml
+    - release-summary.yml
+    - website-flags.yml
+    release_date: '2026-07-14'

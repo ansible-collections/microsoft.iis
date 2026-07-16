@@ -4,6 +4,20 @@ Ansible Microsoft Internet Information Services Release Notes
 
 .. contents:: Topics
 
+v1.2.1
+======
+
+Release Summary
+---------------
+
+Release summary for v1.2.1
+
+Bugfixes
+--------
+
+- website - fix ``changed`` not set on cert update for existing binding via ``bindings.add`` (https://github.com/ansible-collections/microsoft.iis/pull/59).
+- website_info - Fix logic for determining ``use_ccs`` is set to take into account new SSL flags added in Server 1809 or newer - https://github.com/ansible-collections/microsoft.iis/pull/57
+
 v1.2.0
 ======
 
