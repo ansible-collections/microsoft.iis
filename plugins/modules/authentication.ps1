@@ -8,13 +8,13 @@
 
 $ErrorActionPreference = 'Stop'
 $spec = @{
-    options             = @{
-        site            = @{ required = $true; type = 'str' }
-        application     = @{ required = $false; type = 'str' }
-        auth_type       = @{
+    options = @{
+        site = @{ required = $true; type = 'str' }
+        application = @{ required = $false; type = 'str' }
+        auth_type = @{
             required = $true
-            type     = 'str'
-            choices  = @(
+            type = 'str'
+            choices = @(
                 'AnonymousAuthentication'
                 'BasicAuthentication'
                 'ClientCertificateMappingAuthentication'
@@ -23,10 +23,10 @@ $spec = @{
                 'WindowsAuthentication'
             )
         }
-        enabled         = @{ required = $false; type = 'bool' }
-        providers       = @{ required = $false; type = 'list'; elements = 'str' }
+        enabled = @{ required = $false; type = 'bool' }
+        providers = @{ required = $false; type = 'list'; elements = 'str' }
         use_kernel_mode = @{ required = $false; type = 'bool' }
-        token_checking  = @{ required = $false; type = 'str'; no_log = $false; choices = @('None', 'Allow', 'Require') }
+        token_checking = @{ required = $false; type = 'str'; no_log = $false; choices = @('None', 'Allow', 'Require') }
     }
     supports_check_mode = $true
 }
@@ -35,7 +35,8 @@ try {
     if ($null -eq (Get-Module 'WebAdministration' -ErrorAction SilentlyContinue)) {
         Import-Module WebAdministration
     }
-} catch {
+}
+catch {
     $module.FailJson("Failed to ensure WebAdministration module is loaded: $($_.Exception.Message)", $_)
 }
 
@@ -87,7 +88,8 @@ function Get-IISAuthConfig {
     $filter = "system.webServer/security/authentication/$AuthType"
     try {
         $currentConfig = Get-WebConfiguration -PSPath $PSPath -Location $Location -Filter $filter
-    } catch {
+    }
+    catch {
         $Module.FailJson("Error retrieving authentication configuration for '$AuthType': $($_.Exception.Message)", $_)
     }
 
@@ -173,7 +175,8 @@ function Set-IISAuthConfig {
             if ($PSCmdlet.ShouldProcess($AuthType, "Set enabled to $($DesiredState.enabled)")) {
                 try {
                     Set-WebConfigurationProperty @setSplat -Filter "$filter/WindowsAuthentication" -Name 'enabled' -Value $DesiredState.enabled
-                } catch {
+                }
+                catch {
                     $Module.FailJson("Error setting WindowsAuthentication enabled to $($DesiredState.enabled): $($_.Exception.Message)", $_)
                 }
             }
@@ -185,7 +188,8 @@ function Set-IISAuthConfig {
                     foreach ($provider in $DesiredState.providers) {
                         Add-WebConfigurationProperty @setSplat -Filter "$filter/WindowsAuthentication/providers" -Name '.' -Value @{ value = $provider }
                     }
-                } catch {
+                }
+                catch {
                     $Module.FailJson("Error setting providers for WindowsAuthentication: $($_.Exception.Message)", $_)
                 }
             }
@@ -194,7 +198,8 @@ function Set-IISAuthConfig {
             if ($PSCmdlet.ShouldProcess($AuthType, "Set useKernelMode to $($DesiredState.use_kernel_mode)")) {
                 try {
                     Set-WebConfigurationProperty @setSplat -Filter "$filter/WindowsAuthentication" -Name 'useKernelMode' -Value $DesiredState.use_kernel_mode
-                } catch {
+                }
+                catch {
                     $Module.FailJson("Error setting useKernelMode for WindowsAuthentication: $($_.Exception.Message)", $_)
                 }
             }
@@ -203,16 +208,19 @@ function Set-IISAuthConfig {
             if ($PSCmdlet.ShouldProcess($AuthType, "Set tokenChecking to $($DesiredState.token_checking)")) {
                 try {
                     Set-WebConfigurationProperty @setSplat -Filter "$filter/WindowsAuthentication/extendedProtection" -Name 'tokenChecking' -Value $DesiredState.token_checking
-                } catch {
+                }
+                catch {
                     $Module.FailJson("Error setting tokenChecking for WindowsAuthentication: $($_.Exception.Message)", $_)
                 }
             }
         }
-    } elseif ($CurrentState.enabled -ne $DesiredState.enabled) {
+    }
+    elseif ($CurrentState.enabled -ne $DesiredState.enabled) {
         if ($PSCmdlet.ShouldProcess($AuthType, "Set enabled to $($DesiredState.enabled)")) {
             try {
                 Set-WebConfigurationProperty @setSplat -Filter "$filter/$AuthType" -Name 'enabled' -Value $DesiredState.enabled
-            } catch {
+            }
+            catch {
                 $Module.FailJson("Error setting $AuthType enabled to $($DesiredState.enabled): $($_.Exception.Message)", $_)
             }
         }
@@ -232,7 +240,7 @@ $module.Result.target = if ($application) { "IIS:\Sites\$site\$application" } el
 # addressed at 'IIS:\' with the site/application supplied as the Location, which resolves to the
 # matching <location> entry in ApplicationHost.config.
 $authSplat = @{
-    PSPath   = 'IIS:\'
+    PSPath = 'IIS:\'
     Location = $location
     AuthType = $authType
 }
@@ -251,12 +259,14 @@ if ($authType -eq 'WindowsAuthentication') {
 
 if (Compare-IISAuth -CurrentState $before -DesiredState $after -AuthType $authType) {
     $module.Diff.after = $before
-} else {
+}
+else {
     $module.Result.changed = $true
     Set-IISAuthConfig -Module $module @authSplat -CurrentState $before -DesiredState $after -WhatIf:$module.CheckMode
     if ($module.CheckMode) {
         $module.Diff.after = $after
-    } else {
+    }
+    else {
         $afterState = Get-IISAuthConfig -Module $module @authSplat
         $module.Diff.after = $afterState
         if (-not (Compare-IISAuth -CurrentState $afterState -DesiredState $after -AuthType $authType)) {

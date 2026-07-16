@@ -8,10 +8,10 @@
 
 $ErrorActionPreference = 'Stop'
 $spec = @{
-    options             = @{
-        site        = @{ required = $true; type = 'str' }
+    options = @{
+        site = @{ required = $true; type = 'str' }
         application = @{ required = $false; type = 'str' }
-        page_order  = @{ required = $true; type = 'list'; elements = 'str' }
+        page_order = @{ required = $true; type = 'list'; elements = 'str' }
     }
     supports_check_mode = $true
 }
@@ -20,7 +20,8 @@ try {
     if ($null -eq (Get-Module 'WebAdministration' -ErrorAction SilentlyContinue)) {
         Import-Module WebAdministration
     }
-} catch {
+}
+catch {
     $module.FailJson("Failed to ensure WebAdministration module is loaded: $($_.Exception.Message)", $_)
 }
 
@@ -53,7 +54,8 @@ function Get-IISPageOrder {
 
     try {
         $config = Get-WebConfigurationProperty -PSPath $IisPath -Filter $Filter -Name 'collection'
-    } catch {
+    }
+    catch {
         $Module.FailJson("Error retrieving web configuration: $($_.Exception.Message)", $_)
     }
     @($config | ForEach-Object { $_.value })
@@ -91,14 +93,16 @@ function Set-IISPageOrder {
         if ($HasExisting) {
             try {
                 Remove-WebConfigurationProperty -PSPath $IisPath -Filter $Filter -Name 'collection'
-            } catch {
+            }
+            catch {
                 $Module.FailJson("Error removing existing page order. Exception: $($_.Exception.Message)", $_)
             }
         }
         for ($index = $PageOrder.Length - 1; $index -ge 0; $index--) {
             try {
                 Add-WebConfigurationProperty -PSPath $IisPath -Filter $Filter -Name 'Collection' -Value $PageOrder[$index] -ErrorAction 'Stop'
-            } catch {
+            }
+            catch {
                 $Module.FailJson("Error adding page order. Exception: $($_.Exception.Message)", $_)
             }
         }
@@ -126,14 +130,16 @@ if (($currentOrder -join ',') -ne ($desiredOrder -join ',')) {
         -HasExisting ($currentOrder.Count -gt 0) -WhatIf:$module.CheckMode
     if ($module.CheckMode) {
         $module.Diff.after = @{ page_order = $desiredOrder }
-    } else {
+    }
+    else {
         $afterOrder = @(Get-IISPageOrder -Module $module -IisPath $target -Filter $filter)
         $module.Diff.after = @{ page_order = $afterOrder }
         if (($afterOrder -join ',') -ne ($desiredOrder -join ',')) {
             $module.FailJson("Default document order did not match the desired state after applying changes. Current: $($afterOrder -join ','), desired: $($desiredOrder -join ',').")
         }
     }
-} elseif ($currentOrder.Count -gt 0) {
+}
+elseif ($currentOrder.Count -gt 0) {
     $module.Diff.after = @{ page_order = $currentOrder }
 }
 
