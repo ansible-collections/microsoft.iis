@@ -207,7 +207,9 @@ function Set-IISAuthConfig {
         if ($CurrentState.token_checking -ne $DesiredState.token_checking) {
             if ($PSCmdlet.ShouldProcess($AuthType, "Set tokenChecking to $($DesiredState.token_checking)")) {
                 try {
-                    Set-WebConfigurationProperty @setSplat -Filter "$filter/WindowsAuthentication/extendedProtection" -Name 'tokenChecking' -Value $DesiredState.token_checking
+                    Set-WebConfigurationProperty @setSplat `
+                        -Filter "$filter/WindowsAuthentication/extendedProtection" `
+                        -Name 'tokenChecking' -Value $DesiredState.token_checking
                 }
                 catch {
                     $Module.FailJson("Error setting tokenChecking for WindowsAuthentication: $($_.Exception.Message)", $_)

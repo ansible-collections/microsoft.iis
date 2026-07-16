@@ -135,7 +135,8 @@ if (($currentOrder -join ',') -ne ($desiredOrder -join ',')) {
         $afterOrder = @(Get-IISPageOrder -Module $module -IisPath $target -Filter $filter)
         $module.Diff.after = @{ page_order = $afterOrder }
         if (($afterOrder -join ',') -ne ($desiredOrder -join ',')) {
-            $module.FailJson("Default document order did not match the desired state after applying changes. Current: $($afterOrder -join ','), desired: $($desiredOrder -join ',').")
+            $module.FailJson("Default document order did not match the desired state after applying changes.
+                Current: $($afterOrder -join ','), desired: $($desiredOrder -join ',').")
         }
     }
 }

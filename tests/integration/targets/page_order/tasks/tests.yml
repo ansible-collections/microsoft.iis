@@ -104,4 +104,3 @@
     page_order: "{{ test_page_order }}"
   register: unknown_application_result
   failed_when: "'Unable to resolve an application or virtual directory named' not in unknown_application_result.msg"
-

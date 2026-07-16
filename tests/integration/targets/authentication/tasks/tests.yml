@@ -143,4 +143,3 @@
       ansible.builtin.assert:
         that:
           - (empty_providers_state.stdout | trim) == ''
-

@@ -17,4 +17,3 @@ auth_options:
     enabled: true
   - auth_type: 'DigestAuthentication'
     enabled: true
-
