@@ -4,7 +4,7 @@
 DOCUMENTATION:
   module: page_order
   short_description: Configures default document order in IIS
-  version_added: '1.3.0'
+  version_added: '1.2.1'
   description:
     - Adds or modifies the default document order in IIS.
   options:
