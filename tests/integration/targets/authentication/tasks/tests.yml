@@ -24,6 +24,7 @@
         site: "{{ test_site_name }}"
         auth_type: AnonymousAuthentication
         enabled: true
+      diff: true
       register: diff_result
     - name: Assert diff maps before/after to the enabled option
       ansible.builtin.assert:

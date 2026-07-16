@@ -31,6 +31,7 @@
       microsoft.iis.page_order:
         site: "{{ test_site_name }}"
         page_order: "{{ test_page_order }}"
+      diff: true
       register: setResult
     - name: Assert page order set with structured diff
       ansible.builtin.assert:
