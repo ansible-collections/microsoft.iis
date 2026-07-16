@@ -57,7 +57,7 @@
     - name: Gather WindowsAuthentication state after the preserve run
       ansible.windows.win_shell: |
         Import-Module WebAdministration
-        $auth = Get-WebConfiguration -PSPath 'IIS:\' -Location '{{ test_site_name }}' -Filter 'system.webServer/security/authentication/WindowsAuthentication'
+        $auth = Get-WebConfiguration -PSPath '{{ test_site_iis_path }}' -Filter 'system.webServer/security/authentication/WindowsAuthentication'
         [pscustomobject]@{
           enabled = [bool]$auth.enabled
           providers = @($auth.providers.Collection | ForEach-Object { $_.value }) -join ','
@@ -92,7 +92,7 @@
     - name: Gather AnonymousAuthentication state for the application
       ansible.windows.win_shell: |
         Import-Module WebAdministration
-        (Get-WebConfigurationProperty -PSPath 'IIS:\' -Location '{{ test_site_name }}/{{ test_application_name }}' -Filter 'system.webServer/security/authentication/AnonymousAuthentication' -Name 'enabled').Value
+        (Get-WebConfigurationProperty -PSPath '{{ test_application_iis_path }}' -Filter 'system.webServer/security/authentication/AnonymousAuthentication' -Name 'enabled').Value
       register: application_auth_info
     - name: Assert AnonymousAuthentication is enabled on the application
       ansible.builtin.assert:
@@ -136,7 +136,7 @@
     - name: Gather providers after clearing them
       ansible.windows.win_shell: |
         Import-Module WebAdministration
-        $auth = Get-WebConfiguration -PSPath 'IIS:\' -Location '{{ test_site_name }}' -Filter 'system.webServer/security/authentication/WindowsAuthentication'
+        $auth = Get-WebConfiguration -PSPath '{{ test_site_iis_path }}' -Filter 'system.webServer/security/authentication/WindowsAuthentication'
         (@($auth.providers.Collection | ForEach-Object { $_.value }) -join ',')
       register: empty_providers_state
     - name: Assert the providers list is empty

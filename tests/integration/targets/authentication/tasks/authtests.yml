@@ -11,7 +11,7 @@
     - name: "Manual validation that authentication is set to opposite for {{ authtest_type }}"
       ansible.windows.win_shell: |
         Import-Module WebAdministration
-        (Get-WebConfigurationProperty -PSPath 'IIS:\' -Location '{{ test_site_name }}' -Filter 'system.webServer/security/authentication/{{ authtest_type }}' -Name 'enabled').Value
+        (Get-WebConfigurationProperty -PSPath '{{ test_site_iis_path }}' -Filter 'system.webServer/security/authentication/{{ authtest_type }}' -Name 'enabled').Value
       register: opposite_auth_info
     - name: "Assert authentication is set to opposite for {{ authtest_type }}"
       ansible.builtin.assert:
@@ -37,7 +37,7 @@
     - name: "Manual validation that check mode did not change state for {{ authtest_type }}"
       ansible.windows.win_shell: |
         Import-Module WebAdministration
-        (Get-WebConfigurationProperty -PSPath 'IIS:\' -Location '{{ test_site_name }}' -Filter 'system.webServer/security/authentication/{{ authtest_type }}' -Name 'enabled').Value
+        (Get-WebConfigurationProperty -PSPath '{{ test_site_iis_path }}' -Filter 'system.webServer/security/authentication/{{ authtest_type }}' -Name 'enabled').Value
       register: checkmode_auth_info
     - name: "Assert check mode left the opposite state in place for {{ authtest_type }}"
       ansible.builtin.assert:
@@ -62,7 +62,7 @@
     - name: "Manual validation that authentication is set for {{ authtest_type }}"
       ansible.windows.win_shell: |
         Import-Module WebAdministration
-        (Get-WebConfigurationProperty -PSPath 'IIS:\' -Location '{{ test_site_name }}' -Filter 'system.webServer/security/authentication/{{ authtest_type }}' -Name 'enabled').Value
+        (Get-WebConfigurationProperty -PSPath '{{ test_site_iis_path }}' -Filter 'system.webServer/security/authentication/{{ authtest_type }}' -Name 'enabled').Value
       register: auth_info
     - name: "Assert that authentication is set for {{ authtest_type }}"
       ansible.builtin.assert:
