@@ -39,17 +39,9 @@ function Get-IISPageOrder {
     #>
     [OutputType([string[]])]
     param(
-        [Parameter(Mandatory = $true)]
-        [Ansible.Basic.AnsibleModule]
-        $Module,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $IisPath,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $Filter
+        [Parameter(Mandatory = $true)][Ansible.Basic.AnsibleModule]$Module,
+        [Parameter(Mandatory = $true)][String]$IisPath,
+        [Parameter(Mandatory = $true)][String]$Filter
     )
 
     try {
@@ -68,25 +60,11 @@ function Set-IISPageOrder {
     #>
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
-        [Parameter(Mandatory = $true)]
-        [Ansible.Basic.AnsibleModule]
-        $Module,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $IisPath,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $Filter,
-
-        [Parameter(Mandatory = $true)]
-        [String[]]
-        $PageOrder,
-
-        [Parameter(Mandatory = $true)]
-        [bool]
-        $HasExisting
+        [Parameter(Mandatory = $true)][Ansible.Basic.AnsibleModule]$Module,
+        [Parameter(Mandatory = $true)][String]$IisPath,
+        [Parameter(Mandatory = $true)][String]$Filter,
+        [Parameter(Mandatory = $true)][String[]]$PageOrder,
+        [Parameter(Mandatory = $true)][bool]$HasExisting
     )
 
     if ($PSCmdlet.ShouldProcess($IisPath, 'Set default document order')) {

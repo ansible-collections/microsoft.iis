@@ -68,21 +68,10 @@ function Get-IISAuthConfig {
     #>
     [OutputType([hashtable])]
     param(
-        [Parameter(Mandatory = $true)]
-        [Ansible.Basic.AnsibleModule]
-        $Module,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $PSPath,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $Location,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $AuthType
+        [Parameter(Mandatory = $true)][Ansible.Basic.AnsibleModule]$Module,
+        [Parameter(Mandatory = $true)][String]$PSPath,
+        [Parameter(Mandatory = $true)][String]$Location,
+        [Parameter(Mandatory = $true)][String]$AuthType
     )
 
     $filter = "system.webServer/security/authentication/$AuthType"
@@ -102,24 +91,16 @@ function Get-IISAuthConfig {
     return $current
 }
 
-function Compare-IISAuth {
+function Compare-IISAuthConfig {
     <#
         Returns $true when the current and desired authentication states describe the same
         configuration for the given authentication type.
     #>
     [OutputType([bool])]
     param(
-        [Parameter(Mandatory = $true)]
-        [System.Collections.IDictionary]
-        $CurrentState,
-
-        [Parameter(Mandatory = $true)]
-        [System.Collections.IDictionary]
-        $DesiredState,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $AuthType
+        [Parameter(Mandatory = $true)][System.Collections.IDictionary]$CurrentState,
+        [Parameter(Mandatory = $true)][System.Collections.IDictionary]$DesiredState,
+        [Parameter(Mandatory = $true)][String]$AuthType
     )
 
     if ($CurrentState.enabled -ne $DesiredState.enabled) {
@@ -142,29 +123,12 @@ function Set-IISAuthConfig {
     #>
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
-        [Parameter(Mandatory = $true)]
-        [Ansible.Basic.AnsibleModule]
-        $Module,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $PSPath,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $Location,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $AuthType,
-
-        [Parameter(Mandatory = $true)]
-        [System.Collections.IDictionary]
-        $CurrentState,
-
-        [Parameter(Mandatory = $true)]
-        [System.Collections.IDictionary]
-        $DesiredState
+        [Parameter(Mandatory = $true)][Ansible.Basic.AnsibleModule]$Module,
+        [Parameter(Mandatory = $true)][String]$PSPath,
+        [Parameter(Mandatory = $true)][String]$Location,
+        [Parameter(Mandatory = $true)][String]$AuthType,
+        [Parameter(Mandatory = $true)][System.Collections.IDictionary]$CurrentState,
+        [Parameter(Mandatory = $true)][System.Collections.IDictionary]$DesiredState
     )
 
     $filter = 'system.webServer/security/authentication'
@@ -259,7 +223,7 @@ if ($authType -eq 'WindowsAuthentication') {
     $after.token_checking = if ($null -ne $tokenChecking) { $tokenChecking } else { $before.token_checking }
 }
 
-if (Compare-IISAuth -CurrentState $before -DesiredState $after -AuthType $authType) {
+if (Compare-IISAuthConfig -CurrentState $before -DesiredState $after -AuthType $authType) {
     $module.Diff.after = $before
 }
 else {
@@ -271,7 +235,7 @@ else {
     else {
         $afterState = Get-IISAuthConfig -Module $module @authSplat
         $module.Diff.after = $afterState
-        if (-not (Compare-IISAuth -CurrentState $afterState -DesiredState $after -AuthType $authType)) {
+        if (-not (Compare-IISAuthConfig -CurrentState $afterState -DesiredState $after -AuthType $authType)) {
             $module.FailJson("Authentication settings did not match the desired state after applying changes for '$authType'.")
         }
     }
