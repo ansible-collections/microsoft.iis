@@ -216,7 +216,8 @@ Try {
         }
         # Add Remove or Set bindings if needed
         if ( $null -ne $bindings.set -or $bindings.add.Count -gt 0 -or $bindings.remove.Count -gt 0 ) {
-            $site_bindings = (Get-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)").Bindings.Collection
+            $site_bindings = (Get-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)").Bindings.Collection |
+                Where-Object { $_.protocol -in $binding_options.options.protocol.choices }
             $toAdd = @()
             $toEdit = @()
             $toRemove = @()
