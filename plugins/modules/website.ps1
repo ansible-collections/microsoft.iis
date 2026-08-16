@@ -216,7 +216,8 @@ Try {
         }
         # Add Remove or Set bindings if needed
         if ( $null -ne $bindings.set -or $bindings.add.Count -gt 0 -or $bindings.remove.Count -gt 0 ) {
-            $site_bindings = (Get-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)").Bindings.Collection
+            $site_bindings = (Get-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)").Bindings.Collection |
+                Where-Object { $_.protocol -in $binding_options.options.protocol.choices }
             $toAdd = @()
             $toEdit = @()
             $toRemove = @()
@@ -252,7 +253,7 @@ Try {
             $toEdit | ForEach-Object {
                 $user_edit = $_
                 $site_edit = $site_bindings | Where-Object { $_.bindingInformation -eq "$($user_edit.ip):$($user_edit.port):$($user_edit.hostname)" }
-                $binding_index = $site_bindings.IndexOf($site_edit)
+                $edit_binding = Get-WebBinding -Name $site.Name -IPAddress $user_edit.ip -Port $user_edit.port -HostHeader $user_edit.hostname
                 # Get existing use_sni value from site if null
                 if ($null -eq $user_edit.use_sni) {
                     $user_edit.use_sni = $site_edit.sslFlags % 2
@@ -263,18 +264,15 @@ Try {
                 }
                 $ssl_flags = Get-SSLFlagFromBinding -BindingInfo $user_edit
                 if ($site_edit.protocol -ne $user_edit.protocol) {
-                    Set-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)" -Name "Bindings.Collection[$binding_index].protocol"`
-                        -value $user_edit.protocol -WhatIf:$check_mode
+                    $edit_binding | Set-WebBinding -Name $site.Name -PropertyName "protocol" -Value $user_edit.protocol -WhatIf:$check_mode
                     $module.Result.changed = $true
                 }
                 if ($site_edit.sslFlags -ne $ssl_flags) {
-                    Set-ItemProperty -LiteralPath "IIS:\Sites\$($site.Name)" -Name "Bindings.Collection[$binding_index].sslFlags"`
-                        -value $ssl_flags -WhatIf:$check_mode
+                    $edit_binding | Set-WebBinding -Name $site.Name -PropertyName "sslFlags" -Value $ssl_flags -WhatIf:$check_mode
                     $module.Result.changed = $true
                 }
                 If ($user_edit.certificate_hash) {
                     if ($site_edit.certificateHash -ne $user_edit.certificate_hash -or $site_edit.CertificateStoreName -ne $user_edit.certificate_store_name) {
-                        $edit_binding = Get-WebBinding -Name $site.Name -IPAddress $user_edit.ip -Port $user_edit.port -HostHeader $user_edit.hostname
                         $edit_binding.AddSslCertificate($user_edit.certificate_hash, $user_edit.certificate_store_name)
                         $module.Result.changed = $true
                     }
