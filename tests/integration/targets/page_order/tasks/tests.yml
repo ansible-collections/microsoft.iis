@@ -1,0 +1,107 @@
+---
+- name: Validate check mode for page order
+  block:
+    - name: Ensure a known starting page order
+      microsoft.iis.page_order:
+        site: "{{ test_site_name }}"
+        page_order: "Default.htm"
+    - name: Check mode test for page order
+      microsoft.iis.page_order:
+        site: "{{ test_site_name }}"
+        page_order: "{{ test_page_order }}"
+      check_mode: true
+      register: checkResult
+    - name: Assert check mode reported a change
+      ansible.builtin.assert:
+        that:
+          - checkResult.changed
+    - name: Gather page order after check mode run
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        (Get-WebConfigurationProperty -PSPath '{{ test_page_order_iis_path }}' -Filter '{{ test_page_order_filter }}' -Name 'collection').value -join ','
+      register: checkmode_page_order
+    - name: Assert check mode did not modify the page order
+      ansible.builtin.assert:
+        that:
+          - (checkmode_page_order.stdout | trim) == 'Default.htm'
+
+- name: Set page order and assert
+  block:
+    - name: Set page order
+      microsoft.iis.page_order:
+        site: "{{ test_site_name }}"
+        page_order: "{{ test_page_order }}"
+      diff: true
+      register: setResult
+    - name: Assert page order set with structured diff
+      ansible.builtin.assert:
+        that:
+          - setResult.changed
+          - setResult.diff.after.page_order == test_page_order
+
+- name: Verify page order is set
+  block:
+    - name: Get current page order
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        (Get-WebConfigurationProperty -PSPath '{{ test_page_order_iis_path }}' -Filter '{{ test_page_order_filter }}' -Name 'collection').value -join ','
+      register: page_order_info
+    - name: Assert that page order is set
+      ansible.builtin.assert:
+        that:
+          - "(page_order_info.stdout | trim | lower) == (test_page_order | join(',') | lower)"
+
+- name: Page order idempotency check
+  block:
+    - name: Apply page order for idempotency check
+      microsoft.iis.page_order:
+        site: "{{ test_site_name }}"
+        page_order: "{{ test_page_order }}"
+      register: result
+    - name: Assert idempotency check
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+- name: Target page order for an application under a site
+  block:
+    - name: Create an application for application-scoped targeting
+      microsoft.iis.web_application:
+        name: "{{ test_page_order_application }}"
+        site: "{{ test_site_name }}"
+        physical_path: "{{ test_physical_path }}"
+    - name: Set page order on the application
+      microsoft.iis.page_order:
+        site: "{{ test_site_name }}"
+        application: "{{ test_page_order_application }}"
+        page_order: "{{ test_page_order }}"
+    - name: Gather page order for the application
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        (Get-WebConfigurationProperty -PSPath 'IIS:\Sites\{{ test_site_name }}\{{ test_page_order_application }}' -Filter '{{ test_page_order_filter }}' -Name 'collection').value -join ','
+      register: application_page_order
+    - name: Assert page order is set on the application
+      ansible.builtin.assert:
+        that:
+          - "(application_page_order.stdout | trim | lower) == (test_page_order | join(',') | lower)"
+
+- name: Verify failure when site is not set
+  microsoft.iis.page_order:
+    page_order: "{{ test_page_order }}"
+  register: missing_site_result
+  failed_when: "'missing required arguments: site' not in missing_site_result.msg"
+
+- name: Verify failure for an unresolvable site
+  microsoft.iis.page_order:
+    site: "This Site Does Not Exist"
+    page_order: "{{ test_page_order }}"
+  register: unknown_site_result
+  failed_when: "'Unable to resolve an IIS site named' not in unknown_site_result.msg"
+
+- name: Verify failure for a nonexistent application
+  microsoft.iis.page_order:
+    site: "{{ test_site_name }}"
+    application: "This Application Does Not Exist"
+    page_order: "{{ test_page_order }}"
+  register: unknown_application_result
+  failed_when: "'Unable to resolve an application or virtual directory named' not in unknown_application_result.msg"

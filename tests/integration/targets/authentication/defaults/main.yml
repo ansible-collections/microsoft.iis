@@ -1,0 +1,21 @@
+test_vdir_name: testvdir
+test_application_name: testapp
+test_site_name: 'Test Site'
+test_physical_path: "{{ remote_tmp_dir }}"
+test_site_iis_path: "IIS:\\Sites\\{{ test_site_name }}"
+test_application_iis_path: "IIS:\\Sites\\{{ test_site_name }}\\{{ test_application_name }}"
+
+auth_options:
+  - auth_type: 'WindowsAuthentication'
+    enabled: true
+    providers:
+      - Negotiate
+      - NTLM
+    use_kernel_mode: false
+    token_checking: 'None'
+  - auth_type: 'AnonymousAuthentication'
+    enabled: true
+  - auth_type: 'BasicAuthentication'
+    enabled: true
+  - auth_type: 'DigestAuthentication'
+    enabled: true

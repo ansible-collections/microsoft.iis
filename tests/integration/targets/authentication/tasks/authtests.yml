@@ -1,0 +1,86 @@
+- name: "Set authentication to opposite state for {{ authtest_type }}"
+  block:
+    - name: "Set authentication to opposite state for {{ authtest_type }}"
+      microsoft.iis.authentication:
+        site: "{{ test_site_name }}"
+        auth_type: "{{ authtest_type }}"
+        enabled: "{{ not authtest_enabled }}"
+        providers: "{{ authtest_providers | default(omit) }}"
+        use_kernel_mode: "{{ authtest_use_kernel_mode | default(omit) }}"
+        token_checking: "{{ authtest_token_checking | default(omit) }}"
+    - name: "Manual validation that authentication is set to opposite for {{ authtest_type }}"
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        (Get-WebConfigurationProperty -PSPath '{{ test_site_iis_path }}' -Filter 'system.webServer/security/authentication/{{ authtest_type }}' -Name 'enabled').Value
+      register: opposite_auth_info
+    - name: "Assert authentication is set to opposite for {{ authtest_type }}"
+      ansible.builtin.assert:
+        that:
+          - "(opposite_auth_info.stdout | trim | lower) == ((not authtest_enabled) | string | lower)"
+
+- name: "Validate check mode for setting {{ authtest_type }}"
+  block:
+    - name: "Check mode test for {{ authtest_type }}"
+      microsoft.iis.authentication:
+        site: "{{ test_site_name }}"
+        auth_type: "{{ authtest_type }}"
+        enabled: "{{ authtest_enabled }}"
+        providers: "{{ authtest_providers | default(omit) }}"
+        use_kernel_mode: "{{ authtest_use_kernel_mode | default(omit) }}"
+        token_checking: "{{ authtest_token_checking | default(omit) }}"
+      check_mode: true
+      register: checkResult
+    - name: "Assert check mode reported a change for {{ authtest_type }}"
+      ansible.builtin.assert:
+        that:
+          - checkResult.changed
+    - name: "Manual validation that check mode did not change state for {{ authtest_type }}"
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        (Get-WebConfigurationProperty -PSPath '{{ test_site_iis_path }}' -Filter 'system.webServer/security/authentication/{{ authtest_type }}' -Name 'enabled').Value
+      register: checkmode_auth_info
+    - name: "Assert check mode left the opposite state in place for {{ authtest_type }}"
+      ansible.builtin.assert:
+        that:
+          - "(checkmode_auth_info.stdout | trim | lower) == ((not authtest_enabled) | string | lower)"
+
+- name: "Set authentication to desired state for {{ authtest_type }}"
+  block:
+    - name: "Set authentication for {{ authtest_type }}"
+      microsoft.iis.authentication:
+        site: "{{ test_site_name }}"
+        auth_type: "{{ authtest_type }}"
+        enabled: "{{ authtest_enabled }}"
+        providers: "{{ authtest_providers | default(omit) }}"
+        use_kernel_mode: "{{ authtest_use_kernel_mode | default(omit) }}"
+        token_checking: "{{ authtest_token_checking | default(omit) }}"
+      register: setResult
+    - name: "Assert set reported a change for {{ authtest_type }}"
+      ansible.builtin.assert:
+        that:
+          - setResult.changed
+    - name: "Manual validation that authentication is set for {{ authtest_type }}"
+      ansible.windows.win_shell: |
+        Import-Module WebAdministration
+        (Get-WebConfigurationProperty -PSPath '{{ test_site_iis_path }}' -Filter 'system.webServer/security/authentication/{{ authtest_type }}' -Name 'enabled').Value
+      register: auth_info
+    - name: "Assert that authentication is set for {{ authtest_type }}"
+      ansible.builtin.assert:
+        that:
+          - "(auth_info.stdout | trim | lower) == (authtest_enabled | string | lower)"
+
+- name: "Idempotency check for {{ authtest_type }}"
+  block:
+    - name: "Idempotency check for {{ authtest_type }}"
+      microsoft.iis.authentication:
+        site: "{{ test_site_name }}"
+        auth_type: "{{ authtest_type }}"
+        enabled: "{{ authtest_enabled }}"
+        providers: "{{ authtest_providers | default(omit) }}"
+        use_kernel_mode: "{{ authtest_use_kernel_mode | default(omit) }}"
+        token_checking: "{{ authtest_token_checking | default(omit) }}"
+      register: idemResult
+    - name: Assert idempotency
+      ansible.builtin.assert:
+        that:
+          - not idemResult.changed

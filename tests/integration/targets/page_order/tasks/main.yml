@@ -1,0 +1,27 @@
+- name: Ensure IIS and required features are present
+  ansible.windows.win_feature:
+    name:
+      - Web-Server
+      - Web-WebServer
+      - Web-Security
+      - Web-Common-Http
+      - Web-Windows-Auth
+    state: present
+  register: iis_features
+
+- block:
+    - name: Setup IIS site for page_order tests
+      microsoft.iis.website:
+        name: "{{ test_site_name }}"
+        state: started
+        physical_path: "{{ test_physical_path }}"
+      register: site_result
+
+    - name: Run page_order tests
+      include_tasks: tests.yml
+
+  always:
+    - name: Remove IIS site after tests
+      microsoft.iis.website:
+        name: "{{ test_site_name }}"
+        state: absent
