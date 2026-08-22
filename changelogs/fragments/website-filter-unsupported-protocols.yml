@@ -1,0 +1,2 @@
+bugfixes:
+- website - fix failure to set bindings caused by retrieval of unsupported protocols resulting in partial filtering (https://github.com/ansible-collections/microsoft.iis/pull/71)
