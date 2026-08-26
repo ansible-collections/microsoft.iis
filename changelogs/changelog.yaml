@@ -64,13 +64,20 @@ releases:
     - release-summary.yml
     - website-flags.yml
     release_date: '2026-07-14'
-  1.2.2:
+  1.3.0:
     changes:
       bugfixes:
       - website - fix failure to set bindings (unsupported protocols result in partial
         filtering) (https://github.com/ansible-collections/microsoft.iis/pull/71)
-      release_summary: Release summary for v1.2.2
+      release_summary: Release summary for v1.3.0
     fragments:
     - release-summary.yml
     - website-filter-unsupported-protocols.yml
+    modules:
+    - description: Configures authentication options in IIS.
+      name: authentication
+      namespace: ''
+    - description: Configures default document order in IIS.
+      name: page_order
+      namespace: ''
     release_date: '2026-08-26'

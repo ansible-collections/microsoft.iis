@@ -4,18 +4,24 @@ Ansible Microsoft Internet Information Services Release Notes
 
 .. contents:: Topics
 
-v1.2.2
+v1.3.0
 ======
 
 Release Summary
 ---------------
 
-Release summary for v1.2.2
+Release summary for v1.3.0
 
 Bugfixes
 --------
 
 - website - fix failure to set bindings (unsupported protocols result in partial filtering) (https://github.com/ansible-collections/microsoft.iis/pull/71)
+
+New Modules
+-----------
+
+- microsoft.iis.authentication - Configures authentication options in IIS.
+- microsoft.iis.page_order - Configures default document order in IIS.
 
 v1.2.1
 ======
