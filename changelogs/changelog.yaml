@@ -64,3 +64,13 @@ releases:
     - release-summary.yml
     - website-flags.yml
     release_date: '2026-07-14'
+  1.2.2:
+    changes:
+      bugfixes:
+      - website - fix failure to set bindings (unsupported protocols result in partial
+        filtering) (https://github.com/ansible-collections/microsoft.iis/pull/71)
+      release_summary: Release summary for v1.2.2
+    fragments:
+    - release-summary.yml
+    - website-filter-unsupported-protocols.yml
+    release_date: '2026-08-26'
