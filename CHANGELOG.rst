@@ -4,6 +4,19 @@ Ansible Microsoft Internet Information Services Release Notes
 
 .. contents:: Topics
 
+v1.2.2
+======
+
+Release Summary
+---------------
+
+Release summary for v1.2.2
+
+Bugfixes
+--------
+
+- website - fix failure to set bindings (unsupported protocols result in partial filtering) (https://github.com/ansible-collections/microsoft.iis/pull/71)
+
 v1.2.1
 ======
 
