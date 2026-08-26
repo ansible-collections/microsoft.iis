@@ -37,6 +37,7 @@ function Get-WebsiteInfo ($name) {
     if ($null -ne $site) {
         $module.Result.exists = $true
     }
+    # Get site bindings details
     $site_bindings = Get-WebBinding -Name $name
     $bindings_list = @(
         $site_bindings | ForEach-Object {
@@ -56,13 +57,35 @@ function Get-WebsiteInfo ($name) {
             $psObject
         }
     )
+    # Get site logging details
+    $site_logging = $site.logFile
+    $logging = @{
+        enabled = [bool]$site_logging.enabled
+        directory = $site_logging.directory
+        period = $site_logging.period
+        format = $site_logging.logFormat
+        target_w3c = $site_logging.logTargetW3C.Split(',', [StringSplitOptions]::RemoveEmptyEntries)
+        fields = $site_logging.logExtFileFlags.Split(',', [StringSplitOptions]::RemoveEmptyEntries)
+        custom_fields = @(
+            $site_logging.customFields.Collection | ForEach-Object {
+                @{
+                    name = $_.logFieldName
+                    source_name = $_.sourceName
+                    source_type = $_.sourceType
+                }
+            }
+        )
+    }
+    # Build and return website details
     $WebsiteInfoDict = @{
         name = $site.Name
         site_id = $site.ID
         state = $site.State
         physical_path = $site.PhysicalPath
         application_pool = $site.applicationPool
+        preload_enabled = [bool]$site.applicationDefaults.preloadEnabled
         bindings = $bindings_list
+        logging = $logging
     }
     return $WebsiteInfoDict
 }

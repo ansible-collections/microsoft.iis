@@ -9,7 +9,7 @@
     name: "{{ test_website_name }}"
     site_id: "{{ test_site_id }}"
     state: started
-    physical_path: "{{ test_phisical_path }}"
+    physical_path: "{{ test_physical_path }}"
     application_pool: DefaultAppPool
     bindings:
       set:
@@ -29,13 +29,17 @@
       - website_info.site[0].name == test_website_name
       - website_info.site[0].site_id == test_site_id
       - website_info.site[0].state == "Started"
+      - website_info.site[0].logging.enabled == true
+      - website_info.site[0].logging.format == "W3C"
+      - website_info.site[0].logging.period == "Daily"
+      - website_info.site[0].logging.fields[0] == "Date"
 
 - name: create new website (idempotent)
   microsoft.iis.website:
     name: "{{ test_website_name }}"
     site_id: "{{ test_site_id }}"
     state: started
-    physical_path: "{{ test_phisical_path }}"
+    physical_path: "{{ test_physical_path }}"
     application_pool: DefaultAppPool
     bindings:
       set:
@@ -54,6 +58,7 @@
       - website is not changed
       - website_info.site[0].name == test_website_name
       - website_info.site[0].state == "Started"
+      - website_info.site[0].logging.enabled == true
 
 - name: stop website
   microsoft.iis.website:
@@ -109,7 +114,7 @@
 - name: change website physical path
   microsoft.iis.website:
     name: "{{ test_website_name }}"
-    physical_path: "{{ test_alt_phisical_path }}"
+    physical_path: "{{ test_alt_physical_path }}"
   register: website
 
 - name: get change website physical path info
@@ -120,12 +125,12 @@
 - assert:
     that:
       - website is changed
-      - website_info.site[0].physical_path == test_alt_phisical_path
+      - website_info.site[0].physical_path == test_alt_physical_path
 
 - name: change website physical path (idempotent)
   microsoft.iis.website:
     name: "{{ test_website_name }}"
-    physical_path: "{{ test_alt_phisical_path }}"
+    physical_path: "{{ test_alt_physical_path }}"
   register: website
 
 - name: get change website physical path info (idempotent)
@@ -136,7 +141,7 @@
 - assert:
     that:
       - website is not changed
-      - website_info.site[0].physical_path == test_alt_phisical_path
+      - website_info.site[0].physical_path == test_alt_physical_path
 
 - name: change website application pool
   microsoft.iis.website:
