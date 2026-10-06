@@ -61,6 +61,9 @@ Function Convert-CollectionToList($collection) {
             $list += $entry.Value.ToString()
         }
     }
+    elseif ($collection -as [System.TimeSpan[]]) {
+        $list = [System.TimeSpan[]]$collection
+    }
     elseif ($collection -isnot [Array]) {
         $list += $collection
     }
