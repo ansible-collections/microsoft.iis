@@ -63,6 +63,7 @@ RETURN:
           "site_id": 1,
           "physical_path": "C:\\inetpub\\wwwroot",
           "application_pool": "DefaultAppPool",
+          "preload_enabled": true,
           "bindings": [
             {
               "ip": "127.0.0.1",
@@ -72,7 +73,27 @@ RETURN:
               "use_ccs": false,
               "use_sni": false
             }
-          ]
+          ],
+          "logging": {
+            "enabled": true,
+            "period": "Hourly",
+            "directory": "%SystemDrive%\inetpub\logs\LogFiles",
+            "format": "W3C",
+            "target_w3c": "File",
+            "fields": [
+              "Date",
+              "Time",
+              "ClientIP",
+              "Referer"
+            ],
+            "custom_fields": [
+              {
+                "name": "UserAgent",
+                "source_name": "User-Agent",
+                "source_type": "RequestHeader"
+              }
+            ]
+          }
         }
       ]
     contains:
@@ -101,6 +122,10 @@ RETURN:
           - Specifies the physical folder path of the website.
         type: str
         sample: "C:\\inetpub\\wwwroot"
+      preload_enabled:
+        description: Specifies whether application preloading is enabled for the website.
+        type: bool
+        sample: "true"
       bindings:
         description:
           - List of dictionaries that hold the information of all the website bindings.
@@ -139,3 +164,50 @@ RETURN:
             description: The SSL certificate local store name.
             type: str
             sample: "MY"
+      logging:
+        description: Logging configuration for the website
+        type: dict
+        contains:
+          enabled:
+            description: Specifies whether logging for the website is enabled or disabled.
+            type: bool
+            sample: "true"
+          directory:
+            description: Specifies the path for where logs are being placed.
+            type: str
+            sample: "%SystemDrive%\\inetpub\\logs\\LogFiles"
+          period:
+            description: Specifies the period the log files are being cycled.
+            type: str
+            sample: "Hourly"
+          format:
+            description: Specifies the format the logs are being written.
+            type: str
+            sample: "W3C"
+          target_w3c:
+            description: Specifies where the W3C logs are being written.
+            type: list
+            elements: str
+            sample: "File"
+          fields:
+            description: Specifies which fields are being logged for the website.
+            type: list
+            elements: str
+            sample: ["Date", "Time", "ClientIP", "Referer"]
+          custom_fields:
+            description: Specifies which custom fields are being logged for the website.
+            type: list
+            elements: dict
+            contains:
+              name:
+                description: The name of the custom field.
+                type: str
+                sample: "UserAgent"
+              source_name:
+                description: The source name of the custom field, e.g. the header name in case of a request header.
+                type: str
+                sample: "User-Agent"
+              source_type:
+                description: The source type of the custom field, e.g. whether it's a request header, response header, server variable, etc.
+                type: str
+                sample: "RequestHeader"

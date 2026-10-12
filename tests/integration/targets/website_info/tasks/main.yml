@@ -6,8 +6,8 @@
       path: "{{ item }}"
       state: directory
     loop:
-      - "{{ test_phisical_path }}"
-      - "{{ test_alt_phisical_path }}"
+      - "{{ test_physical_path }}"
+      - "{{ test_alt_physical_path }}"
 
   - name: get all websites
     microsoft.iis.website_info:
@@ -56,13 +56,13 @@
       name: "{{ item }}"
       state: absent
     loop:
-      - "{{ test_phisical_path }}"
-      - "{{ test_alt_phisical_path }}"
+      - "{{ test_physical_path }}"
+      - "{{ test_alt_physical_path }}"
 
   - name: remove website directory structure
     ansible.windows.win_file:
       path: "{{ item }}"
       state: absent
     loop:
-      - "{{ test_phisical_path }}"
-      - "{{ test_alt_phisical_path }}"
+      - "{{ test_physical_path }}"
+      - "{{ test_alt_physical_path }}"

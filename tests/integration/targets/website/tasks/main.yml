@@ -6,8 +6,8 @@
       path: "{{ item }}"
       state: directory
     loop:
-      - "{{ test_phisical_path }}"
-      - "{{ test_alt_phisical_path }}"
+      - "{{ test_physical_path }}"
+      - "{{ test_alt_physical_path }}"
 
   - name: create test application pool
     microsoft.iis.web_app_pool:
@@ -16,6 +16,7 @@
 
   # Tests
   - include_tasks: tests.yml
+  - include_tasks: logging.yml
   - include_tasks: bindings.yml
 
   always:
@@ -35,8 +36,8 @@
       path: "{{ item }}"
       state: absent
     loop:
-      - "{{ test_phisical_path }}"
-      - "{{ test_alt_phisical_path }}"
+      - "{{ test_physical_path }}"
+      - "{{ test_alt_physical_path }}"
 
   - name: remove certs
     raw: "remove-item cert:\\localmachine\\my\\{{ thumbprint1.stdout_lines[0] }} -force -ea silentlycontinue"
